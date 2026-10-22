@@ -1,0 +1,17 @@
+# Dépendances Composer (réinstallées avec composer install)
+/vendor/
+
+# Secrets : connexion BDD, SMTP, MongoDB (le modèle est .env.example)
+/.env
+
+# Calques envoyés par les employés
+/public/uploads/*
+
+# Sujet de l'ECF : reproduction interdite, ne doit jamais être publié
+/docs/enonce.pdf
+
+# Configuration de PhpStorm
+/.idea/
+
+# Permissions locales de Claude Code (propres à mon poste)
+/.claude/settings.local.json

@@ -23,8 +23,13 @@
 
         <h2>Hébergement</h2>
         <p>
-            Les coordonnées de l'hébergeur (nom, adresse et téléphone) seront publiées sur cette page
-            lors de la mise en ligne du site.
+            Le site est hébergé par alwaysdata, SARL dont le siège social est situé
+            91 rue du Faubourg Saint-Honoré, 75008 Paris, France (téléphone : +33 1 84 16 23 49).
+            Ses serveurs sont situés en France.
+        </p>
+        <p>
+            Le journal des modifications des personnages est stocké sur MongoDB Atlas, service
+            de base de données de la société MongoDB, Inc., dans un centre de données de l'Union européenne.
         </p>
 
         <h2>Propriété intellectuelle</h2>

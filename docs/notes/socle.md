@@ -237,7 +237,7 @@ Ensuite : Stop puis Start sur la ligne Apache du panneau de contrôle de XAMPP.
 
 ## À reprendre plus tard
 
-- Mentions légales : coordonnées de l'hébergeur, à l'étape `deploiement`.
+- ~~Mentions légales : coordonnées de l'hébergeur, à l'étape `deploiement`.~~ Fait (alwaysdata).
 - Politique de confidentialité (provisoire) : durées de conservation du journal MongoDB et des
   messages de contact, région d'hébergement de MongoDB Atlas, à l'étape `rgaa-rgpd`.
 - Avis d'un compte supprimé : `pseudo_auteur` reste affiché après la suppression du compte

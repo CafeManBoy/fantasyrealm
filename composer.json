@@ -2,6 +2,7 @@
     "name": "cafemanboy/fantasyrealm",
     "description": "FantasyRealm Online : application de gestion de personnages (ECF Studi)",
     "type": "project",
+    "license": "proprietary",
     "require": {
         "php": "^8.2",
         "vlucas/phpdotenv": "^5.7"

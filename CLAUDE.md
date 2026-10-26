@@ -98,8 +98,8 @@ SQL :
   VirtualHost `fantasyrealm.test` dont la racine est `public/` : le site tourne à la racine, en local
   comme en production. Aucun chemin de sous-dossier dans le code. En local, passe toujours par
   `http://fantasyrealm.test/`.
-- `.env` : `APP_ENV` (`dev` ou `prod`), connexion MySQL, SMTP, URI MongoDB, mail de l'entreprise
-  (destinataire du formulaire de contact).
+- `.env` : `APP_ENV` (`dev` ou `prod`), connexion MySQL (`DB_HOST=127.0.0.1` en local), SMTP,
+  URI MongoDB, mail de l'entreprise (destinataire du formulaire de contact).
 
 ## Architecture
 ```
@@ -137,6 +137,7 @@ fantasyrealm/
 Base : le MCD de l'annexe du sujet (noms de tables et de colonnes en français), avec ces corrections,
 à justifier dans la documentation technique :
 - `utilisateur` : `password` en `VARCHAR(255)` (un hash fait au moins 60 caractères),
+  `mail` en `VARCHAR(255)` (une adresse peut compter jusqu'à 254 caractères),
   `mail` et `pseudo` en `UNIQUE`, clé étrangère vers `role`
 - `role` : `utilisateur`, `employe`, `admin`
 - `personnage` : `nom` en `UNIQUE` (règle de duplication), ajout de `date_creation` (filtre par dates),
@@ -273,8 +274,10 @@ Images provisoires :
 Vérifie dès la première session que ton terminal est bien Git Bash ; sinon, adapte ces commandes
 et préviens-moi.
 - Lancer : démarrer Apache et MySQL dans XAMPP, puis ouvrir `http://fantasyrealm.test/`
+- MySQL : toujours `-h 127.0.0.1` (connexion TCP en IPv4) dans les commandes, et `DB_HOST=127.0.0.1`
+  dans le `.env` local.
 - Créer la base (une seule fois) :
-  `/c/xampp/mysql/bin/mysql.exe -u root < database/create_database.sql`
+  `/c/xampp/mysql/bin/mysql.exe -u root -h 127.0.0.1 < database/create_database.sql`
 - Importer les tables puis le jeu de données :
-  `/c/xampp/mysql/bin/mysql.exe -u root --default-character-set=utf8mb4 fantasyrealm < database/schema.sql`
+  `/c/xampp/mysql/bin/mysql.exe -u root -h 127.0.0.1 --default-character-set=utf8mb4 fantasyrealm < database/schema.sql`
   puis la même commande avec `database/seed.sql`

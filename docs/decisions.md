@@ -22,6 +22,20 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
   Un seul avis par utilisateur et par personnage, pas d'avis sur ses propres personnages.
 - Un avis est visible seulement après validation d'un employé. À la validation, mail au propriétaire
   du personnage (sujet).
+- **Avis refusé** : supprimé définitivement (inutile de le garder : minimisation des données).
+  La colonne `statut` n'a donc que deux valeurs : `en_attente` et `valide`.
+
+## Options d'avatar
+- Clés stockées en base (colonnes `genre`, `forme_*`, `coupe_cheveux`) et reprises à l'identique
+  dans `config/avatar.php`. Sans accent ni espace, car elles servent aussi aux noms de fichiers.
+  Les libellés affichés sont libres (ex. « Nez romain », « Positive canthal tilt »).
+  - `genre` : `homme`, `femme`, `autre`
+  - `forme_yeux` : `positive_canthal_tilt`, `negative_canthal_tilt`, `rond`
+  - `forme_nez` : `romain`, `germain`, `celte`
+  - `forme_bouche` : `fine`, `pulpeuse`, `souriante`
+  - `coupe_cheveux` : `courte`, `longue`, `attachee`
+- Renommer une clé oblige à modifier aussi `database/seed.sql`. Remplacer un dessin sans changer
+  sa clé ne demande que `config/avatar.php`.
 
 ## Comptes
 - **Compte employé** : l'admin fournit un mail et un mot de passe (sujet). Le pseudo, obligatoire dans

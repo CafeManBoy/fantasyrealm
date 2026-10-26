@@ -127,3 +127,43 @@ button:focus-visible,
     background-color: var(--couleur-pied-fond);
     color: var(--couleur-pied-texte);
 }
+
+/* 6. Boutons
+   ------------------------------------------------------------------
+   Chaque bouton Bootstrap a ses propres variables --bs-btn-* : on les relie à la charte. */
+.btn-primary {
+    --bs-btn-color: var(--couleur-sur-primaire);
+    --bs-btn-bg: var(--couleur-primaire);
+    --bs-btn-border-color: var(--couleur-primaire);
+    --bs-btn-hover-color: var(--couleur-sur-primaire);
+    --bs-btn-hover-bg: var(--couleur-primaire-fonce);
+    --bs-btn-hover-border-color: var(--couleur-primaire-fonce);
+    --bs-btn-active-color: var(--couleur-sur-primaire);
+    --bs-btn-active-bg: var(--couleur-primaire-fonce);
+    --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--couleur-primaire);
+    --bs-btn-border-color: var(--couleur-primaire);
+    --bs-btn-hover-color: var(--couleur-sur-primaire);
+    --bs-btn-hover-bg: var(--couleur-primaire);
+    --bs-btn-hover-border-color: var(--couleur-primaire);
+    --bs-btn-active-color: var(--couleur-sur-primaire);
+    --bs-btn-active-bg: var(--couleur-primaire-fonce);
+    --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+}
+
+/* 7. Page d'accueil
+   ------------------------------------------------------------------ */
+.bandeau-accueil {
+    background-color: var(--couleur-surface);
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.carte-avantage {
+    padding: 1.25rem;
+    background-color: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.5rem;
+}

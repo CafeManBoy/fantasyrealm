@@ -42,7 +42,7 @@ Passage du MCD au MLD :
 |---|---|
 | `utilisateur.password` en VARCHAR(255) | Un hash `password_hash()` fait au moins 60 caractères, et sa taille peut augmenter avec un autre algorithme. |
 | `utilisateur.mail` en VARCHAR(255) | Une adresse mail peut compter jusqu'à 254 caractères : 50 refuserait des adresses valides. |
-| `mail` et `pseudo` UNIQUE | Exigé par le sujet. L'interclassement `_ci` rend l'unicité insensible à la casse. |
+| `mail` et `pseudo` UNIQUE | Exigé par le sujet. L'interclassement `utf8mb4_unicode_ci` rend l'unicité insensible à la casse et aux accents. |
 | `personnage.nom` UNIQUE | Règle de la duplication : un personnage dupliqué doit avoir un nom différent. |
 | `personnage.date_creation` (ajout) | Nécessaire au filtre de la galerie par plage de dates. |
 | `personnage.coupe_cheveux` (ajout) | Option d'apparence supplémentaire (le sujet laisse ajouter « d'autres éléments »). |
@@ -119,6 +119,8 @@ En PHP (étapes suivantes) :
 - 6 tables en InnoDB / `utf8mb4_unicode_ci` ; 6 clés étrangères avec la bonne règle de suppression ;
   3 contrôles `CHECK` ; 5 contraintes d'unicité.
 - Nombre de lignes attendu dans chaque table ; « Zéphyr » et un émoji (4 octets) relus sans perte.
+- Avec `utf8mb4_unicode_ci`, « Zéphyr » est égal à « Zephyr » et à « ZEPHYR » ; en comparaison
+  binaire (`utf8mb4_bin`), ils sont différents.
 - Requête de la galerie (validé + partagé + propriétaire non suspendu) : 7 personnages, sans Vexis
   (compte suspendu), 3 genres.
 - Cohérence : aucun personnage en attente partagé ou équipé, au plus un article par type et par
@@ -133,6 +135,9 @@ En PHP (étapes suivantes) :
 - Valeurs par défaut : nouveau compte non suspendu, nouveau personnage en attente et non partagé avec
   la date du jour, nouvel avis en attente, nouvel article actif.
 - phpMyAdmin (navigateur intégré) : les données s'affichent correctement, accents compris.
+- Installation réelle en suivant le README (base `fantasyrealm`) : les trois imports réussissent,
+  tous les tests ci-dessus passent à nouveau, phpMyAdmin affiche les 6 tables (62 lignes).
+  La base refuse « Zephyr » et « ZÉPHYR » puisque « Zéphyr » existe déjà.
 
 ## Questions possibles du jury
 
@@ -151,9 +156,11 @@ légère, et le serveur web sert le fichier directement, avec la mise en cache d
 **3. Pourquoi `utf8mb4` et `utf8mb4_unicode_ci` ?**
 L'ancien encodage « utf8 » de MySQL ne stocke que 3 octets par caractère : les émojis, qui en
 prennent 4, provoquent une erreur ou sont perdus. `utf8mb4` est l'UTF-8 complet. L'interclassement
-`utf8mb4_unicode_ci` compare sans tenir compte de la casse (« ci » = case insensitive) : la
-contrainte UNIQUE empêche donc d'avoir à la fois « Admin » et « admin », ou deux mails qui ne
-diffèrent que par une majuscule. Il existe aussi bien sous MariaDB que sous MySQL 8.
+`utf8mb4_unicode_ci` compare sans tenir compte de la casse (« ci » = case insensitive) ni des
+accents : pour la contrainte UNIQUE, « Admin » et « admin » sont le même pseudo, et « Zéphyr » et
+« Zephyr » le même nom de personnage. On ne peut donc pas créer deux noms qui ne diffèrent que par
+une majuscule ou un accent, ce qui évite les imitations. Cet interclassement existe aussi bien sous
+MariaDB que sous MySQL 8.
 
 ## Configuration de l'environnement : connexion à MySQL
 
@@ -171,6 +178,10 @@ En cas d'erreur « Can't connect to MySQL server (10061) » : le serveur n'accep
 Le redémarrer depuis le panneau de contrôle de XAMPP, puis consulter
 `C:\xampp\mysql\data\mysql_error.log`.
 
+Piège sous Windows : un texte accentué écrit directement dans la commande (`mysql -e "... 'é' ..."`)
+n'arrive pas en UTF-8 au serveur, et les comparaisons sont fausses. Pour une requête avec des
+accents, l'écrire dans un fichier `.sql` et l'importer avec `<`, comme les scripts du projet.
+
 ## À reprendre plus tard
 
 - `.env` : ajouter les clés de connexion (`DB_HOST=127.0.0.1`, nom de la base, utilisateur, mot de
@@ -179,5 +190,6 @@ Le redémarrer depuis le panneau de contrôle de XAMPP, puis consulter
   avec un utilisateur MySQL aux droits limités (étape `deploiement`).
 - Articles : quand un dessin définitif remplace un calque provisoire avec un autre nom de fichier,
   modifier son chemin dans `seed.sql`.
-- Base locale `fantasyrealm` : elle contient encore les tables de l'ancien prototype ; à nettoyer
-  avant d'y importer `schema.sql` et `seed.sql`.
+- Anciennes bases locales du prototype (`fantasyrealm`, `fantaisyrealm`) : sauvegardées le
+  26/10/2026 avec `mysqldump` hors du projet, puis supprimées. La base `fantasyrealm` actuelle est
+  celle de ce projet.

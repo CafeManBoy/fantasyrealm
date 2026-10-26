@@ -254,6 +254,7 @@ Images provisoires :
 - Merge `feature/*` → `develop` après test, puis `develop` → `main` quand c'est stable, puis redéploiement.
   Merges toujours en `--no-ff` (les deux sens), pour garder un commit de merge par fonctionnalité.
 - Commits en français : `feat: inscription utilisateur`, `fix: vérification du pseudo`, `docs: ...`.
+  Pas de ligne `Co-Authored-By` (ni aucune autre mention d'attribution) dans les messages de commit.
 - `.gitignore` : `vendor/`, `.env`, `public/uploads/*`, `docs/enonce.pdf`, `.idea/`,
   `.claude/settings.local.json`.
 - Avant chaque merge `develop` → `main` : lancer `/security-review`.

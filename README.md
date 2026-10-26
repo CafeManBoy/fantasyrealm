@@ -97,7 +97,36 @@ le reste du projet (code, `.env`) n'est pas accessible depuis le navigateur.
 
 4. Démarrer (ou redémarrer) Apache dans le panneau de contrôle de XAMPP.
 
-### 5. Ouvrir le site
+### 5. Créer la base de données
+
+Démarrer MySQL dans le panneau de contrôle de XAMPP, puis, depuis le dossier du projet :
+
+1. Créer la base `fantasyrealm` (une seule fois) :
+
+   ```bash
+   /c/xampp/mysql/bin/mysql.exe -u root -h 127.0.0.1 < database/create_database.sql
+   ```
+
+2. Créer les tables :
+
+   ```bash
+   /c/xampp/mysql/bin/mysql.exe -u root -h 127.0.0.1 --default-character-set=utf8mb4 fantasyrealm < database/schema.sql
+   ```
+
+3. Importer le jeu de données de démonstration :
+
+   ```bash
+   /c/xampp/mysql/bin/mysql.exe -u root -h 127.0.0.1 --default-character-set=utf8mb4 fantasyrealm < database/seed.sql
+   ```
+
+`-h 127.0.0.1` force une connexion réseau en IPv4 vers le serveur MySQL de XAMPP (utilisateur
+`root` sans mot de passe, configuration par défaut de XAMPP en local).
+
+Réimporter `schema.sql` puis `seed.sql` remet le site dans son état de démonstration :
+**toutes les données sont effacées**. Les identifiants des comptes de démonstration figurent dans
+le manuel d'utilisation.
+
+### 6. Ouvrir le site
 
 Ouvrir `http://fantasyrealm.test/` en tapant l'adresse complète, avec `http://` : sans ce préfixe,
 le navigateur lance une recherche.
@@ -110,6 +139,7 @@ app/Core/      classes techniques (routeur...)
 app/Controllers/  contrôleurs : reçoivent la requête et choisissent la page à afficher
 app/Views/     gabarit commun, morceaux réutilisables (menu, pied de page) et pages
 config/        configuration (liste des routes)
+database/      scripts SQL : création de la base, des tables, jeu de démonstration
 docs/notes/    explications par fonctionnalité
 ```
 

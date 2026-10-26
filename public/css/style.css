@@ -1,0 +1,189 @@
+/* ==========================================================================
+   Feuille de style de FantasyRealm Online
+   Chargée APRÈS bootstrap.min.css : à priorité égale, nos règles l'emportent.
+   ========================================================================== */
+
+/* 1. Charte graphique : toutes les couleurs et polices du site
+   ------------------------------------------------------------------
+   Pour changer la charte, on modifie seulement ces valeurs.
+   Contrastes vérifiés : au moins 4,5:1 pour le texte (RGAA), 3:1 pour le contour du focus. */
+:root {
+    /* Couleurs générales */
+    --couleur-fond: #f7f4ee;            /* fond des pages (parchemin clair) */
+    --couleur-surface: #ffffff;         /* fond des blocs */
+    --couleur-texte: #1f1b2e;           /* texte principal */
+    --couleur-texte-doux: #514a62;      /* texte secondaire */
+    --couleur-bordure: #d8d0c0;         /* bordures décoratives */
+
+    /* Couleur principale : menu, boutons */
+    --couleur-primaire: #4b2e83;
+    --couleur-primaire-fonce: #36205f;  /* survol des boutons */
+    --couleur-sur-primaire: #ffffff;    /* texte posé sur la couleur principale */
+
+    /* Couleur d'accent (or) : seulement sur fond foncé */
+    --couleur-accent: #e8c766;
+
+    /* Pied de page */
+    --couleur-pied-fond: #1f1b2e;
+    --couleur-pied-texte: #f7f4ee;
+
+    /* Contour du focus clavier, sur fond clair et sur fond foncé */
+    --couleur-focus: #4b2e83;
+    --couleur-focus-sur-fonce: #e8c766;
+
+    /* Liens : Bootstrap 5.3 lit leur couleur au format « R, G, B » (sans #) */
+    --couleur-lien-rgb: 75, 46, 131;                    /* #4b2e83 */
+    --couleur-lien-survol-rgb: 46, 26, 87;              /* #2e1a57 */
+    --couleur-lien-sur-fonce-rgb: 232, 199, 102;        /* #e8c766, liens du pied de page */
+    --couleur-lien-sur-fonce-survol-rgb: 255, 255, 255; /* #ffffff */
+
+    /* Polices du système : aucune requête vers un serveur de polices extérieur (RGPD) */
+    --police-texte: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --police-titre: Georgia, "Times New Roman", serif;
+}
+
+/* 2. Bootstrap utilise nos variables
+   ------------------------------------------------------------------ */
+:root {
+    --bs-body-bg: var(--couleur-fond);
+    --bs-body-color: var(--couleur-texte);
+    --bs-body-font-family: var(--police-texte);
+    /* Liens simples (balise a) */
+    --bs-link-color-rgb: var(--couleur-lien-rgb);
+    --bs-link-hover-color-rgb: var(--couleur-lien-survol-rgb);
+    /* Version complète, utilisée par certains composants de Bootstrap */
+    --bs-link-color: rgb(var(--couleur-lien-rgb));
+    --bs-link-hover-color: rgb(var(--couleur-lien-survol-rgb));
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--police-titre);
+}
+
+/* 3. Accessibilité : focus clavier et lien d'évitement
+   ------------------------------------------------------------------ */
+
+/* Contour bien visible quand on navigue au clavier (Bootstrap le remplace par une ombre très pâle) */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+.navbar-toggler:focus-visible {
+    outline: 3px solid var(--couleur-focus);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* Sur fond foncé (menu, pied de page), le contour prend la couleur d'accent */
+.navbar a:focus-visible,
+.navbar .navbar-toggler:focus-visible,
+.pied-de-page a:focus-visible {
+    outline-color: var(--couleur-focus-sur-fonce);
+}
+
+/* Lien « Aller au contenu » : caché par Bootstrap, il apparaît en haut à gauche quand il reçoit le focus */
+.lien-evitement:focus {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1000;
+    padding: 0.5rem 1rem;
+    background-color: var(--couleur-surface);
+    color: var(--couleur-texte);
+}
+
+/* 4. Menu principal
+   ------------------------------------------------------------------ */
+.navbar {
+    /* Variables propres à la barre de navigation de Bootstrap */
+    --bs-navbar-color: var(--couleur-sur-primaire);
+    --bs-navbar-hover-color: var(--couleur-accent);
+    --bs-navbar-active-color: var(--couleur-accent);
+    --bs-navbar-brand-color: var(--couleur-sur-primaire);
+    --bs-navbar-brand-hover-color: var(--couleur-accent);
+    --bs-navbar-toggler-border-color: var(--couleur-sur-primaire);
+    background-color: var(--couleur-primaire);
+}
+
+.navbar-brand {
+    font-family: var(--police-titre);
+    font-weight: bold;
+}
+
+/* Page en cours : soulignée, pour ne pas la signaler seulement par la couleur */
+.navbar-nav .nav-link.active {
+    text-decoration: underline;
+}
+
+/* 5. Pied de page
+   ------------------------------------------------------------------ */
+.pied-de-page {
+    /* Les liens du pied de page prennent les couleurs prévues pour un fond foncé */
+    --bs-link-color-rgb: var(--couleur-lien-sur-fonce-rgb);
+    --bs-link-hover-color-rgb: var(--couleur-lien-sur-fonce-survol-rgb);
+    padding: 1.5rem 0;
+    background-color: var(--couleur-pied-fond);
+    color: var(--couleur-pied-texte);
+}
+
+/* 6. Boutons
+   ------------------------------------------------------------------
+   Chaque bouton Bootstrap a ses propres variables --bs-btn-* : on les relie à la charte. */
+.btn-primary {
+    --bs-btn-color: var(--couleur-sur-primaire);
+    --bs-btn-bg: var(--couleur-primaire);
+    --bs-btn-border-color: var(--couleur-primaire);
+    --bs-btn-hover-color: var(--couleur-sur-primaire);
+    --bs-btn-hover-bg: var(--couleur-primaire-fonce);
+    --bs-btn-hover-border-color: var(--couleur-primaire-fonce);
+    --bs-btn-active-color: var(--couleur-sur-primaire);
+    --bs-btn-active-bg: var(--couleur-primaire-fonce);
+    --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--couleur-primaire);
+    --bs-btn-border-color: var(--couleur-primaire);
+    --bs-btn-hover-color: var(--couleur-sur-primaire);
+    --bs-btn-hover-bg: var(--couleur-primaire);
+    --bs-btn-hover-border-color: var(--couleur-primaire);
+    --bs-btn-active-color: var(--couleur-sur-primaire);
+    --bs-btn-active-bg: var(--couleur-primaire-fonce);
+    --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+}
+
+/* 7. Page d'accueil
+   ------------------------------------------------------------------ */
+.bandeau-accueil {
+    background-color: var(--couleur-surface);
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.carte-avantage {
+    padding: 1.25rem;
+    background-color: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.5rem;
+}
+
+/* 8. Pages légales (mentions légales, CGV, confidentialité)
+   ------------------------------------------------------------------ */
+
+/* Lignes moins longues : un texte long se lit mieux */
+.texte-legal {
+    max-width: 50rem;
+}
+
+.texte-legal h2 {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+}
+
+/* Encadré d'information en haut de page */
+.encadre-information {
+    padding: 1rem;
+    background-color: var(--couleur-surface);
+    border-left: 4px solid var(--couleur-primaire);
+}

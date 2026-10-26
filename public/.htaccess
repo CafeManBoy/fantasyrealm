@@ -1,0 +1,16 @@
+# Réécriture d'URL : une adresse qui ne correspond pas à un fichier réel (CSS, JS, image)
+# est envoyée à index.php, qui choisit la page à afficher (ex. /cgv => index.php).
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
+
+# Pas de liste des fichiers si quelqu'un ouvre un dossier (ex. /css/)
+Options -Indexes
+
+# En-têtes de sécurité, envoyés avec chaque réponse
+# nosniff : le navigateur respecte le type annoncé par le serveur (un fichier texte n'est jamais exécuté comme du JS)
+Header always set X-Content-Type-Options "nosniff"
+# DENY : aucun site ne peut afficher nos pages dans une iframe (protection contre le « clickjacking »)
+Header always set X-Frame-Options "DENY"
+# Vers un autre site, on n'envoie que le nom de domaine, pas l'adresse complète de la page
+Header always set Referrer-Policy "strict-origin-when-cross-origin"

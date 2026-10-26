@@ -49,8 +49,8 @@
         <p>
             Les données sont consultées uniquement par l'équipe de PixelVerse Studios (employés et
             administrateur), selon leur rôle. Elles sont stockées chez nos prestataires techniques :
-            l'hébergeur du site, MongoDB Atlas pour le journal des modifications et le service d'envoi
-            de mails.
+            alwaysdata, l'hébergeur du site (serveurs en France), MongoDB Atlas pour le journal des
+            modifications (centre de données de l'Union européenne) et le service d'envoi de mails.
         </p>
 
         <h2>Durée de conservation</h2>

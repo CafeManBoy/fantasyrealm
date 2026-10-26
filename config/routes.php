@@ -7,4 +7,7 @@ use App\Controllers\PageController;
 
 return [
     'GET /' => [PageController::class, 'accueil'],
+    'GET /mentions-legales' => [PageController::class, 'mentionsLegales'],
+    'GET /cgv' => [PageController::class, 'cgv'],
+    'GET /confidentialite' => [PageController::class, 'confidentialite'],
 ];

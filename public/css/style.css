@@ -167,3 +167,23 @@ button:focus-visible,
     border: 1px solid var(--couleur-bordure);
     border-radius: 0.5rem;
 }
+
+/* 8. Pages légales (mentions légales, CGV, confidentialité)
+   ------------------------------------------------------------------ */
+
+/* Lignes moins longues : un texte long se lit mieux */
+.texte-legal {
+    max-width: 50rem;
+}
+
+.texte-legal h2 {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+}
+
+/* Encadré d'information en haut de page */
+.encadre-information {
+    padding: 1rem;
+    background-color: var(--couleur-surface);
+    border-left: 4px solid var(--couleur-primaire);
+}

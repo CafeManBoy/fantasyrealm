@@ -24,7 +24,7 @@ Chaque fichier modifié a été copié avant (suffixe `.avant-securisation`, ou 
 | `C:\xampp\apache\conf\httpd.conf` | `Listen 80` → `Listen 127.0.0.1:80` : Apache n'accepte que les connexions venant du PC. |
 | `C:\xampp\apache\conf\extra\httpd-ssl.conf` | `Listen 443` → `Listen 127.0.0.1:443` (même chose pour HTTPS). |
 | `C:\xampp\mysql\bin\my.ini` | `bind-address="127.0.0.1"` activé : MySQL n'écoute plus que le PC. |
-| `C:\xampp\php\php.ini` | `session.upload_progress.enabled = Off` (fonction inutilisée par le site, mesure d'urgence contre PHP2Shell) ; `extension=mongodb` ajoutée. Le reste du fichier est conservé. |
+| `C:\xampp\php\php.ini` | `session.upload_progress.enabled = Off` (fonction inutilisée par le site, désactivée) ; `extension=mongodb` ajoutée. Le reste du fichier est conservé. |
 | `C:\xampp\php\` | Fichiers de PHP 8.2.35 (build officiel *VS16 x64 Thread Safe*) copiés par-dessus l'ancienne version. Ancienne version sauvegardée dans `C:\xampp\php-8.2.12`. |
 | `C:\xampp\php\ext\php_mongodb.dll` | Extension `mongodb` 2.5.5 pour PHP 8.2 *ts vs16 x64* (renommée pour que `extension=mongodb` la trouve). |
 | `C:\xampp\apache\bin\` | 8 DLL que XAMPP avait copiées depuis l'ancien PHP (ICU, `libsasl`, `libssh2`) ou qui servent à `curl` (`nghttp2`, `brotlicommon`), remplacées par celles de PHP 8.2.35. Sauvegarde : `C:\xampp\apache\bin-dll-avant-php-8.2.35`. Les DLL OpenSSL d'Apache sont conservées. |
@@ -82,10 +82,12 @@ gère son propre serveur web.
 
 ## À reprendre plus tard
 
-- `public/index.php` : si le `.env` est mal écrit, l'exception de phpdotenv (qui contient la
-  ligne fautive, donc parfois un secret) s'affiche à l'écran en `dev` et part dans le journal.
-  L'attraper et afficher un message générique (« fichier .env invalide »), à faire au début
-  de `authentification`.
+- `public/index.php` : si le `.env` est mal écrit, l'exception de phpdotenv ne s'affiche pas à
+  l'écran, car `display_errors` est à `0` avant la lecture du `.env` (page vide et code 500,
+  testé le 26/10/2026). Le risque, c'est le journal d'Apache et les scripts en ligne de commande :
+  ils recopient le message de l'exception, qui contient la ligne fautive, donc parfois un secret.
+  L'attraper et journaliser un message générique (« fichier .env invalide ») sans cette ligne,
+  à faire au début de `authentification`.
 
 ## Notions utilisées (mot-clé à réviser)
 

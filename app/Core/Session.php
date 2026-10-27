@@ -34,22 +34,24 @@ class Session
         session_start();
     }
 
-    // Garde un message à afficher sur la page suivante (après une redirection)
+    // Ajoute un message à afficher sur la page suivante (après une redirection).
+    // Les messages forment une liste : un message n'en efface pas un autre
+    // (ex. « compte suspendu » puis « connectez-vous »).
     public function ajouterMessage(string $message): void
     {
-        $_SESSION['message'] = $message;
+        $_SESSION['messages'][] = $message;
     }
 
-    // Renvoie le message en attente et l'efface : il ne s'affiche qu'une fois
-    public function lireMessage(): ?string
+    // Renvoie les messages en attente et les efface : ils ne s'affichent qu'une fois
+    public function lireMessages(): array
     {
-        if (!isset($_SESSION['message'])) {
-            return null;
+        if (!isset($_SESSION['messages'])) {
+            return [];
         }
 
-        $message = $_SESSION['message'];
-        unset($_SESSION['message']);
+        $messages = $_SESSION['messages'];
+        unset($_SESSION['messages']);
 
-        return $message;
+        return $messages;
     }
 }

@@ -39,7 +39,7 @@ class Controller
         }
         $csrf = new Csrf();
         $jetonCsrf = $csrf->obtenirJeton();
-        $message = $this->session->lireMessage();
+        $messages = $this->session->lireMessages();
 
         // Le gabarit est inclus ici : il peut donc utiliser toutes les variables ci-dessus
         require __DIR__ . '/../Views/layout.php';

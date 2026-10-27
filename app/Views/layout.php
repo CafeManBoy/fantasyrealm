@@ -1,7 +1,7 @@
 <?php
 // Gabarit commun à toutes les pages : en-tête HTML, menu, contenu de la page, pied de page.
 // Inclus par Controller::afficher(), qui fournit $titre (titre de l'onglet), $cheminVue (la page),
-// $message (message à afficher après une redirection, ou null) et les valeurs utilisées par le menu.
+// $messages (messages à afficher après une redirection) et les valeurs utilisées par le menu.
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -24,10 +24,12 @@
     <?php require __DIR__ . '/partials/menu.php'; ?>
 
     <main id="contenu" class="flex-grow-1">
-        <?php if ($message !== null): ?>
-            <div class="container pt-4">
-                <!-- role="status" : le message est lu par les lecteurs d'écran, sans couper la lecture en cours -->
-                <div class="alert alert-info mb-0" role="status"><?= htmlspecialchars($message) ?></div>
+        <?php if (count($messages) > 0): ?>
+            <!-- role="status" : les messages sont lus par les lecteurs d'écran, sans couper la lecture en cours -->
+            <div class="container pt-4" role="status">
+                <?php foreach ($messages as $message): ?>
+                    <div class="alert alert-info"><?= htmlspecialchars($message) ?></div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
 

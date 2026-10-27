@@ -84,6 +84,18 @@ class AuthController extends Controller
             return;
         }
 
+        $this->terminerConnexion($utilisateur, $motDePasse);
+    }
+
+    // Connexion acceptée : compteur d'échecs remis à 0, hash mis à jour si besoin,
+    // ouverture de la session, puis redirection vers l'espace du compte
+    private function terminerConnexion(array $utilisateur, string $motDePasse): void
+    {
+        $modele = new Utilisateur();
+        if ($utilisateur['tentatives_echouees'] > 0) {
+            $modele->reinitialiserEchecs($utilisateur['id_utilisateur']);
+        }
+
         // Le hash est recalculé si PHP a augmenté son coût par défaut depuis sa création
         if (password_needs_rehash($utilisateur['password'], PASSWORD_DEFAULT)) {
             $modele->modifierHash($utilisateur['id_utilisateur'], password_hash($motDePasse, PASSWORD_DEFAULT));
@@ -171,7 +183,13 @@ class AuthController extends Controller
             return $messageGenerique;
         }
 
+        // Compte bloqué après 5 échecs : le mot de passe n'est même pas vérifié
+        if ($utilisateur['est_bloque']) {
+            return 'Trop de tentatives de connexion : réessayez dans 15 minutes.';
+        }
+
         if (!password_verify($motDePasse, $utilisateur['password'])) {
+            $this->enregistrerEchec($utilisateur);
             return $messageGenerique;
         }
 
@@ -181,6 +199,19 @@ class AuthController extends Controller
         }
 
         return null;
+    }
+
+    // Compte un échec de connexion. Au 5e échec de suite, la connexion au compte est bloquée
+    // 15 minutes : deviner un mot de passe en essayant des milliers de combinaisons devient impossible.
+    private function enregistrerEchec(array $utilisateur): void
+    {
+        $modele = new Utilisateur();
+
+        if ($utilisateur['tentatives_echouees'] + 1 >= 5) {
+            $modele->bloquer($utilisateur['id_utilisateur']);
+        } else {
+            $modele->ajouterEchec($utilisateur['id_utilisateur']);
+        }
     }
 
     // Affiche le formulaire de connexion avec le mail déjà saisi et un éventuel message d'erreur

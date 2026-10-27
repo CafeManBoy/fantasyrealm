@@ -47,6 +47,10 @@ CREATE TABLE utilisateur (
     suspendu BOOLEAN NOT NULL DEFAULT FALSE,
     -- 1 = l'utilisateur doit changer son mot de passe à sa prochaine connexion
     motdepasse_a_modifier BOOLEAN NOT NULL DEFAULT FALSE,
+    -- Ajout au MCD : échecs de connexion consécutifs (remis à 0 après une connexion réussie)
+    tentatives_echouees INT NOT NULL DEFAULT 0,
+    -- Ajout au MCD : après 5 échecs, connexion refusée jusqu'à cette date (NULL = pas de blocage)
+    bloque_jusqu_a DATETIME NULL DEFAULT NULL,
     id_role INT NOT NULL,
     PRIMARY KEY (id_utilisateur),
     -- Deux comptes ne peuvent pas avoir le même mail ni le même pseudo (exigé par le sujet)

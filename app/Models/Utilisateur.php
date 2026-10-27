@@ -7,12 +7,16 @@ use App\Core\Database;
 // Accès à la table utilisateur (les comptes). Le libellé du rôle est lu dans la table role.
 class Utilisateur
 {
-    // Renvoie le compte qui a ce mail, ou null s'il n'existe pas
+    // Renvoie le compte qui a ce mail, ou null s'il n'existe pas.
+    // est_bloque vaut 1 si la connexion est bloquée en ce moment : la comparaison des dates
+    // est faite par MySQL (NOW()), avec l'heure du serveur de base de données.
     public function trouverParMail(string $mail): ?array
     {
         $requete = Database::connexion()->prepare(
             'SELECT u.id_utilisateur, u.pseudo, u.mail, u.password, u.suspendu,
-                    u.motdepasse_a_modifier, r.libelle AS role
+                    u.motdepasse_a_modifier, u.tentatives_echouees,
+                    (u.bloque_jusqu_a IS NOT NULL AND u.bloque_jusqu_a > NOW()) AS est_bloque,
+                    r.libelle AS role
              FROM utilisateur u
              JOIN role r ON r.id_role = u.id_role
              WHERE u.mail = :mail'
@@ -79,6 +83,36 @@ class Utilisateur
 
         // Identifiant attribué par AUTO_INCREMENT
         return (int) $connexion->lastInsertId();
+    }
+
+    // Compte un échec de connexion de plus
+    public function ajouterEchec(int $id): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE utilisateur SET tentatives_echouees = tentatives_echouees + 1 WHERE id_utilisateur = :id'
+        );
+        $requete->execute(['id' => $id]);
+    }
+
+    // Bloque la connexion au compte pendant 15 minutes (date calculée par MySQL)
+    // et remet le compteur d'échecs à 0 pour la suite
+    public function bloquer(int $id): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE utilisateur
+             SET tentatives_echouees = 0, bloque_jusqu_a = NOW() + INTERVAL 15 MINUTE
+             WHERE id_utilisateur = :id'
+        );
+        $requete->execute(['id' => $id]);
+    }
+
+    // Remet le compteur d'échecs à 0 et lève un éventuel blocage (après une connexion réussie)
+    public function reinitialiserEchecs(int $id): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE utilisateur SET tentatives_echouees = 0, bloque_jusqu_a = NULL WHERE id_utilisateur = :id'
+        );
+        $requete->execute(['id' => $id]);
     }
 
     // Remplace le hash du mot de passe (sans changer le mot de passe lui-même)

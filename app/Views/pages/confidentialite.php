@@ -49,8 +49,14 @@
         <p>
             Les données sont consultées uniquement par l'équipe de PixelVerse Studios (employés et
             administrateur), selon leur rôle. Elles sont stockées chez nos prestataires techniques :
-            alwaysdata, l'hébergeur du site (serveurs en France), MongoDB Atlas pour le journal des
-            modifications (centre de données de l'Union européenne) et le service d'envoi de mails.
+            alwaysdata, l'hébergeur du site (serveurs en France), et MongoDB Atlas pour le journal des
+            modifications (centre de données de l'Union européenne).
+        </p>
+        <p>
+            Les mails envoyés par le site (nouveau mot de passe, validation d'un personnage...) passent
+            par le service Gmail de Google, qui reçoit l'adresse du destinataire et le contenu du mail.
+            Google peut traiter ces données en dehors de l'Union européenne, notamment aux États-Unis,
+            avec les garanties prévues par le RGPD.
         </p>
 
         <h2>Durée de conservation</h2>

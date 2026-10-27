@@ -10,8 +10,16 @@ $cheminActuel = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $liensMenu = [
     '/contact' => 'Contact',
     '/personnages' => 'Personnages',
-    '/connexion' => 'Connexion',
 ];
+
+// Connecté : lien vers son espace (le bouton Déconnexion est ajouté après la liste).
+// Pas connecté : lien vers la page de connexion.
+// $utilisateurConnecte et $adresseEspace sont fournis par Controller::afficher().
+if ($utilisateurConnecte !== null) {
+    $liensMenu[$adresseEspace] = 'Mon espace';
+} else {
+    $liensMenu['/connexion'] = 'Connexion';
+}
 ?>
 <header>
     <nav class="navbar navbar-expand-md" aria-label="Menu principal">
@@ -33,6 +41,17 @@ $liensMenu = [
                             <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
+
+                    <?php if ($utilisateurConnecte !== null): ?>
+                        <li class="nav-item">
+                            <!-- Déconnexion : formulaire POST avec jeton CSRF, et non un simple lien,
+                                 qu'une image ou une page d'un autre site pourrait déclencher -->
+                            <form method="post" action="/deconnexion">
+                                <input type="hidden" name="csrf" value="<?= htmlspecialchars($jetonCsrf) ?>">
+                                <button type="submit" class="nav-link">Déconnexion</button>
+                            </form>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>

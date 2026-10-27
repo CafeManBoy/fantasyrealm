@@ -78,6 +78,7 @@ button:focus-visible,
 
 /* Sur fond foncé (menu, pied de page), le contour prend la couleur d'accent */
 .navbar a:focus-visible,
+.navbar .nav-link:focus-visible,
 .navbar .navbar-toggler:focus-visible,
 .pied-de-page a:focus-visible {
     outline-color: var(--couleur-focus-sur-fonce);

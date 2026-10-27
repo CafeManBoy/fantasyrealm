@@ -33,4 +33,23 @@ class Session
 
         session_start();
     }
+
+    // Garde un message à afficher sur la page suivante (après une redirection)
+    public function ajouterMessage(string $message): void
+    {
+        $_SESSION['message'] = $message;
+    }
+
+    // Renvoie le message en attente et l'efface : il ne s'affiche qu'une fois
+    public function lireMessage(): ?string
+    {
+        if (!isset($_SESSION['message'])) {
+            return null;
+        }
+
+        $message = $_SESSION['message'];
+        unset($_SESSION['message']);
+
+        return $message;
+    }
 }

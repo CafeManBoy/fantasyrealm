@@ -45,14 +45,38 @@ XAMPP 8.2.12 est livré avec PHP 8.2.12, qui a des failles de sécurité critiqu
    en remplaçant les fichiers. Le zip ne contient pas de `php.ini` : celui de XAMPP est conservé.
    `/c/xampp/php/php.exe -v` doit afficher la nouvelle version.
 
-2. **N'accepter que les connexions du poste.** Par défaut, Apache et MySQL répondent à tous les
+2. **Mettre à jour les DLL de PHP copiées dans Apache.** XAMPP a placé dans
+   `C:\xampp\apache\bin` des DLL de l'ancien PHP, et Windows les trouve avant celles de
+   `C:\xampp\php`. Sans cette étape, `curl` ne se charge plus dans Apache (journal
+   `C:\xampp\apache\logs\error.log` : « La procédure spécifiée est introuvable »).
+   Sauvegarder les 8 DLL concernées :
+
+   ```bash
+   mkdir /c/xampp/apache/bin-dll-avant-php-8.2.35
+   ```
+
+   ```bash
+   cd /c/xampp/apache/bin && cp icudt71.dll icuin71.dll icuio71.dll icuuc71.dll libsasl.dll libssh2.dll nghttp2.dll brotlicommon.dll /c/xampp/apache/bin-dll-avant-php-8.2.35/
+   ```
+
+   Puis les remplacer par celles du nouveau PHP :
+
+   ```bash
+   cd /c/xampp/php && cp icudt71.dll icuin71.dll icuio71.dll icuuc71.dll libsasl.dll libssh2.dll nghttp2.dll brotlicommon.dll /c/xampp/apache/bin/
+   ```
+
+   Ne **pas** remplacer `libcrypto-3-x64.dll` ni `libssl-3-x64.dll` : ce sont les DLL OpenSSL
+   d'Apache, plus récentes que celles de PHP. Après le démarrage d'Apache, `error.log` ne doit
+   contenir aucune ligne `Unable to load dynamic library`.
+
+3. **N'accepter que les connexions du poste.** Par défaut, Apache et MySQL répondent à tous les
    appareils du réseau local (MySQL avec `root` sans mot de passe). Modifier :
    - `C:\xampp\apache\conf\httpd.conf` : `Listen 80` → `Listen 127.0.0.1:80`
    - `C:\xampp\apache\conf\extra\httpd-ssl.conf` : `Listen 443` → `Listen 127.0.0.1:443`
    - `C:\xampp\mysql\bin\my.ini` : retirer le `#` devant `bind-address="127.0.0.1"`
    - `C:\xampp\php\php.ini` : `session.upload_progress.enabled = Off` (fonction inutilisée)
 
-3. **Installer l'extension `mongodb`.** Télécharger `php_mongodb-2.5.5-8.2-ts-vs16-x86_64.zip`
+4. **Installer l'extension `mongodb`.** Télécharger `php_mongodb-2.5.5-8.2-ts-vs16-x86_64.zip`
    (ou une version 2.x plus récente, pour PHP 8.2 *ts vs16*) depuis
    https://github.com/mongodb/mongo-php-driver/releases, copier la DLL du zip dans
    `C:\xampp\php\ext\` en la renommant `php_mongodb.dll`, puis ajouter dans `php.ini`, sous les

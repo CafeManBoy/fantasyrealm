@@ -4,10 +4,11 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Csrf;
+use App\Core\Mailer;
 use App\Core\MotDePasse;
 use App\Models\Utilisateur;
 
-// Comptes : inscription, connexion et déconnexion
+// Comptes : inscription, connexion, déconnexion, mot de passe oublié et changement de mot de passe
 class AuthController extends Controller
 {
     public function formulaireInscription(): void
@@ -108,6 +109,73 @@ class AuthController extends Controller
             $this->rediriger('/changer-mot-de-passe');
         }
         $this->rediriger($this->adresseEspace($utilisateur['role']));
+    }
+
+    public function formulaireMotDePasseOublie(): void
+    {
+        if ($this->utilisateurConnecte !== null) {
+            $this->rediriger($this->adresseEspace($this->utilisateurConnecte['role']));
+        }
+
+        $this->afficherMotDePasseOublie('', '', null);
+    }
+
+    public function traiterMotDePasseOublie(): void
+    {
+        $mail = mb_strtolower($this->lireChamp('mail'));
+        $pseudo = $this->lireChamp('pseudo');
+
+        $csrf = new Csrf();
+        if (!$csrf->jetonEstValide()) {
+            $this->afficherMotDePasseOublie($mail, $pseudo, 'Formulaire expiré, réessayez.');
+            return;
+        }
+
+        if ($mail === '' || $pseudo === '') {
+            $this->afficherMotDePasseOublie($mail, $pseudo, 'Saisissez le mail et le pseudo de votre compte.');
+            return;
+        }
+
+        // Rien n'est envoyé si le compte n'existe pas, s'il est suspendu, ou si un mot de passe
+        // lui a déjà été envoyé il y a moins de 15 minutes
+        $modele = new Utilisateur();
+        $compte = $modele->trouverPourMotDePasseOublie($mail, $pseudo);
+        if ($compte !== null && !$compte['suspendu'] && !$compte['demande_recente']) {
+            $this->envoyerNouveauMotDePasse($compte);
+        }
+
+        // Même message dans tous les cas : la page ne révèle pas si le compte existe
+        $this->session->ajouterMessage('Si un compte correspond à ce mail et à ce pseudo, un nouveau mot de passe '
+            . 'vient de lui être envoyé par mail. Pensez à regarder dans les courriers indésirables.');
+        $this->rediriger('/connexion');
+    }
+
+    // Génère un nouveau mot de passe et l'envoie par mail. Il n'est enregistré que si le mail
+    // est bien parti : sinon, le titulaire du compte perdrait son mot de passe sans recevoir le nouveau.
+    private function envoyerNouveauMotDePasse(array $compte): void
+    {
+        $generateur = new MotDePasse();
+        $nouveau = $generateur->generer();
+
+        $texte = 'Bonjour ' . $compte['pseudo'] . ",\n\n"
+            . "Vous avez demandé un nouveau mot de passe pour votre compte FantasyRealm Online.\n\n"
+            . 'Votre nouveau mot de passe : ' . $nouveau . "\n\n"
+            . 'Connectez-vous avec ce mot de passe sur ' . $_ENV['APP_URL'] . "/connexion :\n"
+            . "vous devrez ensuite en choisir un nouveau.\n\n"
+            . "Si vous n'êtes pas à l'origine de cette demande, connectez-vous quand même avec ce mot de passe\n"
+            . "pour en choisir un nouveau, puis prévenez-nous depuis la page Contact.\n";
+
+        $mailer = new Mailer();
+        if ($mailer->envoyer($compte['mail'], 'Votre nouveau mot de passe FantasyRealm Online', $texte)) {
+            $modele = new Utilisateur();
+            $modele->enregistrerMotDePasseProvisoire($compte['id_utilisateur'], password_hash($nouveau, PASSWORD_DEFAULT));
+        }
+    }
+
+    // Affiche le formulaire « mot de passe oublié » avec les valeurs déjà saisies
+    private function afficherMotDePasseOublie(string $mail, string $pseudo, ?string $erreur): void
+    {
+        $this->afficher('mot-de-passe-oublie', 'Mot de passe oublié', ['mail' => $mail, 'pseudo' => $pseudo, 'erreur' => $erreur]);
     }
 
     public function formulaireChangementMotDePasse(): void

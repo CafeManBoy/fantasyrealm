@@ -52,6 +52,27 @@ class Utilisateur
         return $utilisateur;
     }
 
+    // Renvoie le compte qui a ce mail ET ce pseudo (mot de passe oublié), ou null.
+    // demande_recente vaut 1 si un mot de passe a déjà été envoyé il y a moins de 15 minutes
+    // (comparaison faite par MySQL).
+    public function trouverPourMotDePasseOublie(string $mail, string $pseudo): ?array
+    {
+        $requete = Database::connexion()->prepare(
+            'SELECT id_utilisateur, pseudo, mail, suspendu,
+                    (date_demande_mdp IS NOT NULL AND date_demande_mdp > NOW() - INTERVAL 15 MINUTE) AS demande_recente
+             FROM utilisateur
+             WHERE mail = :mail AND pseudo = :pseudo'
+        );
+        $requete->execute(['mail' => $mail, 'pseudo' => $pseudo]);
+        $compte = $requete->fetch();
+
+        if ($compte === false) {
+            return null;
+        }
+
+        return $compte;
+    }
+
     // true si un compte utilise déjà ce mail
     public function mailExiste(string $mail): bool
     {
@@ -120,6 +141,20 @@ class Utilisateur
     {
         $requete = Database::connexion()->prepare(
             'UPDATE utilisateur SET password = :hash, motdepasse_a_modifier = 0 WHERE id_utilisateur = :id'
+        );
+        $requete->execute(['hash' => $hash, 'id' => $id]);
+    }
+
+    // Enregistre le mot de passe envoyé par « mot de passe oublié » : il devra être changé à la
+    // prochaine connexion. La date de la demande (NOW()) limite les demandes à une toutes les
+    // 15 minutes. Un éventuel blocage dû à des échecs de connexion est levé.
+    public function enregistrerMotDePasseProvisoire(int $id, string $hash): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE utilisateur
+             SET password = :hash, motdepasse_a_modifier = 1, date_demande_mdp = NOW(),
+                 tentatives_echouees = 0, bloque_jusqu_a = NULL
+             WHERE id_utilisateur = :id'
         );
         $requete->execute(['hash' => $hash, 'id' => $id]);
     }

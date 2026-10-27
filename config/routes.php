@@ -19,6 +19,8 @@ return [
     'GET /connexion' => [AuthController::class, 'formulaireConnexion'],
     'POST /connexion' => [AuthController::class, 'traiterConnexion'],
     'POST /deconnexion' => [AuthController::class, 'traiterDeconnexion'],
+    'GET /mot-de-passe-oublie' => [AuthController::class, 'formulaireMotDePasseOublie'],
+    'POST /mot-de-passe-oublie' => [AuthController::class, 'traiterMotDePasseOublie'],
     'GET /changer-mot-de-passe' => [AuthController::class, 'formulaireChangementMotDePasse'],
     'POST /changer-mot-de-passe' => [AuthController::class, 'traiterChangementMotDePasse'],
 

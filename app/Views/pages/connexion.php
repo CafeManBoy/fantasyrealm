@@ -32,7 +32,8 @@
                 <button type="submit" class="btn btn-primary">Se connecter</button>
             </form>
 
-            <p class="mt-4">Pas encore de compte ? <a href="/inscription">Créer un compte</a></p>
+            <p class="mt-4"><a href="/mot-de-passe-oublie">Mot de passe oublié ?</a></p>
+            <p>Pas encore de compte ? <a href="/inscription">Créer un compte</a></p>
         </div>
     </div>
 </div>

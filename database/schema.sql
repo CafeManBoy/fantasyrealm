@@ -51,6 +51,9 @@ CREATE TABLE utilisateur (
     tentatives_echouees INT NOT NULL DEFAULT 0,
     -- Ajout au MCD : après 5 échecs, connexion refusée jusqu'à cette date (NULL = pas de blocage)
     bloque_jusqu_a DATETIME NULL DEFAULT NULL,
+    -- Ajout au MCD : date du dernier mot de passe envoyé par « mot de passe oublié »
+    -- (une seule demande par compte toutes les 15 minutes)
+    date_demande_mdp DATETIME NULL DEFAULT NULL,
     id_role INT NOT NULL,
     PRIMARY KEY (id_utilisateur),
     -- Deux comptes ne peuvent pas avoir le même mail ni le même pseudo (exigé par le sujet)

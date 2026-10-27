@@ -4,6 +4,9 @@ Application web de création et de gestion de personnages pour le MMORPG fictif
 « FantasyRealm Online » (PixelVerse Studios, société fictive).
 Projet d'évaluation (ECF) du titre professionnel Développeur Web et Web Mobile.
 
+**Version en ligne :** https://fantasyrealm5.alwaysdata.net
+(hébergement alwaysdata, procédure dans [docs/notes/deploiement.md](docs/notes/deploiement.md)).
+
 **Technologies :** HTML5, CSS, Bootstrap 5.3 (fichiers locaux), JavaScript natif, PHP 8.2 en
 programmation orientée objet (architecture MVC maison, sans framework), MySQL/MariaDB avec PDO,
 MongoDB, Composer.

@@ -14,6 +14,8 @@ return [
     'GET /confidentialite' => [PageController::class, 'confidentialite'],
 
     // Comptes
+    'GET /inscription' => [AuthController::class, 'formulaireInscription'],
+    'POST /inscription' => [AuthController::class, 'traiterInscription'],
     'GET /connexion' => [AuthController::class, 'formulaireConnexion'],
     'POST /connexion' => [AuthController::class, 'traiterConnexion'],
     'POST /deconnexion' => [AuthController::class, 'traiterDeconnexion'],

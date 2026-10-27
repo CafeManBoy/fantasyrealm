@@ -4,11 +4,51 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Csrf;
+use App\Core\MotDePasse;
 use App\Models\Utilisateur;
 
-// Comptes : connexion et déconnexion
+// Comptes : inscription, connexion et déconnexion
 class AuthController extends Controller
 {
+    public function formulaireInscription(): void
+    {
+        if ($this->utilisateurConnecte !== null) {
+            $this->rediriger($this->adresseEspace($this->utilisateurConnecte['role']));
+        }
+
+        $this->afficherInscription('', '', []);
+    }
+
+    public function traiterInscription(): void
+    {
+        // Mail en minuscules : deux comptes ne peuvent pas différer seulement par les majuscules
+        $mail = mb_strtolower($this->lireChamp('mail'));
+        $pseudo = $this->lireChamp('pseudo');
+        $motDePasse = $this->lireMotDePasse('mot_de_passe');
+        $confirmation = $this->lireMotDePasse('confirmation');
+
+        $csrf = new Csrf();
+        if (!$csrf->jetonEstValide()) {
+            $this->afficherInscription($mail, $pseudo, ['general' => 'Formulaire expiré, réessayez.']);
+            return;
+        }
+
+        $erreurs = $this->validerInscription($mail, $pseudo, $motDePasse, $confirmation);
+        if (count($erreurs) > 0) {
+            $this->afficherInscription($mail, $pseudo, $erreurs);
+            return;
+        }
+
+        $modele = new Utilisateur();
+        $id = $modele->creer($pseudo, $mail, password_hash($motDePasse, PASSWORD_DEFAULT));
+
+        // Le nouveau compte est connecté tout de suite
+        $auth = new Auth();
+        $auth->connecter($modele->trouverParId($id));
+        $this->session->ajouterMessage('Bienvenue ' . $pseudo . ', votre compte est créé.');
+        $this->rediriger('/espace-joueur');
+    }
+
     public function formulaireConnexion(): void
     {
         // Déjà connecté : on va directement à son espace
@@ -66,6 +106,58 @@ class AuthController extends Controller
         $auth->deconnecter();
         $this->session->ajouterMessage('Vous êtes déconnecté.');
         $this->rediriger('/');
+    }
+
+    // Vérifie les champs de l'inscription. Renvoie les erreurs rangées par champ (vide si tout est bon).
+    private function validerInscription(string $mail, string $pseudo, string $motDePasse, string $confirmation): array
+    {
+        $erreurs = [];
+        $modele = new Utilisateur();
+
+        if (strlen($mail) > 254 || filter_var($mail, FILTER_VALIDATE_EMAIL) === false) {
+            $erreurs['mail'] = 'Saisissez une adresse mail valide.';
+        } elseif ($modele->mailExiste($mail)) {
+            $erreurs['mail'] = 'Cette adresse mail est déjà utilisée par un compte.';
+        }
+
+        // \z : vraie fin du texte ($ accepterait encore un retour à la ligne final)
+        if (preg_match('/^[A-Za-z0-9_-]{3,20}\z/', $pseudo) !== 1) {
+            $erreurs['pseudo'] = 'Le pseudo doit faire de 3 à 20 caractères : lettres sans accent, chiffres, « _ » ou « - ».';
+        } elseif ($modele->pseudoExiste($pseudo)) {
+            $erreurs['pseudo'] = 'Ce pseudo est déjà pris.';
+        }
+
+        $erreurMotDePasse = $this->erreurMotDePasse($motDePasse);
+        if ($erreurMotDePasse !== null) {
+            $erreurs['mot_de_passe'] = $erreurMotDePasse;
+        } elseif ($motDePasse !== $confirmation) {
+            $erreurs['confirmation'] = 'La confirmation ne correspond pas au mot de passe.';
+        }
+
+        return $erreurs;
+    }
+
+    // Renvoie le message d'erreur si le mot de passe ne respecte pas les règles, sinon null
+    private function erreurMotDePasse(string $motDePasse): ?string
+    {
+        $verificateur = new MotDePasse();
+
+        if ($verificateur->estTropLong($motDePasse)) {
+            return 'Le mot de passe est trop long : 72 caractères au maximum (moins si vous utilisez des accents).';
+        }
+
+        $regles = $verificateur->reglesNonRespectees($motDePasse);
+        if (count($regles) > 0) {
+            return 'Le mot de passe doit contenir ' . implode(', ', $regles) . '.';
+        }
+
+        return null;
+    }
+
+    // Affiche le formulaire d'inscription avec les valeurs déjà saisies et les erreurs
+    private function afficherInscription(string $mail, string $pseudo, array $erreurs): void
+    {
+        $this->afficher('inscription', 'Créer un compte', ['mail' => $mail, 'pseudo' => $pseudo, 'erreurs' => $erreurs]);
     }
 
     // Renvoie le message d'erreur à afficher, ou null si la connexion est acceptée

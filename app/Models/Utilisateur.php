@@ -48,6 +48,39 @@ class Utilisateur
         return $utilisateur;
     }
 
+    // true si un compte utilise déjà ce mail
+    public function mailExiste(string $mail): bool
+    {
+        $requete = Database::connexion()->prepare('SELECT COUNT(*) FROM utilisateur WHERE mail = :mail');
+        $requete->execute(['mail' => $mail]);
+
+        return $requete->fetchColumn() > 0;
+    }
+
+    // true si un compte utilise déjà ce pseudo. Les majuscules ne comptent pas : la collation
+    // utf8mb4_unicode_ci de la base considère « Elandra » et « elandra » comme identiques.
+    public function pseudoExiste(string $pseudo): bool
+    {
+        $requete = Database::connexion()->prepare('SELECT COUNT(*) FROM utilisateur WHERE pseudo = :pseudo');
+        $requete->execute(['pseudo' => $pseudo]);
+
+        return $requete->fetchColumn() > 0;
+    }
+
+    // Crée un compte joueur (rôle « utilisateur ») et renvoie son identifiant
+    public function creer(string $pseudo, string $mail, string $hash): int
+    {
+        $connexion = Database::connexion();
+        $requete = $connexion->prepare(
+            "INSERT INTO utilisateur (pseudo, mail, password, id_role)
+             VALUES (:pseudo, :mail, :hash, (SELECT id_role FROM role WHERE libelle = 'utilisateur'))"
+        );
+        $requete->execute(['pseudo' => $pseudo, 'mail' => $mail, 'hash' => $hash]);
+
+        // Identifiant attribué par AUTO_INCREMENT
+        return (int) $connexion->lastInsertId();
+    }
+
     // Remplace le hash du mot de passe (sans changer le mot de passe lui-même)
     public function modifierHash(int $id, string $hash): void
     {

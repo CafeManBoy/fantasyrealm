@@ -74,6 +74,12 @@ class Controller
             $this->rediriger('/connexion');
         }
 
+        // Mot de passe à changer (mot de passe oublié, compte créé par l'admin) :
+        // aucune page protégée tant que ce n'est pas fait
+        if ($this->utilisateurConnecte['motdepasse_a_modifier']) {
+            $this->rediriger('/changer-mot-de-passe');
+        }
+
         if (!in_array($this->utilisateurConnecte['role'], $roles, true)) {
             http_response_code(403);
             $this->afficher('403', 'Accès refusé');

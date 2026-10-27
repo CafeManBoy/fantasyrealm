@@ -115,6 +115,15 @@ class Utilisateur
         $requete->execute(['id' => $id]);
     }
 
+    // Enregistre le nouveau mot de passe choisi par l'utilisateur : il n'a plus à le changer
+    public function modifierMotDePasse(int $id, string $hash): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE utilisateur SET password = :hash, motdepasse_a_modifier = 0 WHERE id_utilisateur = :id'
+        );
+        $requete->execute(['hash' => $hash, 'id' => $id]);
+    }
+
     // Remplace le hash du mot de passe (sans changer le mot de passe lui-même)
     public function modifierHash(int $id, string $hash): void
     {

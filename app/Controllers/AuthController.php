@@ -103,7 +103,82 @@ class AuthController extends Controller
 
         $auth = new Auth();
         $auth->connecter($utilisateur);
+
+        if ($utilisateur['motdepasse_a_modifier']) {
+            $this->rediriger('/changer-mot-de-passe');
+        }
         $this->rediriger($this->adresseEspace($utilisateur['role']));
+    }
+
+    public function formulaireChangementMotDePasse(): void
+    {
+        $this->verifierChangementDemande();
+        $this->afficherChangement([]);
+    }
+
+    public function traiterChangementMotDePasse(): void
+    {
+        $this->verifierChangementDemande();
+
+        $nouveau = $this->lireMotDePasse('mot_de_passe');
+        $confirmation = $this->lireMotDePasse('confirmation');
+
+        $csrf = new Csrf();
+        if (!$csrf->jetonEstValide()) {
+            $this->afficherChangement(['general' => 'Formulaire expiré, réessayez.']);
+            return;
+        }
+
+        $erreurs = $this->validerNouveauMotDePasse($nouveau, $confirmation);
+        if (count($erreurs) > 0) {
+            $this->afficherChangement($erreurs);
+            return;
+        }
+
+        $modele = new Utilisateur();
+        $modele->modifierMotDePasse($this->utilisateurConnecte['id_utilisateur'], password_hash($nouveau, PASSWORD_DEFAULT));
+
+        // Nouvel identifiant de session après le changement de mot de passe
+        $auth = new Auth();
+        $auth->connecter($this->utilisateurConnecte);
+        $this->session->ajouterMessage('Votre mot de passe a été changé.');
+        $this->rediriger($this->adresseEspace($this->utilisateurConnecte['role']));
+    }
+
+    // Vérifie le nouveau mot de passe : règles, différent de l'actuel, confirmation identique
+    private function validerNouveauMotDePasse(string $nouveau, string $confirmation): array
+    {
+        $erreurs = [];
+        $erreurMotDePasse = $this->erreurMotDePasse($nouveau);
+
+        if ($erreurMotDePasse !== null) {
+            $erreurs['mot_de_passe'] = $erreurMotDePasse;
+        } elseif (password_verify($nouveau, $this->utilisateurConnecte['password'])) {
+            $erreurs['mot_de_passe'] = 'Le nouveau mot de passe doit être différent de l\'actuel.';
+        } elseif ($nouveau !== $confirmation) {
+            $erreurs['confirmation'] = 'La confirmation ne correspond pas au mot de passe.';
+        }
+
+        return $erreurs;
+    }
+
+    // La page de changement n'a de sens que pour un compte connecté qui doit changer son mot de passe
+    private function verifierChangementDemande(): void
+    {
+        if ($this->utilisateurConnecte === null) {
+            $this->session->ajouterMessage('Connectez-vous pour accéder à cette page.');
+            $this->rediriger('/connexion');
+        }
+
+        if (!$this->utilisateurConnecte['motdepasse_a_modifier']) {
+            $this->rediriger($this->adresseEspace($this->utilisateurConnecte['role']));
+        }
+    }
+
+    // Affiche le formulaire de changement de mot de passe avec les erreurs
+    private function afficherChangement(array $erreurs): void
+    {
+        $this->afficher('changer-mot-de-passe', 'Changer de mot de passe', ['erreurs' => $erreurs]);
     }
 
     public function traiterDeconnexion(): void

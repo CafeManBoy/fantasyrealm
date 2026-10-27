@@ -19,6 +19,8 @@ return [
     'GET /connexion' => [AuthController::class, 'formulaireConnexion'],
     'POST /connexion' => [AuthController::class, 'traiterConnexion'],
     'POST /deconnexion' => [AuthController::class, 'traiterDeconnexion'],
+    'GET /changer-mot-de-passe' => [AuthController::class, 'formulaireChangementMotDePasse'],
+    'POST /changer-mot-de-passe' => [AuthController::class, 'traiterChangementMotDePasse'],
 
     // Espaces personnels (un par rôle)
     'GET /espace-joueur' => [EspaceController::class, 'espaceJoueur'],

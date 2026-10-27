@@ -188,4 +188,10 @@ connecter. La page avait un nom aléatoire et a été supprimée juste après le
 - Choisir le serveur SMTP de production (`authentification`).
 - Vérifier en production la connexion à Atlas après le changement du mot de passe de
   `fantasyrealm_app` (27/10/2026), avec le premier log MongoDB (`personnages`).
+- **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
+  de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
+  l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`
+  recompilée (`ad_install_pecl mongodb`), ligne `extension=` du php.ini mise à jour avec le
+  nouveau fichier, puis vérification complète (pages, HTTPS, en-têtes, connexion, envoi d'un
+  mail, extension chargée, log MongoDB).
 - Facultatif : supprimer le jeu d'exemple chargé automatiquement par Atlas (bases `sample_…`).

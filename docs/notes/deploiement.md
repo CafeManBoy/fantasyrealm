@@ -186,6 +186,6 @@ connecter. La page avait un nom aléatoire et a été supprimée juste après le
 
 - Ajouter les clés MySQL au `.env` du serveur avec la classe de connexion PDO (`authentification`).
 - Choisir le serveur SMTP de production (`authentification`).
-- En local : protéger XAMPP (PHP 8.2.12, vulnérable à PHP2Shell), passer en 8.2.35, installer
-  l'extension `mongodb` 2.x et autoriser la box dans Atlas (déjà fait).
+- Vérifier en production la connexion à Atlas après le changement du mot de passe de
+  `fantasyrealm_app` (27/10/2026), avec le premier log MongoDB (`personnages`).
 - Facultatif : supprimer le jeu d'exemple chargé automatiquement par Atlas (bases `sample_…`).

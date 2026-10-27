@@ -186,8 +186,9 @@ accents, l'écrire dans un fichier `.sql` et l'importer avec `<`, comme les scri
 
 - `.env` : ajouter les clés de connexion (`DB_HOST=127.0.0.1`, nom de la base, utilisateur, mot de
   passe) avec la classe de connexion PDO, à l'étape `authentification`.
-- Production : importer seulement `schema.sql` puis `seed.sql` dans la base fournie par l'hébergeur,
-  avec un utilisateur MySQL aux droits limités (étape `deploiement`).
+- ~~Production : importer seulement `schema.sql` puis `seed.sql` dans la base fournie par l'hébergeur,
+  avec un utilisateur MySQL aux droits limités (étape `deploiement`).~~ Fait le 27/10/2026
+  (voir `docs/notes/deploiement.md`).
 - Articles : quand un dessin définitif remplace un calque provisoire avec un autre nom de fichier,
   modifier son chemin dans `seed.sql`.
 - Anciennes bases locales du prototype (`fantasyrealm`, `fantaisyrealm`) : sauvegardées le

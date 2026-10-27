@@ -261,7 +261,10 @@ Images provisoires :
 - Avant chaque merge `develop` → `main` : lancer `/security-review`.
 
 ## Déploiement
-- Hébergeur à choisir avec moi à l'étape `deploiement`. Critères : PHP 8 avec l'extension `mongodb`,
+- Hébergeur retenu : alwaysdata (offre gratuite), compte `fantasyrealm5`, site
+  https://fantasyrealm5.alwaysdata.net. Configuration, procédure de mise à jour et maintenance :
+  `docs/notes/deploiement.md`. C'est moi qui lance les commandes sur le serveur.
+- Critères qui ont guidé le choix : PHP 8 avec l'extension `mongodb`,
   MySQL ou MariaDB, possibilité de lancer `composer install` (`vendor/` n'est pas dans Git),
   racine du site pointable sur `public/`. Si ce dernier point est impossible, préviens-moi avant
   de contourner.

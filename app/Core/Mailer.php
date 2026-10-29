@@ -14,6 +14,11 @@ class Mailer
     // l'erreur est alors journalisée, et la page continue de s'afficher normalement.
     public function envoyer(string $destinataire, string $sujet, string $texte): bool
     {
+        if ($this->estAdresseDeDemoEnProduction($destinataire)) {
+            error_log('domaine réservé example.com, aucun envoi');
+            return false;
+        }
+
         // true : PHPMailer signale ses erreurs par des exceptions
         $mail = new PHPMailer(true);
 
@@ -42,5 +47,20 @@ class Mailer
             error_log('Échec de l\'envoi d\'un mail : ' . $mail->ErrorInfo);
             return false;
         }
+    }
+
+    // true si on est en production et que l'adresse est en @example.com (comptes de démo).
+    // Les mails et pseudos des comptes de démo sont publics (manuel d'utilisation), et ce domaine
+    // est réservé : personne ne reçoit ces mails. Gmail accepterait le mail puis le renverrait
+    // plus tard ; « mot de passe oublié » changerait alors le mot de passe d'un compte de démo
+    // sans que personne ne le reçoive. En local, Mailtrap capte tout : rien n'est bloqué.
+    private function estAdresseDeDemoEnProduction(string $destinataire): bool
+    {
+        // Même règle que le reste du site : tout ce qui n'est pas « dev » est la production
+        if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'dev') {
+            return false;
+        }
+
+        return str_ends_with(mb_strtolower($destinataire), '@example.com');
     }
 }

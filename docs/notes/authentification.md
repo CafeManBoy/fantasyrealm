@@ -65,6 +65,7 @@ Elle met aussi en place des outils communs aux fonctionnalités suivantes : la c
 | Mot de passe oublié : mail **et** pseudo, nouveau mot de passe temporaire envoyé par mail, changement imposé à la connexion suivante | `AuthController` | Demandé par le sujet. **§29** : un mot de passe généré doit être temporaire et changé à la première connexion, avant toute autre action. **§33** : seul un mot de passe temporaire peut être envoyé par mail. |
 | Même message, que le compte existe ou non | `AuthController` | **§56** : ne pas confirmer l'existence du compte. |
 | Mail envoyé **avant** d'enregistrer le nouveau mot de passe | `envoyerNouveauMotDePasse()` | Si l'envoi échoue, le titulaire garde son mot de passe actuel au lieu d'en perdre un qu'il n'a jamais reçu. |
+| En production, aucun mail vers une adresse en `@example.com` : `envoyer()` journalise « domaine réservé example.com, aucun envoi » et renvoie `false` | `Mailer::estAdresseDeDemoEnProduction()` | Les mails et pseudos des comptes de démo sont publics (manuel). Gmail accepterait le mail puis le renverrait plus tard : « mot de passe oublié » changerait le mot de passe d'un compte de démo sans que personne ne le reçoive. Avec `false`, le mot de passe ne change pas. En local, Mailtrap capte tout et rien n'est bloqué. |
 | Une demande de mot de passe oublié par compte toutes les 15 minutes | `Utilisateur::trouverPourMotDePasseOublie()` | Le pseudo est public : on limite les envois répétés et les changements forcés à répétition. |
 | Mot de passe généré : 16 caractères, `random_int()` pour chaque caractère et pour le mélange (Fisher-Yates) | `MotDePasse::generer()` | `rand()`, `shuffle()` et `str_shuffle()` sont prévisibles. Environ 97 bits d'entropie ; les caractères ambigus (O/0, l/1, I) sont exclus. |
 | Changement forcé : nouveau mot de passe différent de l'actuel | `validerNouveauMotDePasse()` | Sinon le « changement » ne changerait rien. |
@@ -100,6 +101,10 @@ Trois colonnes ont été ajoutées à `utilisateur` : `tentatives_echouees`, `bl
   « préalablement validé ».
 - **Taille maximale** : 72 octets, soit 72 caractères sans accent, au-dessus des 50 du §31. Un
   mot de passe très accentué est limité plus tôt (une lettre accentuée compte 2 octets).
+- **Requêtes simultanées** : le compteur d'échecs est lu, puis augmenté. Des requêtes envoyées
+  en même temps lisent la même valeur du compteur : elles permettent quelques essais de plus que
+  5 avant le blocage. Sans conséquence avec des mots de passe de 12 caractères et 4 types
+  (environ 80 bits d'entropie : quelques essais de plus ne changent rien).
 - **Temps de réponse** du mot de passe oublié : environ 2 s quand un mail part, quasi immédiat
   sinon. Une mesure attentive peut donc deviner si le couple mail et pseudo existe.
 
@@ -142,6 +147,13 @@ Trois colonnes ont été ajoutées à `utilisateur` : `tentatives_echouees`, `bl
   après le changement, l'ancien mot de passe ne marche plus et le nouveau oui.
 - **Mails :** identifiants SMTP faux → `false` et une ligne dans le journal sans secret ;
   identifiants Mailtrap → mail reçu avec les accents corrects.
+- **Adresses de démo (29/10/2026)** :
+  - en mode prod, `elandra@example.com` et `ELANDRA@EXAMPLE.COM` → `false` en 0,0 s, sans
+    connexion SMTP, et « domaine réservé example.com, aucun envoi » dans le journal ;
+  - toujours en mode prod, `verif@notexample.com` et `verif@fantasyrealm.test` → envoyés ;
+  - en mode dev, `elandra@example.com` → envoyé à Mailtrap.
+  - L'offre gratuite de Mailtrap refuse les envois trop rapprochés (« Too many emails per
+    second ») : espacer les tests de quelques secondes.
 - **Mot de passe oublié :**
   - compte inexistant, mauvais pseudo, compte suspendu → même message, rien envoyé ;
   - envoi en échec → mot de passe inchangé ;
@@ -159,7 +171,9 @@ Trois colonnes ont été ajoutées à `utilisateur` : `tentatives_echouees`, `bl
 ## Pour le manuel d'utilisation
 
 - Les comptes de démonstration ont des adresses en `@example.com` : **ils ne reçoivent aucun
-  mail**. Pour tester « mot de passe oublié », créer un compte avec une vraie adresse.
+  mail**. Sur le site en ligne, le site n'essaie même pas de leur écrire : « mot de passe oublié »
+  ne change donc pas leur mot de passe. Pour tester « mot de passe oublié », créer un compte avec
+  une vraie adresse.
 - En local, tous les mails arrivent dans la boîte de test Mailtrap.
 - Après 5 mots de passe faux de suite, la connexion au compte est bloquée 15 minutes.
 - Une seule demande de « mot de passe oublié » par compte toutes les 15 minutes (pensez aux

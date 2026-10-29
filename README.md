@@ -13,7 +13,9 @@ MongoDB, Composer.
 
 ## Prérequis
 
-- [XAMPP](https://www.apachefriends.org/) avec PHP 8.2 ou plus récent (Apache et MySQL/MariaDB)
+- [XAMPP](https://www.apachefriends.org/) avec PHP 8.2 (Apache et MySQL/MariaDB), PHP mis à jour
+  en **8.2.35 au minimum** (voir l'étape 2)
+- Extension PHP `mongodb` 2.x (voir l'étape 2)
 - [Composer](https://getcomposer.org/) 2
 - [Git](https://git-scm.com/)
 
@@ -31,7 +33,66 @@ Le projet doit se trouver dans `C:\xampp\htdocs\fantasyrealm` :
 git clone https://github.com/CafeManBoy/fantasyrealm.git /c/xampp/htdocs/fantasyrealm
 ```
 
-### 2. Installer les dépendances
+### 2. Préparer XAMPP
+
+XAMPP 8.2.12 est livré avec PHP 8.2.12, qui a des failles de sécurité critiques corrigées en
+8.2.35. Apache et MySQL doivent être **arrêtés** pendant ces étapes.
+
+1. **Mettre PHP à jour.** Télécharger le build officiel *VS16 x64 Thread Safe*
+   (le même type que celui de XAMPP) depuis https://downloads.php.net/~windows/releases/archives/
+   (fichier `php-8.2.35-1-Win32-vs16-x64.zip` ou plus récent en 8.2), copier le dossier
+   `C:\xampp\php` en `C:\xampp\php-8.2.12` (sauvegarde), puis extraire le zip dans `C:\xampp\php`
+   en remplaçant les fichiers. Le zip ne contient pas de `php.ini` : celui de XAMPP est conservé.
+   `/c/xampp/php/php.exe -v` doit afficher la nouvelle version.
+
+2. **Mettre à jour les DLL de PHP copiées dans Apache.** XAMPP a placé dans
+   `C:\xampp\apache\bin` des DLL de l'ancien PHP, et Windows les trouve avant celles de
+   `C:\xampp\php`. Sans cette étape, `curl` ne se charge plus dans Apache (journal
+   `C:\xampp\apache\logs\error.log` : « La procédure spécifiée est introuvable »).
+   Sauvegarder les 8 DLL concernées :
+
+   ```bash
+   mkdir /c/xampp/apache/bin-dll-avant-php-8.2.35
+   ```
+
+   ```bash
+   cd /c/xampp/apache/bin && cp icudt71.dll icuin71.dll icuio71.dll icuuc71.dll libsasl.dll libssh2.dll nghttp2.dll brotlicommon.dll /c/xampp/apache/bin-dll-avant-php-8.2.35/
+   ```
+
+   Puis les remplacer par celles du nouveau PHP :
+
+   ```bash
+   cd /c/xampp/php && cp icudt71.dll icuin71.dll icuio71.dll icuuc71.dll libsasl.dll libssh2.dll nghttp2.dll brotlicommon.dll /c/xampp/apache/bin/
+   ```
+
+   Ne **pas** remplacer `libcrypto-3-x64.dll` ni `libssl-3-x64.dll` : ce sont les DLL OpenSSL
+   d'Apache, plus récentes que celles de PHP. Après le démarrage d'Apache, `error.log` ne doit
+   contenir aucune ligne `Unable to load dynamic library`.
+
+3. **N'accepter que les connexions du poste.** Par défaut, Apache et MySQL répondent à tous les
+   appareils du réseau local (MySQL avec `root` sans mot de passe). Modifier :
+   - `C:\xampp\apache\conf\httpd.conf` : `Listen 80` → `Listen 127.0.0.1:80`
+   - `C:\xampp\apache\conf\extra\httpd-ssl.conf` : `Listen 443` → `Listen 127.0.0.1:443`
+   - `C:\xampp\mysql\bin\my.ini` : retirer le `#` devant `bind-address="127.0.0.1"`
+   - `C:\xampp\php\php.ini` : `session.upload_progress.enabled = Off` (fonction inutilisée)
+
+4. **Installer l'extension `mongodb`.** Télécharger `php_mongodb-2.5.5-8.2-ts-vs16-x86_64.zip`
+   (ou une version 2.x plus récente, pour PHP 8.2 *ts vs16*) depuis
+   https://github.com/mongodb/mongo-php-driver/releases, copier la DLL du zip dans
+   `C:\xampp\php\ext\` en la renommant `php_mongodb.dll`, puis ajouter dans `php.ini`, sous les
+   autres lignes `extension=` :
+
+   ```ini
+   extension=mongodb
+   ```
+
+   Vérification (doit afficher `mongodb`) :
+
+   ```bash
+   /c/xampp/php/php.exe -m | grep mongodb
+   ```
+
+### 3. Installer les dépendances
 
 Depuis le dossier du projet :
 
@@ -41,7 +102,7 @@ composer install
 
 Composer crée le dossier `vendor/` (non versionné) et le chargement automatique des classes.
 
-### 3. Créer le fichier `.env`
+### 4. Créer le fichier `.env`
 
 Le fichier `.env` contient la configuration locale et les secrets : il n'est jamais versionné.
 On le crée à partir du modèle :
@@ -53,7 +114,18 @@ cp .env.example .env
 Laisser `APP_ENV=dev` sur un poste de développement : les erreurs PHP s'affichent à l'écran.
 Toute autre valeur, ou un fichier absent, fait passer le site en mode production (erreurs cachées).
 
-### 4. Créer le domaine local `fantasyrealm.test`
+Renseigner ensuite les autres clés (chacune est expliquée dans `.env.example`) :
+
+| Clés | En local |
+|---|---|
+| `APP_URL` | `http://fantasyrealm.test` (sert aux liens dans les mails) |
+| `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | `127.0.0.1`, `fantasyrealm`, `root`, vide (XAMPP) |
+| `MAIL_HOST`, `MAIL_PORT` | `sandbox.smtp.mailtrap.io`, `587` |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | identifiants de la boîte de test [Mailtrap](https://mailtrap.io/) (*Sandboxes* > la boîte > *SMTP*) : tous les mails du site y arrivent, personne d'autre ne les reçoit |
+| `MAIL_FROM`, `MAIL_FROM_NAME` | `noreply@fantasyrealm.test`, `"FantasyRealm Online"` (guillemets obligatoires à cause de l'espace) |
+| `MONGODB_URI` | adresse de connexion donnée par MongoDB Atlas ; autoriser aussi l'adresse IP du poste dans Atlas (*Network Access*) |
+
+### 5. Créer le domaine local `fantasyrealm.test`
 
 Le site tourne à la racine d'un domaine local dont le dossier racine est `public/` :
 le reste du projet (code, `.env`) n'est pas accessible depuis le navigateur.
@@ -100,7 +172,7 @@ le reste du projet (code, `.env`) n'est pas accessible depuis le navigateur.
 
 4. Démarrer (ou redémarrer) Apache dans le panneau de contrôle de XAMPP.
 
-### 5. Créer la base de données
+### 6. Créer la base de données
 
 Démarrer MySQL dans le panneau de contrôle de XAMPP, puis, depuis le dossier du projet :
 
@@ -129,7 +201,7 @@ Réimporter `schema.sql` puis `seed.sql` remet le site dans son état de démons
 **toutes les données sont effacées**. Les identifiants des comptes de démonstration figurent dans
 le manuel d'utilisation.
 
-### 6. Ouvrir le site
+### 7. Ouvrir le site
 
 Ouvrir `http://fantasyrealm.test/` en tapant l'adresse complète, avec `http://` : sans ce préfixe,
 le navigateur lance une recherche.

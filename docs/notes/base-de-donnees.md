@@ -43,6 +43,9 @@ Passage du MCD au MLD :
 | `utilisateur.password` en VARCHAR(255) | Un hash `password_hash()` fait au moins 60 caractères, et sa taille peut augmenter avec un autre algorithme. |
 | `utilisateur.mail` en VARCHAR(255) | Une adresse mail peut compter jusqu'à 254 caractères : 50 refuserait des adresses valides. |
 | `mail` et `pseudo` UNIQUE | Exigé par le sujet. L'interclassement `utf8mb4_unicode_ci` rend l'unicité insensible à la casse et aux accents. |
+| `utilisateur.tentatives_echouees` (ajout, fonctionnalité `authentification`) | Compte les échecs de connexion consécutifs, pour bloquer la connexion après 5 échecs. |
+| `utilisateur.bloque_jusqu_a` (ajout, DATETIME NULL) | Fin du blocage de 15 minutes. La date est calculée et comparée par MySQL (`NOW()`), avec une seule horloge. |
+| `utilisateur.date_demande_mdp` (ajout, DATETIME NULL) | Date du dernier « mot de passe oublié » : une seule demande par compte toutes les 15 minutes. |
 | `personnage.nom` UNIQUE | Règle de la duplication : un personnage dupliqué doit avoir un nom différent. |
 | `personnage.date_creation` (ajout) | Nécessaire au filtre de la galerie par plage de dates. |
 | `personnage.coupe_cheveux` (ajout) | Option d'apparence supplémentaire (le sujet laisse ajouter « d'autres éléments »). |

@@ -184,8 +184,24 @@ connecter. La page avait un nom aléatoire et a été supprimée juste après le
 
 ## À reprendre plus tard
 
-- Ajouter les clés MySQL au `.env` du serveur avec la classe de connexion PDO (`authentification`).
-- Choisir le serveur SMTP de production (`authentification`).
-- En local : protéger XAMPP (PHP 8.2.12, vulnérable à PHP2Shell), passer en 8.2.35, installer
-  l'extension `mongodb` 2.x et autoriser la box dans Atlas (déjà fait).
+- Mise en ligne de `authentification` :
+  - **SMTP de production choisi : Gmail** (`smtp.gmail.com`, port 587, STARTTLS), avec une adresse
+    Gmail dédiée au projet et un « mot de passe d'application ». Pourquoi pas un service européen :
+    sans nom de domaine à nous, il faudrait un expéditeur en `@gmail.com`, que Brevo ne peut pas
+    authentifier (sa documentation le dit) ; et l'adresse `fantasyrealm5.alwaysdata.net` n'a ni
+    SPF ni DKIM.
+  - Clés à ajouter au `.env` du serveur : `APP_URL`, `DB_HOST`, `DB_NAME`, `DB_USER`,
+    `DB_PASSWORD`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`,
+    `MAIL_FROM_NAME` (valeurs dans `.env.example`).
+  - Réimporter `schema.sql` puis `seed.sql` : 3 colonnes ont été ajoutées à `utilisateur`.
+  - Vérifier que alwaysdata laisse sortir le port 587. Tester avec un compte créé avec une
+    vraie adresse (les comptes de démo en `@example.com` ne reçoivent rien), puis le supprimer.
+- Vérifier en production la connexion à Atlas après le changement du mot de passe de
+  `fantasyrealm_app` (27/10/2026), avec le premier log MongoDB (`personnages`).
+- **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
+  de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
+  l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`
+  recompilée (`ad_install_pecl mongodb`), ligne `extension=` du php.ini mise à jour avec le
+  nouveau fichier, puis vérification complète (pages, HTTPS, en-têtes, connexion, envoi d'un
+  mail, extension chargée, log MongoDB).
 - Facultatif : supprimer le jeu d'exemple chargé automatiquement par Atlas (bases `sample_…`).

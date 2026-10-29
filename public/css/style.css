@@ -31,6 +31,9 @@
     --couleur-focus: #4b2e83;
     --couleur-focus-sur-fonce: #e8c766;
 
+    /* Messages d'erreur des formulaires (5,9:1 sur le fond ; le rouge de Bootstrap n'atteint que 4,1:1) */
+    --couleur-erreur: #b02a37;
+
     /* Liens : Bootstrap 5.3 lit leur couleur au format « R, G, B » (sans #) */
     --couleur-lien-rgb: 75, 46, 131;                    /* #4b2e83 */
     --couleur-lien-survol-rgb: 46, 26, 87;              /* #2e1a57 */
@@ -54,6 +57,9 @@
     /* Version complète, utilisée par certains composants de Bootstrap */
     --bs-link-color: rgb(var(--couleur-lien-rgb));
     --bs-link-hover-color: rgb(var(--couleur-lien-survol-rgb));
+    /* Champs de formulaire en erreur : texte du message et bordure du champ */
+    --bs-form-invalid-color: var(--couleur-erreur);
+    --bs-form-invalid-border-color: var(--couleur-erreur);
 }
 
 h1,
@@ -78,6 +84,7 @@ button:focus-visible,
 
 /* Sur fond foncé (menu, pied de page), le contour prend la couleur d'accent */
 .navbar a:focus-visible,
+.navbar .nav-link:focus-visible,
 .navbar .navbar-toggler:focus-visible,
 .pied-de-page a:focus-visible {
     outline-color: var(--couleur-focus-sur-fonce);

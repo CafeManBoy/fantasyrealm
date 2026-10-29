@@ -87,7 +87,8 @@ gère son propre serveur web.
   testé le 26/10/2026). Le risque, c'est le journal d'Apache et les scripts en ligne de commande :
   ils recopient le message de l'exception, qui contient la ligne fautive, donc parfois un secret.
   L'attraper et journaliser un message générique (« fichier .env invalide ») sans cette ligne,
-  à faire au début de `authentification`.
+  à faire au début de `authentification`. **Fait** le 27/10/2026 (étape 1 de `authentification`) :
+  testé avec une ligne fautive contenant un faux secret, absent du journal.
 
 ## Notions utilisées (mot-clé à réviser)
 

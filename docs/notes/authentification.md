@@ -17,7 +17,7 @@ Elle met aussi en place des outils communs aux fonctionnalités suivantes : la c
 | `app/Core/Database.php` | Connexion PDO à MySQL, créée une seule fois par requête (propriété `static`, seule exception permise). `utf8mb4`, exceptions en cas d'erreur SQL, vraies requêtes préparées. |
 | `app/Core/Session.php` | Démarre la session avec un cookie protégé (`httponly`, `samesite=Lax`, `secure` en production). Garde les messages à afficher après une redirection. |
 | `app/Core/Csrf.php` | Crée un jeton secret par session et vérifie celui envoyé par chaque formulaire (`hash_equals`). |
-| `app/Core/Auth.php` | Ouvre la session d'un compte (nouvel identifiant de session), retrouve le compte connecté en le relisant en base, et ferme la session si le compte est suspendu, supprimé ou inactif depuis 30 minutes. |
+| `app/Core/Auth.php` | Ouvre la session d'un compte (nouvel identifiant de session), retrouve le compte connecté en le relisant en base, et ferme la session si le compte est suspendu, supprimé, inactif depuis 30 minutes, ou si son mot de passe a changé depuis la connexion (empreinte du hash gardée en session). |
 | `app/Core/MotDePasse.php` | Règles du mot de passe (12 caractères, 4 types, 72 octets au plus) et génération d'un mot de passe aléatoire avec `random_int()`. |
 | `app/Core/Mailer.php` | Envoi d'un mail en texte brut avec PHPMailer (SMTP chiffré par STARTTLS). En cas d'échec : `false` et une ligne dans le journal, sans page blanche. |
 | `app/Models/Utilisateur.php` | Toutes les requêtes SQL sur la table `utilisateur` (avec le libellé du rôle, lu par jointure). |
@@ -47,7 +47,8 @@ Elle met aussi en place des outils communs aux fonctionnalités suivantes : la c
    - le mot de passe est faux (`password_verify`), ce qui compte un échec ;
    - le compte est suspendu.
 5. Si tout va bien : le compteur d'échecs revient à 0, `session_regenerate_id(true)` donne un
-   nouvel identifiant de session, et la session ne garde que `id_utilisateur`.
+   nouvel identifiant de session, et la session ne garde que `id_utilisateur` et une empreinte
+   du hash du mot de passe (voir plus bas).
 6. Redirection (code 302) vers l'espace du rôle, ou vers le changement de mot de passe obligatoire.
    Après un `POST`, on redirige toujours : recharger la page ne renvoie pas le formulaire.
 7. À chaque page suivante, le constructeur de `Controller` relit le compte en base (rôle,
@@ -71,6 +72,7 @@ Elle met aussi en place des outils communs aux fonctionnalités suivantes : la c
 | Changement forcé : nouveau mot de passe différent de l'actuel | `validerNouveauMotDePasse()` | Sinon le « changement » ne changerait rien. |
 | `session_regenerate_id(true)` à la connexion, à la déconnexion et après un changement de mot de passe | `Auth` | Protection contre la fixation de session : un identifiant connu avant la connexion ne sert plus. |
 | Cookie `httponly`, `samesite=Lax`, `secure` en production ; `session.use_strict_mode` | `Session` | Le JavaScript ne lit pas le cookie, il ne part pas avec un POST venant d'un autre site, et il ne circule qu'en HTTPS. `secure` dépend de `APP_ENV`, car le HTTPS de l'hébergeur est géré par un proxy. |
+| Empreinte du mot de passe en session : à la connexion, `hash('sha256', hash du mot de passe)` est gardé en session ; à chaque page, il est comparé (`hash_equals`) au hash en base. S'ils diffèrent, la session est fermée (« Le mot de passe de ce compte a changé : reconnectez-vous »). Après un changement de mot de passe ou un recalcul du hash, le compte est relu avant `connecter()` : seule la session qui a fait le changement reste ouverte. | `Auth::motDePasseAChange()`, `AuthController` | Tout changement de mot de passe ferme les autres sessions du compte. Scénario empêché : un attaquant a volé une session (cookie volé, ordinateur partagé resté connecté) ; un « mot de passe oublié » est fait sur ce compte, par la victime ou par l'attaquant lui-même (le mail et le pseudo suffisent). Sans l'empreinte, la session volée restait ouverte et arrivait sur la page de changement forcé : l'attaquant choisissait le nouveau mot de passe sans connaître ni l'ancien ni le temporaire, et le titulaire perdait son compte. Avec l'empreinte, cette session est fermée dès que le hash change. La session garde un sha256 du hash plutôt que le hash lui-même : rien d'utile pour deviner le mot de passe. Correction proposée par `/security-review` (écartée comme simple durcissement, faite quand même). |
 | Déconnexion après 30 minutes d'inactivité (heure de la dernière page gardée en session) | `Auth::estInactiveTropLongtemps()` | `session.gc_maxlifetime` ne garantit aucune expiration : le nettoyage des sessions par PHP passe au hasard, parfois jamais. |
 | Rôle et suspension relus en base à chaque page ; `exigerRole()` sur chaque page protégée ; page 403 | `Auth`, `Controller` | Le contrôle se fait côté serveur, à chaque requête. Masquer un lien ne protège rien. |
 | Jeton CSRF sur tous les formulaires ; déconnexion en `POST` | `Csrf`, vues | Un autre site ne peut pas faire envoyer nos formulaires par le navigateur d'un utilisateur. Un jeton invalide renvoie le formulaire avec « Formulaire expiré, réessayez ». |
@@ -125,6 +127,15 @@ Trois colonnes ont été ajoutées à `utilisateur` : `tentatives_echouees`, `bl
   et nouvel identifiant de session.
 - **Session :** l'identifiant change à la connexion. Le cookie a `HttpOnly` et `SameSite=Lax`
   (plus `Secure` en mode prod, vérifié en ligne de commande).
+- **Empreinte du mot de passe (29/10/2026)** :
+  - deux sessions ouvertes sur le même compte, changement de mot de passe dans l'une → elle reste
+    connectée, l'autre est fermée à la page suivante, avec le message « Le mot de passe de ce
+    compte a changé ». Test refait avec le navigateur intégré comme 2e navigateur : console vide ;
+  - session ouverte, puis « mot de passe oublié » depuis un autre navigateur → la session est
+    fermée et n'arrive plus sur `/changer-mot-de-passe` ;
+  - changement forcé de Distrait → toujours connecté sur les 3 pages suivantes ;
+  - connexion avec un hash de coût 4 → recalculé en coût 10, et la session reste ouverte ;
+  - connexion et déconnexion normales ; aucune erreur PHP dans le journal.
 - **Inactivité** (heure modifiée dans le fichier de session) : 28 minutes → toujours connecté, le
   compteur repart ; 30 minutes et 1 seconde → déconnecté avec un message.
 - **Suspension en cours de session** → déconnexion dès la page suivante, avec deux messages.
@@ -214,7 +225,8 @@ m'inspirant du §43. Sa limite : quelqu'un peut bloquer un compte 15 minutes. J'
 blocage court et automatique pour que cette gêne reste faible.
 
 **3. Comment empêchez-vous un joueur d'ouvrir l'espace administrateur ?**
-La session ne contient que l'identifiant du compte. À chaque page, le compte est relu en base
+La session ne contient que l'identifiant du compte et une empreinte de son mot de passe. À
+chaque page, le compte est relu en base
 avec son rôle et son état de suspension. Chaque page protégée appelle `exigerRole()` avec les
 rôles autorisés. Sans connexion, on est redirigé vers la connexion ; avec le mauvais rôle, on
 reçoit une page 403. Le contrôle est fait par le serveur : même en tapant l'adresse à la main,

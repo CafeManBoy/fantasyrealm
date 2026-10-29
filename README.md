@@ -114,8 +114,16 @@ cp .env.example .env
 Laisser `APP_ENV=dev` sur un poste de développement : les erreurs PHP s'affichent à l'écran.
 Toute autre valeur, ou un fichier absent, fait passer le site en mode production (erreurs cachées).
 
-Renseigner `MONGODB_URI` avec l'adresse de connexion donnée par MongoDB Atlas, et autoriser
-l'adresse IP du poste dans Atlas (*Network Access*).
+Renseigner ensuite les autres clés (chacune est expliquée dans `.env.example`) :
+
+| Clés | En local |
+|---|---|
+| `APP_URL` | `http://fantasyrealm.test` (sert aux liens dans les mails) |
+| `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | `127.0.0.1`, `fantasyrealm`, `root`, vide (XAMPP) |
+| `MAIL_HOST`, `MAIL_PORT` | `sandbox.smtp.mailtrap.io`, `587` |
+| `MAIL_USERNAME`, `MAIL_PASSWORD` | identifiants de la boîte de test [Mailtrap](https://mailtrap.io/) (*Sandboxes* > la boîte > *SMTP*) : tous les mails du site y arrivent, personne d'autre ne les reçoit |
+| `MAIL_FROM`, `MAIL_FROM_NAME` | `noreply@fantasyrealm.test`, `"FantasyRealm Online"` (guillemets obligatoires à cause de l'espace) |
+| `MONGODB_URI` | adresse de connexion donnée par MongoDB Atlas ; autoriser aussi l'adresse IP du poste dans Atlas (*Network Access*) |
 
 ### 5. Créer le domaine local `fantasyrealm.test`
 

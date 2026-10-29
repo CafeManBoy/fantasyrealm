@@ -243,6 +243,7 @@ Ensuite : Stop puis Start sur la ligne Apache du panneau de contrôle de XAMPP.
 - Avis d'un compte supprimé : `pseudo_auteur` reste affiché après la suppression du compte
   (décision de `docs/decisions.md`). À justifier au regard du RGPD ou à anonymiser, à l'étape
   `rgaa-rgpd`.
-- Menu : lien « Mon espace » et bouton « Déconnexion », à l'étape `authentification`.
+- ~~Menu : lien « Mon espace » et bouton « Déconnexion », à l'étape `authentification`.~~ Fait
+  (voir `docs/notes/authentification.md`).
 - Couleurs et polices : à remplacer par celles de la charte graphique (seulement le haut de
   `style.css`).

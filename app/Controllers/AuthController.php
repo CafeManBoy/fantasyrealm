@@ -97,9 +97,12 @@ class AuthController extends Controller
             $modele->reinitialiserEchecs($utilisateur['id_utilisateur']);
         }
 
-        // Le hash est recalculé si PHP a augmenté son coût par défaut depuis sa création
+        // Le hash est recalculé si PHP a augmenté son coût par défaut depuis sa création.
+        // Le compte est alors relu : la session doit garder l'empreinte du NOUVEAU hash,
+        // sinon elle serait fermée dès la page suivante.
         if (password_needs_rehash($utilisateur['password'], PASSWORD_DEFAULT)) {
             $modele->modifierHash($utilisateur['id_utilisateur'], password_hash($motDePasse, PASSWORD_DEFAULT));
+            $utilisateur = $modele->trouverParId($utilisateur['id_utilisateur']);
         }
 
         $auth = new Auth();
@@ -206,9 +209,12 @@ class AuthController extends Controller
         $modele = new Utilisateur();
         $modele->modifierMotDePasse($this->utilisateurConnecte['id_utilisateur'], password_hash($nouveau, PASSWORD_DEFAULT));
 
-        // Nouvel identifiant de session après le changement de mot de passe
+        // Le compte est relu pour que cette session garde l'empreinte du nouveau hash :
+        // elle reste ouverte, alors que les autres sessions du compte seront fermées.
+        // Nouvel identifiant de session après le changement de mot de passe.
+        $compte = $modele->trouverParId($this->utilisateurConnecte['id_utilisateur']);
         $auth = new Auth();
-        $auth->connecter($this->utilisateurConnecte);
+        $auth->connecter($compte);
         $this->session->ajouterMessage('Votre mot de passe a été changé.');
         $this->rediriger($this->adresseEspace($this->utilisateurConnecte['role']));
     }

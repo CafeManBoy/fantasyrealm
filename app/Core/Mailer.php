@@ -12,7 +12,9 @@ class Mailer
 {
     // Envoie un mail en texte brut. Renvoie true si le serveur SMTP l'a accepté, false sinon :
     // l'erreur est alors journalisée, et la page continue de s'afficher normalement.
-    public function envoyer(string $destinataire, string $sujet, string $texte): bool
+    // $repondreA (facultatif) : adresse utilisée quand le destinataire clique sur « Répondre »
+    // (formulaire de contact : l'adresse du demandeur).
+    public function envoyer(string $destinataire, string $sujet, string $texte, ?string $repondreA = null): bool
     {
         if ($this->estAdresseDeDemoEnProduction($destinataire)) {
             error_log('domaine réservé example.com, aucun envoi');
@@ -37,6 +39,11 @@ class Mailer
 
             $mail->setFrom($_ENV['MAIL_FROM'], $_ENV['MAIL_FROM_NAME']);
             $mail->addAddress($destinataire);
+            // L'expéditeur reste notre adresse : Gmail n'envoie qu'au nom du compte utilisé pour le SMTP.
+            // La réponse, elle, partira directement vers $repondreA.
+            if ($repondreA !== null) {
+                $mail->addReplyTo($repondreA);
+            }
             $mail->Subject = $sujet;
             $mail->Body = $texte;
 

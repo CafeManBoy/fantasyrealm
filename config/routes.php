@@ -14,6 +14,7 @@ return [
     'GET /cgv' => [PageController::class, 'cgv'],
     'GET /confidentialite' => [PageController::class, 'confidentialite'],
     'GET /contact' => [ContactController::class, 'formulaire'],
+    'POST /contact' => [ContactController::class, 'traiter'],
 
     // Comptes
     'GET /inscription' => [AuthController::class, 'formulaireInscription'],

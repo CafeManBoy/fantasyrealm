@@ -251,10 +251,14 @@ n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
 
-- Avant le premier log MongoDB (`personnages`) : corriger `MONGODB_URI` dans le `.env` du serveur
-  (guillemet fermant seul sur la ligne suivante, donc un retour à la ligne dans l'adresse, et une
-  ligne parasite `MONGODB_`), puis vérifier la connexion à Atlas après le changement du mot de
-  passe de `fantasyrealm_app` (27/10/2026).
+- Mise en ligne de `contact` : ajouter `MAIL_CONTACT` au `.env` du serveur. Ce doit être une
+  autre boîte que l'adresse Gmail d'envoi, et pas une adresse en `@example.com` (bloquée en
+  production). La clé est obligatoire : sans elle, l'envoi du formulaire affiche la page d'erreur.
+  Ensuite, envoyer une demande depuis le site en ligne et vérifier qu'elle arrive.
+- Avec le premier log MongoDB (`personnages`) : vérifier en production la connexion à Atlas après
+  le changement du mot de passe de `fantasyrealm_app` (27/10/2026). `MONGODB_URI` a été remise sur
+  une seule ligne le 30/10/2026 (elle contenait un retour à la ligne, plus une ligne parasite
+  `MONGODB_`) ; contrôle : une seule ligne, sans espace, début `mongodb+srv://`.
 - **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
   de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
   l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`

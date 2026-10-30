@@ -92,6 +92,21 @@ class Utilisateur
         return $requete->fetchColumn() > 0;
     }
 
+    // Renvoie le pseudo (écrit comme en base) et le mail du compte qui a ce pseudo, ou null.
+    // Comme pour pseudoExiste(), les majuscules ne comptent pas.
+    public function trouverParPseudo(string $pseudo): ?array
+    {
+        $requete = Database::connexion()->prepare('SELECT pseudo, mail FROM utilisateur WHERE pseudo = :pseudo');
+        $requete->execute(['pseudo' => $pseudo]);
+        $compte = $requete->fetch();
+
+        if ($compte === false) {
+            return null;
+        }
+
+        return $compte;
+    }
+
     // Crée un compte joueur (rôle « utilisateur ») et renvoie son identifiant
     public function creer(string $pseudo, string $mail, string $hash): int
     {

@@ -4,6 +4,7 @@
 // Une adresse absente de cette liste affiche la page 404.
 
 use App\Controllers\AuthController;
+use App\Controllers\ContactController;
 use App\Controllers\EspaceController;
 use App\Controllers\PageController;
 
@@ -12,6 +13,8 @@ return [
     'GET /mentions-legales' => [PageController::class, 'mentionsLegales'],
     'GET /cgv' => [PageController::class, 'cgv'],
     'GET /confidentialite' => [PageController::class, 'confidentialite'],
+    'GET /contact' => [ContactController::class, 'formulaire'],
+    'POST /contact' => [ContactController::class, 'traiter'],
 
     // Comptes
     'GET /inscription' => [AuthController::class, 'formulaireInscription'],

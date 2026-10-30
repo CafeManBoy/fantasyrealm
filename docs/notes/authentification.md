@@ -233,16 +233,16 @@ reçoit une page 403. Le contrôle est fait par le serveur : même en tapant l'a
 un joueur ne passe pas. Et un compte suspendu pendant qu'il est connecté est déconnecté dès la
 page suivante.
 
+## Mise en ligne
+
+Faite le 30/10/2026 et testée en production (mot de passe oublié, mail reçu, changement forcé) :
+voir « Mise en ligne de l'authentification » dans `deploiement.md`.
+
 ## À reprendre plus tard
 
 - **Changement de mot de passe volontaire** depuis son espace (CNIL §52), sur le modèle du
   changement forcé avec en plus le mot de passe actuel : à faire avec `rgaa-rgpd`, ou avant si
   le temps le permet.
-- **Mise en ligne** :
-  - créer l'adresse Gmail du projet et un mot de passe d'application ;
-  - réimporter `schema.sql` puis `seed.sql` en production (nouvelles colonnes) ;
-  - ajouter les clés `APP_URL`, `DB_*` et `MAIL_*` au `.env` du serveur ;
-  - tester avec une vraie adresse (voir `deploiement.md`).
 - **Espace admin** : le pseudo généré pour un employé (partie du mail avant le `@`) devra
   respecter la règle du pseudo (retirer les points et autres caractères interdits).
 - **Facultatif** : journaliser les connexions et les échecs (CNIL §64), sans jamais écrire le

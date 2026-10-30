@@ -45,6 +45,25 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Suppression de compte** (par l'utilisateur, un employé ou l'admin) : ses personnages sont supprimés,
   ses avis restent avec `pseudo_auteur`.
 
+## Contact
+- **Champs** (sujet) : mail, pseudo et détail de la demande, pré-remplis si l'on est connecté.
+- **Connecté** : le mail et le pseudo du compte sont affichés en lecture seule, et le serveur
+  utilise ceux du compte, pas ceux envoyés par le formulaire.
+- **Pseudo** : il doit exister, comptes suspendus compris (le site leur dit d'écrire depuis cette
+  page). On ne vérifie pas que le mail correspond au pseudo : sinon la page révélerait à qui
+  appartient une adresse mail.
+- **Indications pour l'équipe** : le mail envoyé à l'entreprise indique « Expéditeur connecté :
+  oui/non » et « Mail saisi = mail du compte : oui/non ». Elles ne sont jamais affichées au
+  demandeur. N'importe qui peut écrire avec le pseudo d'un autre : si le mail saisi n'est pas
+  celui du compte, l'employé vérifie l'identité de la personne avant d'agir sur ce compte.
+- **Pas de limite d'envoi** : le pseudo obligatoire (celui d'un compte existant) filtre les robots
+  qui remplissent les formulaires au hasard. Limite : le quota d'envoi de Gmail est partagé avec
+  les autres mails du site.
+- **Demande non enregistrée** en base : elle part seulement par mail (minimisation des données).
+- **Adresse de l'entreprise** (`MAIL_CONTACT` dans le `.env`) : en production, une autre boîte que
+  l'adresse Gmail d'envoi (Gmail range les mails envoyés à soi-même dans « Messages envoyés »).
+  Le « Répondre à » du mail est l'adresse du demandeur ; l'expéditeur reste l'adresse du site.
+
 ## Articles
 - **Article désactivé** (`actif = 0`) : plus proposé ni affiché nulle part (formulaires, galerie,
   détail, espace joueur), mais gardé en base avec ses liens vers les personnages.

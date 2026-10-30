@@ -14,7 +14,7 @@ MongoDB Atlas prêts pour les fonctionnalités suivantes. Ce fichier sert de bas
 | `app/Views/pages/confidentialite.php` | Partie « Destinataires » : hébergeur (serveurs en France) et Atlas (centre de données de l'Union européenne). |
 | `README.md` | Adresse du site en ligne et lien vers ces notes. |
 | `docs/notes/deploiement.md` | Ce fichier : choix de l'hébergeur, procédure, vérifications, maintenance. |
-| Sur le serveur seulement : `.env` | Configuration de production (`APP_ENV=prod`, adresse de connexion Atlas). Jamais dans Git. |
+| Sur le serveur seulement : `.env` | Configuration de production (`APP_ENV=prod`, Atlas, puis MariaDB et SMTP à la mise en ligne de l'authentification). Jamais dans Git. |
 
 Aucun fichier PHP de l'application n'a changé : le même code tourne en local et en production,
 seul le `.env` diffère.
@@ -50,8 +50,8 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
   chargée par la ligne `extension=/home/fantasyrealm5/php-extensions/mongodb-8.2.so` du php.ini
   d'*Environnement* (valable pour SSH et pour le site).
 - **`.env`** créé à la main sur le serveur, droits `600` (lisible seulement par le compte) :
-  `APP_ENV=prod` et `MONGODB_URI`. Les clés MySQL seront ajoutées avec la connexion PDO
-  (fonctionnalité `authentification`).
+  `APP_ENV=prod` et `MONGODB_URI`, puis les clés MariaDB et SMTP (voir « Mise en ligne de
+  l'authentification »).
 
 ### Base MariaDB (alwaysdata)
 - Serveur MariaDB 11.8, hôte `mysql-fantasyrealm5.alwaysdata.net`.
@@ -141,6 +141,61 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 - Base : 3 rôles, 7 comptes, 11 personnages, 10 articles, 23 équipements, 8 avis ; « Zéphyr »
   relu correctement ; tables en `utf8mb4_unicode_ci`.
 
+## Mise en ligne de l'authentification (30/10/2026)
+
+### Étapes
+1. En SSH : `git pull`, puis `composer install --no-dev --optimize-autoloader` (ajout de PHPMailer).
+2. Clés ajoutées au `.env` du serveur : `APP_URL`, `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`,
+   `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_FROM_NAME`.
+   Avant d'en ajouter, `cut -d= -f1 .env` liste les clés déjà présentes **sans afficher leurs
+   valeurs** (pour ne pas créer de clé en double).
+3. Réimport de `schema.sql` puis `seed.sql` (3 colonnes ajoutées à `utilisateur`). Vérifié avec
+   `SELECT COUNT(*) FROM utilisateur WHERE tentatives_echouees = 0` → 7 : cette requête échoue si
+   la nouvelle colonne manque, alors qu'un simple `COUNT(*)` donnait déjà 7 avec l'ancienne base.
+4. Compte Gmail et mot de passe d'application (voir ci-dessous), puis test SMTP en ligne de commande.
+5. Tests dans le navigateur avec un compte créé pour l'occasion avec une vraie adresse (les comptes
+   de démo en `@example.com` ne reçoivent jamais de mail en production), supprimé ensuite.
+
+### SMTP de production : Gmail
+- `smtp.gmail.com`, port 587, STARTTLS, avec une adresse Gmail dédiée au projet. Pourquoi pas un
+  service européen : sans nom de domaine à nous, il faudrait un expéditeur en `@gmail.com`, que
+  Brevo ne peut pas authentifier (sa documentation le dit) ; et l'adresse
+  `fantasyrealm5.alwaysdata.net` n'a ni SPF ni DKIM.
+- Google refuse le mot de passe du compte en SMTP : il faut un **mot de passe d'application**
+  (16 lettres, à copier **sans** les espaces que Google affiche pour la lisibilité).
+- Il n'est proposé que si la validation en deux étapes est active. Constaté : avec seulement une
+  clé d'accès (passkey) comme deuxième étape, la page https://myaccount.google.com/apppasswords
+  était indisponible ; elle est apparue après l'ajout d'une application d'authentification.
+- Piège rencontré : un premier mot de passe d'application avait été créé alors que le navigateur
+  était connecté à un **autre** compte Google → `535 5.7.8 Username and Password not accepted`.
+  Le créer dans une fenêtre privée, connectée au seul compte du projet.
+- Test de connexion SMTP sans envoyer de mail : la commande affiche l'adresse d'envoi, la longueur
+  et le format du mot de passe (jamais sa valeur), puis `AUTH OK` ou l'erreur du serveur Gmail.
+  ```bash
+  php -r 'require "vendor/autoload.php"; try { Dotenv\Dotenv::createImmutable(".")->load(); } catch (Throwable $e) { exit("ERREUR .env\n"); } $u = $_ENV["MAIL_USERNAME"]; $p = $_ENV["MAIL_PASSWORD"]; var_dump($u); echo "mot de passe : ", strlen($p), " caracteres, ", (preg_match("/^[a-z]{16}$/", $p) ? "format OK" : "format INCORRECT"), "\n"; $s = new PHPMailer\PHPMailer\SMTP(); $s->connect($_ENV["MAIL_HOST"], (int) $_ENV["MAIL_PORT"], 10); $s->hello("fantasyrealm5.alwaysdata.net"); $s->startTLS(); $s->hello("fantasyrealm5.alwaysdata.net"); echo $s->authenticate($u, $p) ? "AUTH OK\n" : "AUTH ECHEC\n"; print_r($s->getError());'
+  ```
+
+### Leçon : syntaxe du `.env`
+- Une valeur qui contient une espace ou un caractère spécial (`#`, `$`, guillemet) se met entre
+  **apostrophes** : `MAIL_PASSWORD='…'` (contenu pris tel quel). Sans guillemets, une seule espace
+  rend le `.env` invalide : phpdotenv refuse de le lire et **tout le site** affiche la page
+  d'erreur 500 (log : « Fichier .env invalide »). C'est arrivé pendant cette mise en ligne.
+  Le détail de l'erreur n'est volontairement pas journalisé : phpdotenv y recopie la ligne
+  fautive, qui peut contenir un secret.
+- Contrôle après chaque modification du `.env` (affiche seulement OK ou ERREUR, aucune valeur) :
+  ```bash
+  php -r 'require "vendor/autoload.php"; try { Dotenv\Dotenv::createImmutable(".")->load(); echo "OK\n"; } catch (Throwable $e) { echo "ERREUR .env\n"; }'
+  ```
+
+### Vérifications faites en production (30/10/2026)
+- `/`, `/connexion`, `/inscription`, `/mot-de-passe-oublie` → 200 ; `/espace-joueur` et
+  `/changer-mot-de-passe` sans connexion → 302 vers `/connexion` ; `/.env` → 404.
+- Cookie de session `secure`, `HttpOnly`, `SameSite=Lax` ; en-têtes de sécurité présents.
+- Test SMTP : `AUTH OK`.
+- Parcours complet avec le compte de test : mot de passe oublié → mail reçu dans la boîte de
+  réception (pas dans les spams) → connexion avec le mot de passe reçu → changement forcé →
+  « Votre mot de passe a été changé. » et espace joueur.
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -151,6 +206,9 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 - Si la version majeure de PHP change (8.2 → 8.3), recompiler l'extension `mongodb`
   (`ad_install_pecl mongodb`) et mettre à jour la ligne `extension=` du php.ini.
 - PHP 8.2 reçoit des correctifs de sécurité jusqu'au 31/12/2026.
+- **Changer le mot de passe du compte Gmail révoque les mots de passe d'application** : en recréer
+  un, mettre à jour `MAIL_PASSWORD`, puis relancer le test SMTP.
+- Gmail limite le nombre de mails envoyés par jour : ce quota est partagé par tous les mails du site.
 
 ## Notions utilisées (mot-clé à réviser)
 
@@ -163,6 +221,9 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 - Moindre privilège : « principe du moindre privilège base de données »
 - Pare-feu applicatif d'Atlas : « MongoDB Atlas IP access list », « CIDR /32 »
 - Veille sécurité : « CVE », « CVSS », « bulletin CERT-FR / CISA »
+- Envoi de mails : « SMTP AUTH », « STARTTLS port 587 », « code SMTP 535 »
+- Compte Google : « mot de passe d'application », « validation en deux étapes (2FA) »
+- Fichier `.env` : « phpdotenv guillemets simples », « valeur entre guillemets »
 
 ## Questions possibles du jury
 
@@ -182,22 +243,18 @@ Avec une page PHP temporaire du site, qui affichait l'IP sortante. Elle est diff
 serveur SSH : si j'avais autorisé l'IP vue en ligne de commande, le site n'aurait pas pu se
 connecter. La page avait un nom aléatoire et a été supprimée juste après le test.
 
+**4. Pourquoi un mot de passe d'application pour Gmail ?**
+Google refuse le mot de passe du compte pour une connexion SMTP. Le mot de passe d'application est
+un mot de passe à part, réservé à cet usage : il ne permet pas d'ouvrir la session du compte Google
+dans un navigateur, et s'il fuit, je le révoque seul sans changer le mot de passe du compte. Il
+n'existe que si la validation en deux étapes est activée.
+
 ## À reprendre plus tard
 
-- Mise en ligne de `authentification` :
-  - **SMTP de production choisi : Gmail** (`smtp.gmail.com`, port 587, STARTTLS), avec une adresse
-    Gmail dédiée au projet et un « mot de passe d'application ». Pourquoi pas un service européen :
-    sans nom de domaine à nous, il faudrait un expéditeur en `@gmail.com`, que Brevo ne peut pas
-    authentifier (sa documentation le dit) ; et l'adresse `fantasyrealm5.alwaysdata.net` n'a ni
-    SPF ni DKIM.
-  - Clés à ajouter au `.env` du serveur : `APP_URL`, `DB_HOST`, `DB_NAME`, `DB_USER`,
-    `DB_PASSWORD`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`,
-    `MAIL_FROM_NAME` (valeurs dans `.env.example`).
-  - Réimporter `schema.sql` puis `seed.sql` : 3 colonnes ont été ajoutées à `utilisateur`.
-  - Vérifier que alwaysdata laisse sortir le port 587. Tester avec un compte créé avec une
-    vraie adresse (les comptes de démo en `@example.com` ne reçoivent rien), puis le supprimer.
-- Vérifier en production la connexion à Atlas après le changement du mot de passe de
-  `fantasyrealm_app` (27/10/2026), avec le premier log MongoDB (`personnages`).
+- Avant le premier log MongoDB (`personnages`) : corriger `MONGODB_URI` dans le `.env` du serveur
+  (guillemet fermant seul sur la ligne suivante, donc un retour à la ligne dans l'adresse, et une
+  ligne parasite `MONGODB_`), puis vérifier la connexion à Atlas après le changement du mot de
+  passe de `fantasyrealm_app` (27/10/2026).
 - **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
   de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
   l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`

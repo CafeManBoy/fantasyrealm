@@ -229,6 +229,29 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
    `/connexion` ; connexion d'Admin avec le mot de passe du README → espace administrateur ;
    connexion de Banni → « Ce compte est suspendu ».
 
+## Mise en ligne de `avatars` et `personnages` (01/11/2026)
+
+1. `/security-review` sur `develop` (aucune vulnérabilité), merge de `develop` dans `main`, push.
+2. Sur le serveur, **avant** le `git pull` : contrôle du format de `MONGODB_URI`, sans l'afficher
+   (résultat : `format OK`) :
+   ```bash
+   php -r 'require "vendor/autoload.php"; try { Dotenv\Dotenv::createImmutable(".")->load(); } catch (Throwable $e) { exit("ERREUR .env\n"); } $u = $_ENV["MONGODB_URI"] ?? ""; echo preg_match("#^mongodb(\+srv)?://\S+\z#", $u) ? "MONGODB_URI : format OK\n" : "MONGODB_URI : absente ou mal formée\n";'
+   ```
+   La connexion à Atlas ne se teste pas en SSH : l'IP du serveur SSH n'est pas celle du site, et
+   seule celle du site est autorisée dans Atlas. Elle se vérifie avec un vrai log écrit par le site.
+3. `git pull`, puis `composer install --no-dev --optimize-autoloader` (nouvelle bibliothèque
+   `mongodb/mongodb`). Pas de réimport : les fichiers de `database/` n'ont pas changé.
+4. Vérifié : `/`, `/connexion` → 200 ; `/espace-joueur`, `/personnage/creer`,
+   `/personnage/modifier?id=1` sans connexion → 302 vers `/connexion` ; images des calques en
+   `image/svg+xml`, scripts en `text/javascript` ; `/config/avatar.php`, `/vendor/autoload.php` → 404 ;
+   CSS et scripts appelés avec `?v=`.
+5. Test avec un compte de test à vraie adresse : création d'un personnage dans le navigateur
+   (aperçu en direct, personnage en attente), puis suppression. Les deux logs (`creation`,
+   `suppression`, `environnement: prod`) ont été relus dans Atlas : **la connexion du site à Atlas
+   fonctionne** (mot de passe de `fantasyrealm_app`, IP du site autorisée, `MONGODB_URI`).
+   Piège rencontré : la première suppression n'était pas partie (la fenêtre de confirmation avait
+   été fermée) ; le log est bien arrivé à la deuxième, quand le personnage a disparu de la liste.
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -284,10 +307,10 @@ n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
 
-- Avec le premier log MongoDB (`personnages`) : vérifier en production la connexion à Atlas après
-  le changement du mot de passe de `fantasyrealm_app` (27/10/2026). `MONGODB_URI` a été remise sur
-  une seule ligne le 30/10/2026 (elle contenait un retour à la ligne, plus une ligne parasite
-  `MONGODB_`) ; contrôle : une seule ligne, sans espace, début `mongodb+srv://`.
+- **Juste avant le dépôt** : réimporter `schema.sql` puis `seed.sql` en production (efface les
+  comptes de test, dont celui à vraie adresse) **et** supprimer dans Atlas les logs
+  `environnement: prod` (sinon le journal de l'administrateur montre des personnages qui
+  n'existent plus).
 - **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
   de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
   l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`

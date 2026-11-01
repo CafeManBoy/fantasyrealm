@@ -142,3 +142,11 @@ types qui changent. Testé avec Aelys et sa couronne désactivée.
 La duplication fait deux requêtes : copier le personnage, puis copier ses articles. Si la
 deuxième échouait, on aurait une copie sans ses articles. Avec `beginTransaction()`, les deux
 requêtes sont validées ensemble par `commit()`, ou annulées ensemble par `rollBack()`.
+
+## Mise en ligne (01/11/2026)
+
+- `MONGODB_URI` contrôlée sur le serveur (format), puis `git pull` et `composer install`
+  (bibliothèque `mongodb/mongodb`). Détails dans `docs/notes/deploiement.md`.
+- Vérifié en production avec un compte de test : création d'un personnage (aperçu en direct, badge
+  « en attente ») puis suppression ; les logs `creation` et `suppression` (`environnement: prod`)
+  ont été relus dans Atlas. C'est la première écriture MongoDB depuis le site en ligne.

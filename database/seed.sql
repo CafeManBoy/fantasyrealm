@@ -6,7 +6,10 @@
 --
 -- Comptes fictifs (adresses en @example.com, domaine réservé aux exemples).
 -- Les mots de passe sont stockés hachés (bcrypt, password_hash) ; ils figurent
--- en clair dans le manuel d'utilisation (identifiants de démonstration).
+-- en clair dans la section « Comptes de démonstration » du README et dans le
+-- manuel d'utilisation (identifiants de démonstration, publics par nature).
+-- Ils ont été générés avec App\Core\MotDePasse::generer() : 16 caractères,
+-- conformes à la règle de la CNIL (majuscule, minuscule, chiffre, caractère spécial).
 -- Les id sont écrits explicitement pour que les liens entre tables soient lisibles.
 -- =====================================================================
 
@@ -26,19 +29,19 @@ INSERT INTO role (id_role, libelle) VALUES
 -- ---------------------------------------------------------------------
 INSERT INTO utilisateur (id_utilisateur, pseudo, mail, password, suspendu, motdepasse_a_modifier, id_role) VALUES
     -- Administrateur
-    (1, 'Admin', 'admin@example.com', '$2y$10$qdF9igoEkShCZ/aNIJCVne3B51acL4ZeGM/8RlzzHH42R4IapyUIq', FALSE, FALSE, 3),
+    (1, 'Admin', 'admin@example.com', '$2y$10$Ut0KF5qksS8S2/Lnjwos0.O/7mW2JQxczRnnudgchL2jJtoM0UuLC', FALSE, FALSE, 3),
     -- Employé
-    (2, 'employe', 'employe@example.com', '$2y$10$GldEA/W8F8R6qHJ.bItzJuKP8bgunfxrhm4f3zxIvmrkrC83SA7zC', FALSE, FALSE, 2),
+    (2, 'employe', 'employe@example.com', '$2y$10$Mxlt8Wq9r9TTA/zaQqsc5uU84bg5TaJYxmFZnukxenvTYWh5q4VtG', FALSE, FALSE, 2),
     -- Joueuse avec des personnages dans tous les états
-    (3, 'Elandra', 'elandra@example.com', '$2y$10$1CgCE4V3n0.G889SERctAOeFtktCqMyS.9GDkCVKjn5pWzYUDlRJa', FALSE, FALSE, 1),
+    (3, 'Elandra', 'elandra@example.com', '$2y$10$4rcK8v1o9GzsUmMlaVbp8Obb/14kI0ogjCU/osf6xhLFDYeNXHCVu', FALSE, FALSE, 1),
     -- Joueur avec des personnages partagés (permet de tester le filtre par pseudo)
-    (4, 'Korvak', 'korvak@example.com', '$2y$10$a8QiFHFhzOdgFX9.OFrLdeyRbNhQf1RAHxtYFiHKp3b9MDub4rOuW', FALSE, FALSE, 1),
+    (4, 'Korvak', 'korvak@example.com', '$2y$10$hD2GuNrs3aS4iWynaSAZU.z0Q1BDaTnt7uw7QMdqNF.GbZcg96wGe', FALSE, FALSE, 1),
     -- Joueur sans personnage
-    (5, 'Novice', 'novice@example.com', '$2y$10$HdEIc7hMnGhlG295U5fMreaaDAwKq.7nlOaQRzZ.qETkoe5aJzbGe', FALSE, FALSE, 1),
+    (5, 'Novice', 'novice@example.com', '$2y$10$exuHUa7ihv5tdunGwlfYp.h1W0kKU1JUBgGph363ZM9Zy9IGSFhwC', FALSE, FALSE, 1),
     -- Compte suspendu : ne peut pas se connecter, son personnage partagé n'apparaît pas dans la galerie
-    (6, 'Banni', 'banni@example.com', '$2y$10$nllZGoaXgfew5ToBjv3Ey.aT1EMAl8I4hm5.mgNtBUfPM.mhGPHPa', TRUE, FALSE, 1),
+    (6, 'Banni', 'banni@example.com', '$2y$10$7XywQU01kp1hqUxz.c5ReO2AqKwGmUQZG6s8G6gdLBejt/qE2s.Ci', TRUE, FALSE, 1),
     -- Compte qui doit changer son mot de passe à la prochaine connexion
-    (7, 'Distrait', 'distrait@example.com', '$2y$10$fGx3dq8COpjzV0WOEEcctultTotmNUOsebhrOq7ZLAYb75XXbZY3e', FALSE, TRUE, 1);
+    (7, 'Distrait', 'distrait@example.com', '$2y$10$EJ054S89WQUv53rSnEYULuI4yuBqto1QimESZJ3GVBQeA9BKNJH1q', FALSE, TRUE, 1);
 
 -- ---------------------------------------------------------------------
 -- Personnages

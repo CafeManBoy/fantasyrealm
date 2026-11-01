@@ -21,6 +21,7 @@ return [
     // Galerie (publique)
     'GET /personnages' => [GalerieController::class, 'galerie'],
     'GET /personnage' => [GalerieController::class, 'detail'],
+    'POST /avis' => [GalerieController::class, 'deposerAvis'],
 
     // Comptes
     'GET /inscription' => [AuthController::class, 'formulaireInscription'],

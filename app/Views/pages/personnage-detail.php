@@ -5,8 +5,13 @@
 // $donnees['caracteristiques'] : informations lisibles (libellé, valeur, couleur vérifiée ou null)
 // $donnees['articles'] : ses articles actifs ; $donnees['typesArticles'] : libellés des types
 // $donnees['avis'] : avis validés (note, commentaire, date, pseudo de l'auteur)
+// $donnees['etatAvis'] : 'formulaire' si le visiteur peut donner un avis ; sinon $donnees['messageAvis']
+//   explique pourquoi. $donnees['erreurs'], ['note'], ['commentaire'] : formulaire réaffiché après une erreur.
 $personnage = $donnees['personnage'];
 $nombreAvis = count($donnees['avis']);
+$erreurs = $donnees['erreurs'];
+// Libellés des notes, de la meilleure à la moins bonne
+$libellesNotes = [5 => 'Excellent', 4 => 'Très bien', 3 => 'Bien', 2 => 'Moyen', 1 => 'Décevant'];
 ?>
 <div class="container py-5">
     <p><a href="/personnages">← Retour à la galerie</a></p>
@@ -83,6 +88,59 @@ $nombreAvis = count($donnees['avis']);
                     </li>
                 <?php endforeach; ?>
             </ul>
+        <?php endif; ?>
+    </section>
+
+    <section class="mt-4 formulaire-avis" aria-labelledby="titre-donner-avis">
+        <h2 id="titre-donner-avis" class="h4">Donner mon avis</h2>
+
+        <?php if ($donnees['etatAvis'] === 'formulaire'): ?>
+            <?php if (isset($erreurs['general'])): ?>
+                <div class="alert alert-danger" role="alert"><?= htmlspecialchars($erreurs['general']) ?></div>
+            <?php elseif (count($erreurs) > 0): ?>
+                <div class="alert alert-danger" role="alert">Le formulaire contient des erreurs : corrigez les champs signalés.</div>
+            <?php endif; ?>
+
+            <form method="post" action="/avis">
+                <input type="hidden" name="csrf" value="<?= htmlspecialchars($jetonCsrf) ?>">
+                <!-- Vérifié côté serveur : le personnage doit être dans la galerie -->
+                <input type="hidden" name="id" value="<?= htmlspecialchars((string) $personnage['id_personnage']) ?>">
+
+                <div class="mb-3">
+                    <label for="note" class="form-label">Note</label>
+                    <select class="form-select<?php if (isset($erreurs['note'])): ?> is-invalid<?php endif; ?>" id="note" name="note" required
+                            <?php if (isset($erreurs['note'])): ?>aria-invalid="true" aria-describedby="erreur-note"<?php endif; ?>>
+                        <option value="">Choisir une note</option>
+                        <?php foreach ($libellesNotes as $valeur => $libelle): ?>
+                            <option value="<?= $valeur ?>" <?php if ((string) $valeur === $donnees['note']): ?>selected<?php endif; ?>><?= $valeur ?> sur 5 : <?= htmlspecialchars($libelle) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php if (isset($erreurs['note'])): ?>
+                        <div id="erreur-note" class="invalid-feedback"><?= htmlspecialchars($erreurs['note']) ?></div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="mb-3">
+                    <label for="commentaire" class="form-label">Commentaire</label>
+                    <!-- Contenu collé aux balises : sinon les espaces du code seraient ajoutés au texte -->
+                    <textarea class="form-control<?php if (isset($erreurs['commentaire'])): ?> is-invalid<?php endif; ?>"
+                              id="commentaire" name="commentaire" rows="4" minlength="10" maxlength="1000" required
+                              aria-describedby="aide-commentaire<?php if (isset($erreurs['commentaire'])): ?> erreur-commentaire<?php endif; ?>"
+                              <?php if (isset($erreurs['commentaire'])): ?>aria-invalid="true"<?php endif; ?>><?= htmlspecialchars($donnees['commentaire']) ?></textarea>
+                    <div id="aide-commentaire" class="form-text">
+                        10 à 1000 caractères. Votre avis sera affiché avec votre pseudo, après sa validation par un employé.
+                    </div>
+                    <?php if (isset($erreurs['commentaire'])): ?>
+                        <div id="erreur-commentaire" class="invalid-feedback"><?= htmlspecialchars($erreurs['commentaire']) ?></div>
+                    <?php endif; ?>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Envoyer mon avis</button>
+            </form>
+        <?php elseif ($donnees['etatAvis'] === 'connexion'): ?>
+            <p><a href="/connexion">Connectez-vous</a> pour donner votre avis.</p>
+        <?php else: ?>
+            <p><?= htmlspecialchars($donnees['messageAvis']) ?></p>
         <?php endif; ?>
     </section>
 </div>

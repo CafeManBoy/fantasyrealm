@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Csrf;
 use App\Models\Article;
 use App\Models\Avatar;
 use App\Models\Commentaire;
@@ -44,6 +45,101 @@ class GalerieController extends Controller
         $this->afficherDetail($personnage);
     }
 
+    // POST /avis : dépôt d'un avis (note + commentaire), en attente de validation par un employé
+    public function deposerAvis(): void
+    {
+        $this->exigerRole(['utilisateur']);
+        // Le personnage doit être DANS LA GALERIE, pas seulement exister (decisions.md) : sinon 404
+        $personnage = $this->chargerPersonnageDeLaGalerie($this->lireId($_POST));
+        $note = $this->lireChamp('note');
+        // \r\n → \n : un retour à la ligne compte pour 1 caractère, comme dans le navigateur
+        $commentaire = str_replace("\r\n", "\n", $this->lireChamp('commentaire'));
+
+        // Son propre personnage, ou un deuxième avis : refusé ici aussi, pas seulement en cachant le formulaire.
+        // Vérifié AVANT le jeton : ainsi, une erreur de jeton s'affiche toujours au-dessus du formulaire.
+        $etat = $this->etatFormulaireAvis($personnage);
+        if ($etat !== 'formulaire') {
+            $this->session->ajouterMessage($this->messageAvisImpossible($etat));
+            $this->rediriger('/personnage?id=' . $personnage['id_personnage']);
+        }
+
+        $csrf = new Csrf();
+        if (!$csrf->jetonEstValide()) {
+            $this->afficherDetail($personnage, ['general' => 'Formulaire expiré, réessayez.'], $note, $commentaire);
+            return;
+        }
+
+        $erreurs = $this->validerAvis($note, $commentaire);
+        if (count($erreurs) > 0) {
+            $this->afficherDetail($personnage, $erreurs, $note, $commentaire);
+            return;
+        }
+
+        // Auteur et pseudo lus dans la session, jamais dans le formulaire
+        $modele = new Commentaire();
+        $modele->creer((int) $note, $commentaire, $personnage['id_personnage'],
+            $this->utilisateurConnecte['id_utilisateur'], $this->utilisateurConnecte['pseudo']);
+
+        $this->session->ajouterMessage('Merci ! Votre avis sera visible après sa validation par un employé.');
+        $this->rediriger('/personnage?id=' . $personnage['id_personnage']);
+    }
+
+    // Que montrer à la place du formulaire d'avis ? 'formulaire' si le visiteur peut en déposer un ;
+    // sinon 'connexion', 'role' (employé, admin), 'proprietaire', 'en_attente' ou 'valide' (avis déjà donné)
+    private function etatFormulaireAvis(array $personnage): string
+    {
+        if ($this->utilisateurConnecte === null) {
+            return 'connexion';
+        }
+        if ($this->utilisateurConnecte['role'] !== 'utilisateur') {
+            return 'role';
+        }
+        if ($personnage['id_utilisateur'] === $this->utilisateurConnecte['id_utilisateur']) {
+            return 'proprietaire';
+        }
+
+        $modele = new Commentaire();
+        $avis = $modele->trouverAvisDe($personnage['id_personnage'], $this->utilisateurConnecte['id_utilisateur']);
+        if ($avis !== null) {
+            return $avis['statut'];
+        }
+
+        return 'formulaire';
+    }
+
+    private function messageAvisImpossible(string $etat): string
+    {
+        switch ($etat) {
+            case 'connexion':
+                return 'Connectez-vous pour donner votre avis.';
+            case 'role':
+                return 'Les avis sont réservés aux joueurs : les employés et l\'administrateur les modèrent.';
+            case 'proprietaire':
+                return 'C\'est votre personnage : vous ne pouvez pas lui donner d\'avis.';
+            case 'en_attente':
+                return 'Vous avez déjà donné votre avis sur ce personnage : il attend la validation d\'un employé.';
+            default:
+                return 'Vous avez déjà donné votre avis sur ce personnage.';
+        }
+    }
+
+    // Note entière de 1 à 5 ; commentaire de 10 à 1000 caractères (decisions.md)
+    private function validerAvis(string $note, string $commentaire): array
+    {
+        $erreurs = [];
+        if (!ctype_digit($note) || (int) $note < 1 || (int) $note > 5) {
+            $erreurs['note'] = 'Choisissez une note de 1 à 5.';
+        }
+
+        // mb_strlen : compte les caractères (un « é » compte pour 1), pas les octets
+        $longueur = mb_strlen($commentaire);
+        if ($longueur < 10 || $longueur > 1000) {
+            $erreurs['commentaire'] = 'Votre avis doit faire de 10 à 1000 caractères (il en fait ' . $longueur . ').';
+        }
+
+        return $erreurs;
+    }
+
     // Personnage de la galerie (validé, partagé, propriétaire non suspendu) ; sinon page 404,
     // même si l'id existe : un personnage en attente ou non partagé ne se montre pas
     private function chargerPersonnageDeLaGalerie(int $id): array
@@ -57,8 +153,10 @@ class GalerieController extends Controller
         return $personnage;
     }
 
-    private function afficherDetail(array $personnage): void
+    // $erreurs, $note, $commentaire : formulaire d'avis réaffiché après une erreur
+    private function afficherDetail(array $personnage, array $erreurs = [], string $note = '', string $commentaire = ''): void
     {
+        $etatAvis = $this->etatFormulaireAvis($personnage);
         $modele = new Personnage();
         $modeleArticle = new Article();
         $modeleCommentaire = new Commentaire();
@@ -73,6 +171,11 @@ class GalerieController extends Controller
             'articles' => $articles,
             'typesArticles' => $modeleArticle->types(),
             'avis' => $modeleCommentaire->listerValides($personnage['id_personnage']),
+            'etatAvis' => $etatAvis,
+            'messageAvis' => $this->messageAvisImpossible($etatAvis),
+            'erreurs' => $erreurs,
+            'note' => $note,
+            'commentaire' => $commentaire,
         ]);
     }
 

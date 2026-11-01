@@ -36,4 +36,6 @@ return [
     // Personnages du joueur
     'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],
     'POST /personnage/creer' => [PersonnageController::class, 'traiterCreation'],
+    'GET /personnage/modifier' => [PersonnageController::class, 'formulaireModification'],
+    'POST /personnage/modifier' => [PersonnageController::class, 'traiterModification'],
 ];

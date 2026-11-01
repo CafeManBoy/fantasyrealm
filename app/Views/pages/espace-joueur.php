@@ -30,6 +30,13 @@
                                 <span class="badge badge-valide">Validé, non partagé</span>
                             <?php endif; ?>
                         </p>
+                        <?php if ($personnage['autorise']): ?>
+                            <p class="mt-2 mb-0">
+                                <!-- Lien simple (GET) : il affiche seulement le formulaire, il ne modifie rien -->
+                                <a href="/personnage/modifier?id=<?= htmlspecialchars((string) $personnage['id_personnage']) ?>"
+                                   class="btn btn-sm btn-outline-primary">Modifier<span class="visually-hidden"> <?= htmlspecialchars($personnage['nom']) ?></span></a>
+                            </p>
+                        <?php endif; ?>
                     </article>
                 </li>
             <?php endforeach; ?>

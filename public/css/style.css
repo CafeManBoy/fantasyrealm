@@ -85,7 +85,8 @@ a:focus-visible,
 button:focus-visible,
 .btn:focus-visible,
 .nav-link:focus-visible,
-.navbar-toggler:focus-visible {
+.navbar-toggler:focus-visible,
+summary:focus-visible {
     outline: 3px solid var(--couleur-focus);
     outline-offset: 2px;
     box-shadow: none;
@@ -157,6 +158,18 @@ button:focus-visible,
     --bs-btn-active-color: var(--couleur-sur-primaire);
     --bs-btn-active-bg: var(--couleur-primaire-fonce);
     --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+}
+
+/* Bouton de suppression : rouge de la charte (5,9:1 sur le fond ; celui de Bootstrap est plus pâle) */
+.btn-outline-danger {
+    --bs-btn-color: var(--couleur-erreur);
+    --bs-btn-border-color: var(--couleur-erreur);
+    --bs-btn-hover-color: var(--couleur-sur-primaire);
+    --bs-btn-hover-bg: var(--couleur-erreur);
+    --bs-btn-hover-border-color: var(--couleur-erreur);
+    --bs-btn-active-color: var(--couleur-sur-primaire);
+    --bs-btn-active-bg: var(--couleur-erreur);
+    --bs-btn-active-border-color: var(--couleur-erreur);
 }
 
 .btn-outline-primary {
@@ -260,6 +273,12 @@ button:focus-visible,
     background-color: var(--couleur-surface);
     border: 1px solid var(--couleur-bordure);
     border-radius: 0.5rem;
+}
+
+/* « Dupliquer » : zone dépliable (details / summary), présentée comme un lien */
+.carte-personnage summary {
+    color: rgb(var(--couleur-lien-rgb));
+    cursor: pointer;
 }
 
 /* État du personnage : le texte du badge le dit aussi (l'information ne passe pas que par la couleur) */

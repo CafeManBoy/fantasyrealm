@@ -38,4 +38,7 @@ return [
     'POST /personnage/creer' => [PersonnageController::class, 'traiterCreation'],
     'GET /personnage/modifier' => [PersonnageController::class, 'formulaireModification'],
     'POST /personnage/modifier' => [PersonnageController::class, 'traiterModification'],
+    'POST /personnage/partager' => [PersonnageController::class, 'traiterPartage'],
+    'POST /personnage/supprimer' => [PersonnageController::class, 'traiterSuppression'],
+    'POST /personnage/dupliquer' => [PersonnageController::class, 'traiterDuplication'],
 ];

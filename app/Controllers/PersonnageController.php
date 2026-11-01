@@ -94,6 +94,102 @@ class PersonnageController extends Controller
         $this->rediriger('/espace-joueur');
     }
 
+    // Bouton « Partager » / « Arrêter le partage » de l'espace joueur : inverse l'état de partage
+    public function traiterPartage(): void
+    {
+        $this->exigerRole(['utilisateur']);
+        $this->exigerJetonValide();
+        $personnage = $this->chargerPersonnageModifiable($this->lireId($_POST));
+
+        $partage = !$personnage['partage'];
+        $modele = new Personnage();
+        $modele->changerPartage($personnage['id_personnage'], $partage);
+
+        $action = 'arret_partage';
+        $message = '« ' . $personnage['nom'] . ' » n\'est plus visible dans la galerie.';
+        if ($partage) {
+            $action = 'partage';
+            $message = '« ' . $personnage['nom'] . ' » est maintenant visible dans la galerie.';
+        }
+        $logger = new Logger();
+        $logger->enregistrer($action, $personnage, $this->utilisateurConnecte,
+            ['partage' => ['avant' => (bool) $personnage['partage'], 'apres' => $partage]]);
+
+        $this->session->ajouterMessage($message);
+        $this->rediriger('/espace-joueur');
+    }
+
+    // Suppression définitive, possible même pour un personnage en attente (decisions.md)
+    public function traiterSuppression(): void
+    {
+        $this->exigerRole(['utilisateur']);
+        $this->exigerJetonValide();
+        $personnage = $this->chargerPersonnageDuJoueur($this->lireId($_POST));
+
+        $modele = new Personnage();
+        $modele->supprimer($personnage['id_personnage']);
+
+        // Journal : les dernières valeurs du personnage (avant), puis plus rien (après)
+        $logger = new Logger();
+        $logger->enregistrer('suppression', $personnage, $this->utilisateurConnecte, [
+            'nom' => ['avant' => $personnage['nom'], 'apres' => null],
+            'autorise' => ['avant' => (bool) $personnage['autorise'], 'apres' => null],
+            'partage' => ['avant' => (bool) $personnage['partage'], 'apres' => null],
+        ]);
+
+        $this->session->ajouterMessage('« ' . $personnage['nom'] . ' » a été supprimé.');
+        $this->rediriger('/espace-joueur');
+    }
+
+    // Duplication : même apparence et mêmes articles, nouveau nom obligatoire.
+    // Seul un personnage validé peut être dupliqué ; la copie est en attente (decisions.md).
+    public function traiterDuplication(): void
+    {
+        $this->exigerRole(['utilisateur']);
+        $this->exigerJetonValide();
+        $original = $this->chargerPersonnageModifiable($this->lireId($_POST));
+
+        // Le nouveau nom suit les mêmes règles qu'à la création (format et nom unique)
+        $copie = $original;
+        $copie['nom'] = $this->lireChamp('nouveau_nom');
+        $erreurs = $this->validerPersonnage($copie, null);
+        if (count($erreurs) > 0) {
+            $message = 'Duplication de « ' . $original['nom'] . ' » impossible : ';
+            if (isset($erreurs['nom'])) {
+                $message .= $erreurs['nom'];
+            } else {
+                // Une option de son apparence a été retirée de config/avatar.php
+                $message .= 'son apparence contient une option qui n\'existe plus. Modifiez-le d\'abord.';
+            }
+            $this->session->ajouterMessage($message);
+            $this->rediriger('/espace-joueur');
+        }
+
+        $modele = new Personnage();
+        $copie['id_personnage'] = $modele->dupliquer($original['id_personnage'], $copie['nom']);
+
+        $logger = new Logger();
+        $logger->enregistrer('duplication', $copie, $this->utilisateurConnecte, [
+            'nom' => ['avant' => null, 'apres' => $copie['nom']],
+            'copie_de' => ['avant' => null, 'apres' => $original['nom'] . ' (id ' . $original['id_personnage'] . ')'],
+        ]);
+
+        $this->session->ajouterMessage('« ' . $copie['nom'] . ' » a été créé à partir de « ' . $original['nom'] . ' ». '
+            . 'Un employé doit valider son nom.');
+        $this->rediriger('/espace-joueur');
+    }
+
+    // Petits formulaires de l'espace joueur (partage, suppression, duplication) : un jeton CSRF
+    // invalide renvoie à l'espace joueur avec un message, sans rien modifier
+    private function exigerJetonValide(): void
+    {
+        $csrf = new Csrf();
+        if (!$csrf->jetonEstValide()) {
+            $this->session->ajouterMessage('Formulaire expiré, réessayez.');
+            $this->rediriger('/espace-joueur');
+        }
+    }
+
     // Id du personnage lu dans l'adresse ($_GET) ou dans le formulaire ($_POST) ; 0 s'il est absent
     // ou invalide (aucun personnage n'a l'id 0)
     private function lireId(array $source): int

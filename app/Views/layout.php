@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="/css/style.css?v=<?= filemtime(__DIR__ . '/../../public/css/style.css') ?>">
     <!-- Aperçu de l'avatar dans le formulaire de personnage (ne fait rien sur les autres pages) -->
     <script src="/js/apercu-avatar.js?v=<?= filemtime(__DIR__ . '/../../public/js/apercu-avatar.js') ?>" defer></script>
+    <!-- Confirmation avant une suppression (formulaires marqués data-confirmation) -->
+    <script src="/js/confirmation.js?v=<?= filemtime(__DIR__ . '/../../public/js/confirmation.js') ?>" defer></script>
     <!-- JavaScript de Bootstrap (ouverture du menu sur mobile), exécuté après la lecture de la page -->
     <script src="/js/bootstrap.bundle.min.js" defer></script>
 </head>

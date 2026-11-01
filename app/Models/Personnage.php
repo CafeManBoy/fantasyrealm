@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Core\Database;
 use PDO;
+use PDOException;
 
 // Accès à la table personnage et aux articles qu'il porte (tables dispose et article).
 class Personnage
@@ -136,6 +137,59 @@ class Personnage
             'UPDATE personnage SET autorise = 0, partage = 0 WHERE id_personnage = :id'
         );
         $requete->execute(['id' => $id]);
+    }
+
+    // Partage (true) ou arrêt du partage (false) dans la galerie
+    public function changerPartage(int $id, bool $partage): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE personnage SET partage = :partage WHERE id_personnage = :id'
+        );
+        $requete->execute(['partage' => (int) $partage, 'id' => $id]);
+    }
+
+    // Suppression définitive. La base supprime aussi son équipement et ses avis
+    // (clés étrangères ON DELETE CASCADE des tables dispose et commentaire).
+    public function supprimer(int $id): void
+    {
+        $requete = Database::connexion()->prepare('DELETE FROM personnage WHERE id_personnage = :id');
+        $requete->execute(['id' => $id]);
+    }
+
+    // Copie l'apparence et les articles du personnage $id sous un nouveau nom (déjà vérifié).
+    // La copie appartient au même joueur ; elle est en attente et non partagée (valeurs par défaut).
+    // Transaction : les deux requêtes réussissent ensemble, ou rien n'est enregistré
+    // (pas de copie sans ses articles). Renvoie l'id de la copie.
+    public function dupliquer(int $id, string $nouveauNom): int
+    {
+        $connexion = Database::connexion();
+        $connexion->beginTransaction();
+        try {
+            $requete = $connexion->prepare(
+                'INSERT INTO personnage (nom, genre, couleur_peau, couleur_yeux, couleur_cheveux,
+                                         forme_yeux, forme_nez, forme_bouche, coupe_cheveux, id_utilisateur)
+                 SELECT :nom, genre, couleur_peau, couleur_yeux, couleur_cheveux,
+                        forme_yeux, forme_nez, forme_bouche, coupe_cheveux, id_utilisateur
+                 FROM personnage
+                 WHERE id_personnage = :id'
+            );
+            $requete->execute(['nom' => $nouveauNom, 'id' => $id]);
+            $idCopie = (int) $connexion->lastInsertId();
+
+            $requete = $connexion->prepare(
+                'INSERT INTO dispose (id_personnage, id_article)
+                 SELECT :id_copie, id_article FROM dispose WHERE id_personnage = :id'
+            );
+            $requete->execute(['id_copie' => $idCopie, 'id' => $id]);
+
+            $connexion->commit();
+        } catch (PDOException $e) {
+            // Annule la première requête si la deuxième a échoué, puis laisse remonter l'erreur
+            $connexion->rollBack();
+            throw $e;
+        }
+
+        return $idCopie;
     }
 
     // Équipe un article

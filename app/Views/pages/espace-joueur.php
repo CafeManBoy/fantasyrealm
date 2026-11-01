@@ -30,12 +30,51 @@
                                 <span class="badge badge-valide">Validé, non partagé</span>
                             <?php endif; ?>
                         </p>
-                        <?php if ($personnage['autorise']): ?>
-                            <p class="mt-2 mb-0">
+                        <?php
+                        // Valeurs réutilisées dans les boutons ci-dessous (déjà échappées)
+                        $id = htmlspecialchars((string) $personnage['id_personnage']);
+                        $nom = htmlspecialchars($personnage['nom']);
+                        ?>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <?php if ($personnage['autorise']): ?>
                                 <!-- Lien simple (GET) : il affiche seulement le formulaire, il ne modifie rien -->
-                                <a href="/personnage/modifier?id=<?= htmlspecialchars((string) $personnage['id_personnage']) ?>"
-                                   class="btn btn-sm btn-outline-primary">Modifier<span class="visually-hidden"> <?= htmlspecialchars($personnage['nom']) ?></span></a>
-                            </p>
+                                <a href="/personnage/modifier?id=<?= $id ?>" class="btn btn-sm btn-outline-primary">
+                                    Modifier<span class="visually-hidden"> <?= $nom ?></span>
+                                </a>
+
+                                <!-- Actions qui modifient des données : formulaire POST avec jeton CSRF -->
+                                <form method="post" action="/personnage/partager">
+                                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($jetonCsrf) ?>">
+                                    <input type="hidden" name="id" value="<?= $id ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <?php if ($personnage['partage']): ?>Arrêter le partage<?php else: ?>Partager<?php endif; ?><span class="visually-hidden"> <?= $nom ?></span>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
+                            <form method="post" action="/personnage/supprimer"
+                                  data-confirmation="Supprimer définitivement « <?= $nom ?> » ? Ses avis seront supprimés aussi.">
+                                <input type="hidden" name="csrf" value="<?= htmlspecialchars($jetonCsrf) ?>">
+                                <input type="hidden" name="id" value="<?= $id ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Supprimer<span class="visually-hidden"> <?= $nom ?></span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <?php if ($personnage['autorise']): ?>
+                            <!-- details / summary : zone qui s'ouvre au clic ou au clavier, sans JavaScript -->
+                            <details class="mt-2">
+                                <summary>Dupliquer<span class="visually-hidden"> <?= $nom ?></span></summary>
+                                <form method="post" action="/personnage/dupliquer" class="mt-2">
+                                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($jetonCsrf) ?>">
+                                    <input type="hidden" name="id" value="<?= $id ?>">
+                                    <label for="nouveau-nom-<?= $id ?>" class="form-label small">Nom de la copie</label>
+                                    <input type="text" class="form-control form-control-sm mb-2" id="nouveau-nom-<?= $id ?>"
+                                           name="nouveau_nom" minlength="3" maxlength="30" autocomplete="off" required>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Créer la copie</button>
+                                </form>
+                            </details>
                         <?php endif; ?>
                     </article>
                 </li>

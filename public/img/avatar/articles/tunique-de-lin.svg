@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Tunique de lin » (vêtement) -->
+  <path d="M132,800 L134,445 Q136,378 218,364 L262,360 L300,410 L338,360 L382,364 Q464,378 466,445 L468,800 Z" fill="#d9c7a3" stroke="#8a7650" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="134" y="560" width="333" height="22" fill="#8a6a3a"/>
+  <path d="M300,410 L300,470" fill="none" stroke="#8a7650" stroke-width="4" stroke-linecap="round"/>
+</svg>

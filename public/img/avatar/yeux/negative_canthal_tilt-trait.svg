@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Yeux en amande, coin extérieur tombant : contours.
+       Le blanc de l’œil est l’amande MOINS l’iris (fill-rule="evenodd") : la couleur de l’iris reste visible. -->
+  <g fill="#ffffff" fill-rule="evenodd" stroke="#3b2a20" stroke-width="4" stroke-linejoin="round">
+    <path d="M220,216 Q260,180 290,202 Q248,232 220,216 Z M245,208 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0 Z"/>
+    <path d="M310,202 Q340,180 380,216 Q352,232 310,202 Z M335,208 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0 Z"/>
+  </g>
+  <g fill="#1a1a1a">
+    <circle cx="255" cy="208" r="4"/>
+    <circle cx="345" cy="208" r="4"/>
+  </g>
+  <g fill="none" stroke="#3b2a20" stroke-width="5" stroke-linecap="round">
+    <path d="M218,186 Q252,164 288,176"/>
+    <path d="M312,176 Q348,164 382,186"/>
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Épée courte » (arme) : lame, garde, poignée et pommeau -->
+  <path d="M502,640 L502,440 L510,416 L518,440 L518,640 Z" fill="#c0c7cf" stroke="#5d6670" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="484" y="640" width="52" height="12" rx="3" fill="#8a6d1f"/>
+  <rect x="504" y="652" width="12" height="50" fill="#5a3a22"/>
+  <circle cx="510" cy="710" r="9" fill="#8a6d1f"/>
+</svg>

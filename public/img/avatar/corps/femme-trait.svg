@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Corps femme : contours, affichés par-dessus la couleur de peau -->
+  <g fill="none" stroke="#3b2a20" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M180,800 Q190,640 192,560 Q172,470 180,425 Q190,378 245,368 L264,366"/>
+    <path d="M336,366 L355,368 Q410,378 420,425 Q428,470 408,560 Q410,640 420,800"/>
+    <path d="M264,333 L264,366"/>
+    <path d="M336,333 L336,366"/>
+    <path d="M194,196 Q170,196 172,224 Q174,252 196,254"/>
+    <path d="M406,196 Q430,196 428,224 Q426,252 404,254"/>
+    <ellipse cx="300" cy="215" rx="108" ry="125"/>
+  </g>
+</svg>

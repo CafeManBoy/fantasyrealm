@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Armure de cuir » (armure) -->
+  <path d="M190,570 L194,430 Q200,382 252,372 L348,372 Q400,382 406,430 L410,570 Q300,596 190,570 Z" fill="#8b5a2b" stroke="#4a2e14" stroke-width="4" stroke-linejoin="round"/>
+  <g fill="none" stroke="#4a2e14" stroke-width="4" stroke-linecap="round">
+    <path d="M252,372 L240,572"/>
+    <path d="M348,372 L360,572"/>
+  </g>
+  <g fill="#c9a86a">
+    <circle cx="300" cy="450" r="6"/>
+    <circle cx="300" cy="500" r="6"/>
+  </g>
+</svg>

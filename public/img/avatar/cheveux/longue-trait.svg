@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Cheveux longs : contours et mèches -->
+  <g fill="none" stroke="#2b1d14" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M186,240 Q170,68 300,62 Q430,68 414,240 L432,480 Q405,492 384,478 L394,240 Q396,146 300,136 Q204,146 206,240 L216,478 Q195,492 168,480 Z"/>
+    <path d="M300,68 Q297,102 296,134"/>
+    <path d="M250,74 Q214,130 198,240 L194,470"/>
+    <path d="M350,74 Q386,130 402,240 L406,470"/>
+  </g>
+</svg>

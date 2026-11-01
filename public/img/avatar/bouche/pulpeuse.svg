@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Bouche pulpeuse : lèvre du haut, puis lèvre du bas -->
+  <g stroke="#7a2c2c" stroke-width="3" stroke-linejoin="round">
+    <path d="M262,300 Q281,286 300,294 Q319,286 338,300 Q300,306 262,300 Z" fill="#b5484f"/>
+    <path d="M262,300 Q300,306 338,300 Q300,330 262,300 Z" fill="#c9636a"/>
+  </g>
+</svg>

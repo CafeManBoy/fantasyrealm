@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Bâton de chêne » (arme) -->
+  <rect x="502" y="160" width="16" height="640" rx="6" fill="#7a5230" stroke="#3f2a17" stroke-width="3"/>
+  <circle cx="510" cy="160" r="18" fill="#6b4626" stroke="#3f2a17" stroke-width="3"/>
+  <g fill="none" stroke="#3f2a17" stroke-width="3">
+    <path d="M502,320 L518,316"/>
+    <path d="M502,520 L518,516"/>
+  </g>
+</svg>

@@ -21,6 +21,9 @@
             ?>
             <div class="avatar-calque avatar-masque" data-partie="<?= htmlspecialchars($calque['partie']) ?>"
                  style="<?= htmlspecialchars($style) ?>"></div>
+        <?php elseif ($calque['image'] === null): ?>
+            <?php // Calque vide de l'aperçu (article non porté) : caché, le JavaScript lui donnera une image ?>
+            <img class="avatar-calque" alt="" data-partie="<?= htmlspecialchars($calque['partie']) ?>" hidden>
         <?php else: ?>
             <img class="avatar-calque" src="<?= htmlspecialchars($calque['image']) ?>" alt=""
                  data-partie="<?= htmlspecialchars($calque['partie']) ?>">

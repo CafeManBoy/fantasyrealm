@@ -12,7 +12,14 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Renommer** un personnage validé le remet en attente (`autorise = 0`, `partage = 0`).
   Changer l'apparence ou l'équipement ne demande pas de nouvelle validation.
 - **Duplication** : copie de l'apparence et des articles, nouveau nom obligatoire (unique).
-  La copie est en attente et non partagée.
+  La copie est en attente et non partagée. Seul un personnage **validé** peut être dupliqué
+  (un personnage en attente peut seulement être supprimé).
+- **Nom** : 3 à 30 caractères, commence par une lettre ; lettres (accents compris), espaces,
+  apostrophes et tirets. Unique sans tenir compte des majuscules ni des accents (interclassement
+  de la base) : « Zephyr » est refusé si « Zéphyr » existe.
+- **Équipement** : jamais « tout supprimer puis réinsérer ». Pour chaque type, un article désactivé
+  reste lié si le joueur choisit « aucun » ou ne change pas la liste ; seul le choix d'un autre
+  article du même type le remplace (un seul article par type).
 
 ## Galerie et avis
 - **Galerie** : uniquement les personnages validés, partagés, dont le propriétaire n'est pas suspendu.
@@ -36,6 +43,11 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
   - `coupe_cheveux` : `courte`, `longue`, `attachee`
 - Renommer une clé oblige à modifier aussi `database/seed.sql`. Remplacer un dessin sans changer
   sa clé ne demande que `config/avatar.php`.
+
+## Journal MongoDB (`logs_personnages`)
+- Le local et la production utilisent la même base Atlas. Chaque document a un champ
+  `environnement` (`dev` ou `prod`, valeur de `APP_ENV`) ; la page des logs de l'administrateur
+  n'affiche que ceux de son environnement (les tests locaux n'apparaissent pas en production).
 
 ## Comptes
 - **Compte employé** : l'admin fournit un mail et un mot de passe (sujet). Le pseudo, obligatoire dans

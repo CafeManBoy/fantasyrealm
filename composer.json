@@ -6,7 +6,8 @@
     "require": {
         "php": "^8.2",
         "vlucas/phpdotenv": "^5.7",
-        "phpmailer/phpmailer": "^7.1"
+        "phpmailer/phpmailer": "^7.1",
+        "mongodb/mongodb": "^2.5"
     },
     "autoload": {
         "psr-4": {

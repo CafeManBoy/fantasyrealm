@@ -34,6 +34,15 @@
     /* Messages d'erreur des formulaires (5,9:1 sur le fond ; le rouge de Bootstrap n'atteint que 4,1:1) */
     --couleur-erreur: #b02a37;
 
+    /* Avatars : fond derrière le personnage, et couleur d'une partie colorable
+       (peau, yeux, cheveux) quand la couleur enregistrée n'est pas valide */
+    --couleur-avatar-fond: #e9e2d4;
+    --couleur-avatar-defaut: #9e9e9e;
+
+    /* Badge « en attente » (texte blanc : 7,4:1) ; les autres badges utilisent
+       --couleur-primaire et --couleur-texte-doux */
+    --couleur-attente: #7a4b00;
+
     /* Liens : Bootstrap 5.3 lit leur couleur au format « R, G, B » (sans #) */
     --couleur-lien-rgb: 75, 46, 131;                    /* #4b2e83 */
     --couleur-lien-survol-rgb: 46, 26, 87;              /* #2e1a57 */
@@ -193,4 +202,64 @@ button:focus-visible,
     padding: 1rem;
     background-color: var(--couleur-surface);
     border-left: 4px solid var(--couleur-primaire);
+}
+
+/* 9. Avatars
+   ------------------------------------------------------------------
+   Un avatar = des calques (images de 600 × 800 px) empilés dans un conteneur au même format (3:4).
+   Les calques s'empilent dans l'ordre du HTML : le premier est au fond. */
+.avatar {
+    position: relative; /* les calques se placent par rapport à ce conteneur */
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background-color: var(--couleur-avatar-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.5rem;
+}
+
+/* Chaque calque recouvre tout le conteneur */
+.avatar-calque {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Partie colorable : l'image sert de masque (seule sa forme compte), la couleur vient du fond.
+   La couleur du personnage est donnée dans l'attribut style ; sinon, couleur par défaut.
+   Les propriétés -webkit- servent aux navigateurs plus anciens (Safari, Chrome avant 2023). */
+.avatar-masque {
+    background-color: var(--couleur-avatar-defaut);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+/* 10. Espace joueur : cartes des personnages
+   ------------------------------------------------------------------ */
+.carte-personnage {
+    height: 100%;
+    padding: 0.75rem;
+    background-color: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.5rem;
+}
+
+/* État du personnage : le texte du badge le dit aussi (l'information ne passe pas que par la couleur) */
+.badge-attente {
+    background-color: var(--couleur-attente);
+    color: var(--couleur-sur-primaire);
+}
+
+.badge-valide {
+    background-color: var(--couleur-texte-doux);
+    color: var(--couleur-sur-primaire);
+}
+
+.badge-partage {
+    background-color: var(--couleur-primaire);
+    color: var(--couleur-sur-primaire);
 }

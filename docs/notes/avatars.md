@@ -55,7 +55,7 @@ l'iris reste visible dessous.
 
 | Risque | Mesure |
 |---|---|
-| Code injecté dans l'attribut `style` par une couleur (ex. `red; background-image: url(...)`) | `couleurEstValide()` : seule une couleur `^#[0-9a-fA-F]{6}$` est placée dans `style`. Sinon, la couleur par défaut du CSS s'applique. |
+| Code injecté dans l'attribut `style` par une couleur (ex. `red; background-image: url(...)`) | `couleurEstValide()` : seule une couleur `^#[0-9a-fA-F]{6}\z` est placée dans `style`. Sinon, la couleur par défaut du CSS s'applique. `\z` et non `$` : `$` accepte un retour à la ligne final (`"#aabbcc\n"` passerait). |
 | Chemin de fichier fabriqué à partir de la base (ex. clé `../../.env`) | Les chemins viennent **uniquement** de `config/avatar.php` : la clé lue en base sert seulement à chercher une ligne du tableau (liste blanche). Une clé inconnue fait disparaître le calque, sans erreur. |
 | XSS par le nom du personnage | `htmlspecialchars()` sur le nom (`aria-label`) et sur chaque chemin et attribut. |
 | Voir les personnages d'un autre joueur | La requête filtre sur `id_utilisateur` = le compte connecté (lu en session, jamais dans l'URL). La page vérifie connexion, rôle et compte non suspendu (`exigerRole`). |
@@ -88,7 +88,8 @@ l'iris reste visible dessous.
 - Novice : « Vous n'avez pas encore de personnage. ».
 - Sans connexion, `/espace-joueur` renvoie vers `/connexion`.
 - Côté serveur, avec des données piégées : couleur `red; background-image: url(...)` et
-  `#12345G` → couleur par défaut ; clés `../../.env` et `inconnu` → calque absent ;
+  `#12345G` → couleur par défaut ; `"#aabbcc\n"` (retour à la ligne final) → refusée après le
+  passage de `$` à `\z` ; clés `../../.env` et `inconnu` → calque absent ;
   nom `<script>…` → échappé.
 - Mobile (375 px) : 2 colonnes, pas de défilement horizontal. Console : aucune erreur.
 
@@ -118,6 +119,7 @@ dans un deuxième fichier, affiché par-dessus.
 **3. La couleur est placée dans un attribut `style` : n'est-ce pas dangereux ?**
 Si la couleur n'était pas vérifiée, quelqu'un pourrait enregistrer du CSS à la place (par exemple
 une image de fond chargée depuis un autre site). Avant de l'afficher, `couleurEstValide()` vérifie
-qu'elle respecte `#RRGGBB` ; sinon, elle n'est pas utilisée. Je l'ai testé avec
+qu'elle respecte `#RRGGBB` (expression terminée par `\z`, qui refuse aussi un retour à la ligne
+final) ; sinon, elle n'est pas utilisée. Je l'ai testé avec
 `red; background-image: url(...)` : seule la couleur par défaut s'affiche. Elle sera aussi vérifiée
 avant l'enregistrement, avec la fonctionnalité `personnages`.

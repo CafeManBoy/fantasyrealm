@@ -29,9 +29,10 @@ class Avatar
 
     // Vrai si $couleur est un code hexadécimal #RRGGBB.
     // Règle de sécurité : rien d'autre ne doit être placé dans un attribut style.
+    // \z : vraie fin du texte ($ accepterait encore un retour à la ligne final)
     public function couleurEstValide(string $couleur): bool
     {
-        return preg_match('/^#[0-9a-fA-F]{6}$/', $couleur) === 1;
+        return preg_match('/^#[0-9a-fA-F]{6}\z/', $couleur) === 1;
     }
 
     // Liste des calques d'un personnage, du fond vers l'avant :

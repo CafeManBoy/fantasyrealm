@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Corps homme : zone colorée avec la couleur de peau (sert de masque) -->
+  <g fill="#808080">
+    <path d="M140,800 L140,440 Q140,380 220,368 L264,365 L336,365 L380,368 Q460,380 460,440 L460,800 Z"/>
+    <rect x="264" y="300" width="72" height="80"/>
+    <ellipse cx="192" cy="224" rx="18" ry="30"/>
+    <ellipse cx="408" cy="224" rx="18" ry="30"/>
+    <ellipse cx="300" cy="215" rx="108" ry="125"/>
+  </g>
+</svg>

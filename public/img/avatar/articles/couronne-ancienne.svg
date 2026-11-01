@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Couronne ancienne » (accessoire) -->
+  <path d="M228,118 L232,62 L264,94 L300,50 L336,94 L368,62 L372,118 Z" fill="#d4af37" stroke="#8a6d1f" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="228" y="100" width="144" height="18" fill="#c19a2e" stroke="#8a6d1f" stroke-width="3"/>
+  <circle cx="300" cy="109" r="6" fill="#b0283a"/>
+  <circle cx="260" cy="109" r="4" fill="#2a6fb0"/>
+  <circle cx="340" cy="109" r="4" fill="#2a6fb0"/>
+</svg>

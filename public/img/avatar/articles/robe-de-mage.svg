@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Robe de mage » (vêtement) -->
+  <path d="M128,800 L150,440 Q156,374 230,362 L262,358 L300,430 L338,358 L370,362 Q444,374 450,440 L472,800 Z" fill="#4b3a8c" stroke="#2a1f55" stroke-width="4" stroke-linejoin="round"/>
+  <g fill="none" stroke="#e8c766" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M262,358 L300,430 L338,358" stroke-width="6"/>
+    <path d="M300,430 L300,800" stroke-width="8"/>
+  </g>
+</svg>

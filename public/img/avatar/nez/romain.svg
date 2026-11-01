@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Nez romain (arête bombée) -->
+  <g fill="none" stroke="#5a3a2a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M294,222 Q320,246 312,268 Q306,276 294,274"/>
+    <path d="M280,270 Q284,277 292,275"/>
+  </g>
+</svg>

@@ -100,16 +100,27 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 ## Procédure de mise à jour (redéploiement)
 
 1. En local : merge `--no-ff` de `develop` dans `main` (après `/security-review`), puis push.
-2. En SSH :
+2. Se connecter au serveur depuis Git Bash (mot de passe SSH demandé). Les commandes suivantes se
+   tapent **sur le serveur** : le début de ligne doit afficher `fantasyrealm5@ssh…`, plus le nom
+   du PC. Tapées sur le PC, elles échouent (`No such file or directory`, `mysql: command not found`).
+   ```bash
+   ssh fantasyrealm5@ssh-fantasyrealm5.alwaysdata.net
+   ```
+3. Sur le serveur (`composer install` seulement si une dépendance a été ajoutée) :
    ```bash
    cd ~/fantasyrealm
    git pull
    composer install --no-dev --optimize-autoloader
    ```
-3. Si le schéma de la base a changé : réimporter `schema.sql` puis `seed.sql` (efface les données).
-4. Vérifier en production : pages, connexion, envoi d'un mail et, à partir de la fonctionnalité
+4. Si le schéma de la base ou le jeu de données a changé : réimporter `schema.sql` puis `seed.sql`
+   (efface toutes les données, comptes créés sur le site compris). En une seule commande, avec un
+   seul mot de passe MySQL à taper (`cat` enchaîne les deux fichiers, dans le bon ordre) :
+   ```bash
+   cat database/schema.sql database/seed.sql | mysql -h mysql-fantasyrealm5.alwaysdata.net -u fantasyrealm5_app -p --default-character-set=utf8mb4 fantasyrealm5_fantasyrealm
+   ```
+5. Vérifier en production : pages, connexion, envoi d'un mail et, à partir de la fonctionnalité
    `personnages`, écriture d'un log MongoDB.
-5. **Juste avant le dépôt de l'ECF** : réimporter `schema.sql` puis `seed.sql` pour remettre le site
+6. **Juste avant le dépôt de l'ECF** : réimporter `schema.sql` puis `seed.sql` pour remettre le site
    dans son état de démonstration (les identifiants de démo sont publics).
 
 ## Sécurité
@@ -204,6 +215,19 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 2. Contrôle du `.env` (OK), puis `git pull`. Pas de `composer install` : aucune dépendance ajoutée.
 3. Vérifié : `/contact` → 200 ; demande envoyée depuis le site → mail reçu dans la boîte de
    réception de `MAIL_CONTACT` ; jeton CSRF falsifié → refusé, rien n'est envoyé.
+
+## Nouveaux mots de passe de démo (01/11/2026)
+
+1. `/security-review` (aucune vulnérabilité), merge de `develop` dans `main`, push.
+2. Sur le serveur : `git pull`, puis réimport de `schema.sql` puis `seed.sql`. Contrôle sans
+   afficher les hash en entier :
+   ```bash
+   mysql -h mysql-fantasyrealm5.alwaysdata.net -u fantasyrealm5_app -p fantasyrealm5_fantasyrealm -e "SELECT pseudo, SUBSTRING(password, 8, 6) AS debut_hash FROM utilisateur ORDER BY id_utilisateur"
+   ```
+   → 7 comptes, mêmes débuts de hash que dans `seed.sql` (`Ut0KF5` pour Admin…).
+3. Vérifié : `/`, `/connexion`, `/contact` → 200 ; `/espace-admin` sans connexion → 302 vers
+   `/connexion` ; connexion d'Admin avec le mot de passe du README → espace administrateur ;
+   connexion de Banni → « Ce compte est suspendu ».
 
 ## Maintenance
 

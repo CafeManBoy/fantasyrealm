@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Cuirasse de fer » (armure) : plastron puis épaulières -->
+  <g fill="#9aa3ad" stroke="#4b5560" stroke-width="4" stroke-linejoin="round">
+    <path d="M196,590 L200,420 Q300,384 400,420 L404,590 Q300,616 196,590 Z"/>
+    <ellipse cx="180" cy="420" rx="48" ry="32"/>
+    <ellipse cx="420" cy="420" rx="48" ry="32"/>
+  </g>
+  <path d="M300,402 L300,600" fill="none" stroke="#4b5560" stroke-width="4"/>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Amulette de lune » (accessoire) : cordon et croissant de lune -->
+  <path d="M268,370 Q300,480 332,370" fill="none" stroke="#6b4a2a" stroke-width="3"/>
+  <path d="M300,430 a24,24 0 0,0 0,48 a34,34 0 0,1 0,-48 Z" fill="#f2ecd0" stroke="#8a7a3a" stroke-width="3" stroke-linejoin="round"/>
+</svg>

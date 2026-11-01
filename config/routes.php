@@ -7,6 +7,7 @@ use App\Controllers\AuthController;
 use App\Controllers\ContactController;
 use App\Controllers\EspaceController;
 use App\Controllers\PageController;
+use App\Controllers\PersonnageController;
 
 return [
     'GET /' => [PageController::class, 'accueil'],
@@ -31,4 +32,13 @@ return [
     'GET /espace-joueur' => [EspaceController::class, 'espaceJoueur'],
     'GET /espace-employe' => [EspaceController::class, 'espaceEmploye'],
     'GET /espace-admin' => [EspaceController::class, 'espaceAdmin'],
+
+    // Personnages du joueur
+    'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],
+    'POST /personnage/creer' => [PersonnageController::class, 'traiterCreation'],
+    'GET /personnage/modifier' => [PersonnageController::class, 'formulaireModification'],
+    'POST /personnage/modifier' => [PersonnageController::class, 'traiterModification'],
+    'POST /personnage/partager' => [PersonnageController::class, 'traiterPartage'],
+    'POST /personnage/supprimer' => [PersonnageController::class, 'traiterSuppression'],
+    'POST /personnage/dupliquer' => [PersonnageController::class, 'traiterDuplication'],
 ];

@@ -58,6 +58,15 @@ class Controller
         }
     }
 
+    // Page 404, puis arrêt du script (ex. : personnage inexistant, ou qui appartient à un autre joueur :
+    // on ne dit pas lequel des deux, pour ne pas révéler qu'il existe)
+    protected function afficherPageIntrouvable(): void
+    {
+        http_response_code(404);
+        $this->afficher('404', 'Page introuvable');
+        exit;
+    }
+
     // Envoie le navigateur vers une autre page, puis arrête le script
     protected function rediriger(string $adresse): void
     {

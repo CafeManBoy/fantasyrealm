@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Article « Cape de voyage » (accessoire) : deux pans sur les épaules et une broche -->
+  <g fill="#2f5d3a" stroke="#1c3a24" stroke-width="4" stroke-linejoin="round">
+    <path d="M126,800 L128,440 Q130,372 214,358 L250,374 L198,800 Z"/>
+    <path d="M474,800 L472,440 Q470,372 386,358 L350,374 L402,800 Z"/>
+  </g>
+  <path d="M250,374 Q300,394 350,374" fill="none" stroke="#e8c766" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="300" cy="385" r="11" fill="#e8c766" stroke="#8a6d1f" stroke-width="3"/>
+</svg>

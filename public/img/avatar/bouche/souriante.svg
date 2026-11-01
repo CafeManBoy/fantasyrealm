@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Bouche souriante : sourire ouvert et fossettes -->
+  <path d="M262,294 Q300,334 338,294 Q300,310 262,294 Z" fill="#8b2f35" stroke="#5c1f22" stroke-width="3" stroke-linejoin="round"/>
+  <g fill="none" stroke="#5a3a2a" stroke-width="3" stroke-linecap="round">
+    <path d="M254,288 Q256,295 260,298"/>
+    <path d="M346,288 Q344,295 340,298"/>
+  </g>
+</svg>

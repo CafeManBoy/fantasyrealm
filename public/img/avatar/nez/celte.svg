@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Nez celte (petit et retroussé) -->
+  <g fill="none" stroke="#5a3a2a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M300,234 Q302,256 312,264 Q302,274 290,268"/>
+  </g>
+</svg>

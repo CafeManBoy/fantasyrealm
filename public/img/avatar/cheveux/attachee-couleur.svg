@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <!-- Image provisoire. Cheveux attachés en chignon : zone colorée avec la couleur des cheveux (sert de masque) -->
+  <g fill="#808080">
+    <circle cx="300" cy="70" r="36"/>
+    <path d="M192,215 Q186,95 300,88 Q414,95 408,215 Q398,150 300,142 Q202,150 192,215 Z"/>
+  </g>
+</svg>

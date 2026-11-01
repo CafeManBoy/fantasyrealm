@@ -39,6 +39,81 @@ class Personnage
         return $requete->fetchAll();
     }
 
+    // Personnages de la galerie, du plus récent au plus ancien, avec le pseudo de leur créateur.
+    // Galerie (decisions.md) : validé, partagé, et propriétaire non suspendu.
+    // $filtres : 'genre', 'du', 'au', 'pseudo' ('' = pas de filtre), déjà vérifiés par le contrôleur.
+    // Chaque filtre ajoute un morceau de SQL écrit ici, en dur ; sa valeur passe en paramètre
+    // préparé : aucune saisie de l'utilisateur n'est collée dans la requête.
+    public function listerGalerie(array $filtres): array
+    {
+        $sql = $this->requeteGalerie();
+        $parametres = [];
+
+        if ($filtres['genre'] !== '') {
+            $sql .= ' AND p.genre = :genre';
+            $parametres['genre'] = $filtres['genre'];
+        }
+        // DATE() garde seulement le jour : les deux bornes sont incluses, quelle que soit l'heure
+        if ($filtres['du'] !== '') {
+            $sql .= ' AND DATE(p.date_creation) >= :du';
+            $parametres['du'] = $filtres['du'];
+        }
+        if ($filtres['au'] !== '') {
+            $sql .= ' AND DATE(p.date_creation) <= :au';
+            $parametres['au'] = $filtres['au'];
+        }
+        if ($filtres['pseudo'] !== '') {
+            $sql .= ' AND u.pseudo = :pseudo';
+            $parametres['pseudo'] = $filtres['pseudo'];
+        }
+        $sql .= ' ORDER BY p.date_creation DESC';
+
+        $requete = Database::connexion()->prepare($sql);
+        $requete->execute($parametres);
+
+        return $requete->fetchAll();
+    }
+
+    // Le personnage $id s'il est dans la galerie, sinon null (en attente, non partagé,
+    // propriétaire suspendu ou inexistant)
+    public function trouverDansGalerie(int $id): ?array
+    {
+        $requete = Database::connexion()->prepare($this->requeteGalerie() . ' AND p.id_personnage = :id');
+        $requete->execute(['id' => $id]);
+        $personnage = $requete->fetch();
+
+        if ($personnage === false) {
+            return null;
+        }
+
+        return $personnage;
+    }
+
+    // Pseudos des joueurs qui ont au moins un personnage dans la galerie (liste du filtre)
+    public function pseudosGalerie(): array
+    {
+        $requete = Database::connexion()->query(
+            'SELECT DISTINCT u.pseudo
+             FROM personnage p
+             JOIN utilisateur u ON u.id_utilisateur = p.id_utilisateur
+             WHERE p.autorise = 1 AND p.partage = 1 AND u.suspendu = 0
+             ORDER BY u.pseudo'
+        );
+
+        return $requete->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    // Début commun des requêtes de la galerie : les colonnes utiles et les 3 conditions de visibilité
+    private function requeteGalerie(): string
+    {
+        return 'SELECT p.id_personnage, p.nom, p.genre, p.couleur_peau, p.couleur_yeux, p.couleur_cheveux,
+                       p.forme_yeux, p.forme_nez, p.forme_bouche, p.coupe_cheveux, p.date_creation,
+                       p.id_utilisateur, u.pseudo
+                FROM personnage p
+                JOIN utilisateur u ON u.id_utilisateur = p.id_utilisateur
+                WHERE p.autorise = 1 AND p.partage = 1 AND u.suspendu = 0';
+    }
+
     // Vrai si un autre personnage porte déjà ce nom.
     // La comparaison suit l'interclassement de la base (utf8mb4_unicode_ci) : elle ne tient compte
     // ni des majuscules ni des accents (« zephyr » = « Zéphyr »), comme la contrainte UNIQUE.

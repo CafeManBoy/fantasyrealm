@@ -275,6 +275,15 @@ summary:focus-visible {
     border-radius: 0.5rem;
 }
 
+/* 11. Galerie et page détail
+   ------------------------------------------------------------------ */
+.filtres-galerie {
+    padding: 1rem;
+    background-color: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.5rem;
+}
+
 /* « Dupliquer » : zone dépliable (details / summary), présentée comme un lien */
 .carte-personnage summary {
     color: rgb(var(--couleur-lien-rgb));

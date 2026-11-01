@@ -190,17 +190,6 @@ class PersonnageController extends Controller
         }
     }
 
-    // Id du personnage lu dans l'adresse ($_GET) ou dans le formulaire ($_POST) ; 0 s'il est absent
-    // ou invalide (aucun personnage n'a l'id 0)
-    private function lireId(array $source): int
-    {
-        if (!isset($source['id']) || !is_string($source['id']) || !ctype_digit($source['id'])) {
-            return 0;
-        }
-
-        return (int) $source['id'];
-    }
-
     // Personnage du joueur connecté. S'il n'existe pas ou appartient à un autre joueur : page 404.
     private function chargerPersonnageDuJoueur(int $id): array
     {

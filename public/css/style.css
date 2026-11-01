@@ -238,6 +238,20 @@ button:focus-visible,
     mask-repeat: no-repeat;
 }
 
+/* Aperçu dans le formulaire de personnage : taille limitée ; sur grand écran, il reste visible
+   pendant que l'on fait défiler le formulaire (sticky) */
+.apercu-avatar {
+    max-width: 16rem;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .apercu-avatar {
+        position: sticky;
+        top: 1rem;
+    }
+}
+
 /* 10. Espace joueur : cartes des personnages
    ------------------------------------------------------------------ */
 .carte-personnage {

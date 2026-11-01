@@ -7,6 +7,7 @@
     <p>Bonjour <?= htmlspecialchars($utilisateurConnecte['pseudo']) ?>, bienvenue dans votre espace joueur.</p>
 
     <h2 class="mt-4 mb-3">Mes personnages</h2>
+    <p><a href="/personnage/creer" class="btn btn-primary">Créer un personnage</a></p>
     <?php if (count($donnees['personnages']) === 0): ?>
         <p>Vous n'avez pas encore de personnage.</p>
     <?php else: ?>

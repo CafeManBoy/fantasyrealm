@@ -2,13 +2,28 @@
 
 namespace App\Controllers;
 
-// Espaces personnels, un par rôle. Leur contenu arrivera avec les fonctionnalités suivantes.
+use App\Models\Avatar;
+use App\Models\Personnage;
+
+// Espaces personnels, un par rôle. Leur contenu arrive avec les fonctionnalités suivantes.
 class EspaceController extends Controller
 {
     public function espaceJoueur(): void
     {
         $this->exigerRole(['utilisateur']);
-        $this->afficher('espace-joueur', 'Mon espace');
+
+        // Seulement les personnages du compte connecté (id lu dans la session, jamais dans l'URL)
+        $modelePersonnage = new Personnage();
+        $avatar = new Avatar();
+        $personnages = $modelePersonnage->listerParUtilisateur($this->utilisateurConnecte['id_utilisateur']);
+
+        // Calques de l'avatar de chaque personnage, avec ses articles actifs
+        foreach ($personnages as $index => $personnage) {
+            $articles = $modelePersonnage->listerArticlesActifs($personnage['id_personnage']);
+            $personnages[$index]['calques'] = $avatar->calques($personnage, $articles);
+        }
+
+        $this->afficher('espace-joueur', 'Mon espace', ['personnages' => $personnages]);
     }
 
     public function espaceEmploye(): void

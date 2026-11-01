@@ -77,10 +77,13 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
   (au moins 6 dans la galerie, genres et dates de création variés pour tester les filtres).
 - Des articles de chaque type (vêtement, armure, accessoire, arme), dont un désactivé.
 - Des avis en attente et des avis validés.
-- Mots de passe stockés en hash bcrypt dans `seed.sql`. Donne-moi les mots de passe en clair dans le chat :
-  je les reporterai dans le manuel d'utilisation. Ce sont des identifiants de démo, pas des secrets :
-  le sujet exige qu'ils figurent dans le manuel (versionné dans le dépôt). Ne jamais utiliser un vrai
-  mot de passe personnel.
+- Mots de passe stockés en hash bcrypt dans `seed.sql`, générés au hasard selon la règle de la CNIL
+  (`App\Core\MotDePasse::generer()`). Les identifiants en clair (mail + mot de passe des 7 comptes,
+  avec le cas que chacun couvre) sont dans la section « Comptes de démonstration » du `README.md`,
+  d'où je les reprendrai dans le manuel d'utilisation. S'ils sont régénérés, mettre à jour
+  `seed.sql` et le README ensemble. Ce sont des identifiants de démo, pas des secrets : le sujet
+  exige qu'ils figurent dans le manuel (versionné dans le dépôt). Ne jamais utiliser un vrai mot de
+  passe personnel.
 - Les identifiants de démo étant publics, réimporter `schema.sql` puis `seed.sql` en production juste
   avant le dépôt, pour que le correcteur trouve le site dans son état de démo.
 - Adresses mail fictives en `@example.com`.

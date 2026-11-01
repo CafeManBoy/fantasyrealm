@@ -25,8 +25,18 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Galerie** : uniquement les personnages validés, partagés, dont le propriétaire n'est pas suspendu.
 - **Filtres** (genre, plage de dates de création, pseudo) : formulaire GET traité en PHP,
   fonctionne sans JS.
+  - Pseudo : liste déroulante des pseudos qui ont au moins un personnage dans la galerie
+    (comparaison exacte, pas de champ libre ni de `LIKE`).
+  - Dates : chaque borne est facultative et **incluse** (« du 1er au 31 août » compte un personnage
+    créé le 31 août à 23 h). Une date invalide, ou une fin avant le début, est ignorée avec un message.
+- **Page détail** : seulement pour un personnage de la galerie ; sinon page 404, même avec son id.
 - **Avis** : note de 1 à 5 + commentaire, réservé aux utilisateurs connectés.
   Un seul avis par utilisateur et par personnage, pas d'avis sur ses propres personnages.
+  - Réservé au rôle `utilisateur` : les employés et l'admin modèrent les avis, ils n'en écrivent
+    pas (sinon un employé pourrait valider son propre avis).
+  - Commentaire de 10 à 1000 caractères (un retour à la ligne compte pour 1).
+  - L'envoi (`POST /avis`) vérifie que le personnage est **dans la galerie** (validé, partagé,
+    propriétaire non suspendu), pas seulement qu'il existe.
 - Un avis est visible seulement après validation d'un employé. À la validation, mail au propriétaire
   du personnage (sujet).
 - **Avis refusé** : supprimé définitivement (inutile de le garder : minimisation des données).

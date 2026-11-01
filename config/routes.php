@@ -6,6 +6,7 @@
 use App\Controllers\AuthController;
 use App\Controllers\ContactController;
 use App\Controllers\EspaceController;
+use App\Controllers\GalerieController;
 use App\Controllers\PageController;
 use App\Controllers\PersonnageController;
 
@@ -16,6 +17,11 @@ return [
     'GET /confidentialite' => [PageController::class, 'confidentialite'],
     'GET /contact' => [ContactController::class, 'formulaire'],
     'POST /contact' => [ContactController::class, 'traiter'],
+
+    // Galerie (publique)
+    'GET /personnages' => [GalerieController::class, 'galerie'],
+    'GET /personnage' => [GalerieController::class, 'detail'],
+    'POST /avis' => [GalerieController::class, 'deposerAvis'],
 
     // Comptes
     'GET /inscription' => [AuthController::class, 'formulaireInscription'],

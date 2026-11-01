@@ -228,7 +228,8 @@ Images provisoires :
   bien à l'utilisateur connecté, sauf pour les employés et l'admin.
 - Validation côté serveur de toutes les entrées (le JS ne sert qu'au confort).
 - Avatars : chaque option choisie doit exister dans `config/avatar.php` (liste blanche) ; chaque
-  couleur doit respecter `^#[0-9a-fA-F]{6}$` avant d'être enregistrée ou placée dans un attribut `style`.
+  couleur doit respecter `^#[0-9a-fA-F]{6}\z` avant d'être enregistrée ou placée dans un attribut `style`
+  (`\z` et non `$`, qui accepte un retour à la ligne final).
 - Uploads de calques par les employés : PNG uniquement (vérifié avec `finfo`, pas avec l'extension),
   2 Mo maximum, dimensions 600 × 800 (`getimagesize`), nom de fichier généré aléatoirement.
 - Secrets (BDD, SMTP, MongoDB) dans `.env`, jamais commités. Fournir un `.env.example` sans valeur réelle.

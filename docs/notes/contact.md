@@ -114,7 +114,12 @@ le cas, l'employé vérifie l'identité de la personne avant d'agir sur le compt
 `false`. Le contrôleur réaffiche alors le formulaire avec ce que la personne a écrit et lui
 demande de réessayer : rien n'est perdu sans prévenir, et il n'y a pas de page blanche.
 
-## Mise en ligne
+## Mise en ligne (30/10/2026)
 
-À faire : ajouter `MAIL_CONTACT` au `.env` du serveur, puis envoyer une demande depuis le site en
-ligne et vérifier sa réception (voir « À reprendre plus tard » dans `deploiement.md`).
+- `MAIL_CONTACT` ajoutée au `.env` du serveur **avant** le `git pull` : sinon, entre les deux, un
+  envoi depuis le site aurait affiché la page d'erreur. L'adresse est une boîte personnelle du
+  développeur, différente de l'adresse Gmail d'envoi (elle n'est pas écrite dans le dépôt public).
+- Vérifié en production : `/contact` → 200 ; demande envoyée sans connexion avec le pseudo
+  `Korvak` → message de confirmation, mail reçu dans la boîte de réception (pas dans les spams),
+  avec « connecté : non » et « mail du compte : non » ; jeton CSRF falsifié → « Formulaire
+  expiré, réessayez. », rien n'est envoyé.

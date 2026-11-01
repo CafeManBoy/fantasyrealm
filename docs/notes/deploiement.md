@@ -196,6 +196,15 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
   réception (pas dans les spams) → connexion avec le mot de passe reçu → changement forcé →
   « Votre mot de passe a été changé. » et espace joueur.
 
+## Mise en ligne de `contact` (30/10/2026)
+
+1. `MAIL_CONTACT` ajoutée au `.env` du serveur **avant** le `git pull` (sinon, entre les deux, un
+   envoi depuis le site aurait affiché la page d'erreur : la clé est obligatoire). C'est une autre
+   boîte que l'adresse Gmail d'envoi, et pas une adresse en `@example.com` (bloquée en production).
+2. Contrôle du `.env` (OK), puis `git pull`. Pas de `composer install` : aucune dépendance ajoutée.
+3. Vérifié : `/contact` → 200 ; demande envoyée depuis le site → mail reçu dans la boîte de
+   réception de `MAIL_CONTACT` ; jeton CSRF falsifié → refusé, rien n'est envoyé.
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -251,10 +260,6 @@ n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
 
-- Mise en ligne de `contact` : ajouter `MAIL_CONTACT` au `.env` du serveur. Ce doit être une
-  autre boîte que l'adresse Gmail d'envoi, et pas une adresse en `@example.com` (bloquée en
-  production). La clé est obligatoire : sans elle, l'envoi du formulaire affiche la page d'erreur.
-  Ensuite, envoyer une demande depuis le site en ligne et vérifier qu'elle arrive.
 - Avec le premier log MongoDB (`personnages`) : vérifier en production la connexion à Atlas après
   le changement du mot de passe de `fantasyrealm_app` (27/10/2026). `MONGODB_URI` a été remise sur
   une seule ligne le 30/10/2026 (elle contenait un retour à la ligne, plus une ligne parasite

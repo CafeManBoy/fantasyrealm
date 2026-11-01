@@ -11,6 +11,33 @@ Projet d'évaluation (ECF) du titre professionnel Développeur Web et Web Mobile
 programmation orientée objet (architecture MVC maison, sans framework), MySQL/MariaDB avec PDO,
 MongoDB, Composer.
 
+## Comptes de démonstration
+
+Ces comptes existent en local comme en ligne après l'import de `database/schema.sql` puis de
+`database/seed.sql`. Ils sont fictifs (domaine réservé `example.com`) : ils ne reçoivent aucun
+mail, et leurs mots de passe ne protègent rien de réel. Les mots de passe ont été générés au
+hasard selon la règle de la CNIL (12 caractères au moins, avec majuscule, minuscule, chiffre et
+caractère spécial).
+
+| Rôle | Pseudo | Mail | Mot de passe | Cas couvert |
+|---|---|---|---|---|
+| Administrateur | Admin | `admin@example.com` | `L3j=#cjyT9r%dQc6` | Espace administrateur. Seul compte admin, créé uniquement par `seed.sql` (impossible depuis le site). |
+| Employé | employe | `employe@example.com` | `sr#wHnMfBabnT@5H` | Espace employé. |
+| Joueuse | Elandra | `elandra@example.com` | `vjA$qC6CE6c-3WAt` | Personnages dans tous les états : en attente, validé non partagé, validé et partagé. |
+| Joueur | Korvak | `korvak@example.com` | `HD4$Uq3av-uA=ujK` | Personnages partagés dans la galerie (filtre par pseudo). |
+| Joueur | Novice | `novice@example.com` | `n2?NWPkibPht5Jd%` | Aucun personnage. |
+| Joueur suspendu | Banni | `banni@example.com` | `fsAG*84VEPkSv#y=` | Connexion refusée (« Ce compte est suspendu ») ; son personnage partagé n'apparaît pas dans la galerie. |
+| Joueur | Distrait | `distrait@example.com` | `f27*Uq3x!hyuwZXS` | Doit choisir un nouveau mot de passe à sa première connexion. |
+
+À savoir :
+- Après la première connexion de **Distrait**, le mot de passe ci-dessus ne marche plus (il a dû
+  en choisir un autre). Réimporter `schema.sql` puis `seed.sql` remet tous les comptes dans leur
+  état de démonstration.
+- « Mot de passe oublié » ne fonctionne pas avec ces comptes, puisqu'ils ne reçoivent pas de mail.
+  Sur le site en ligne, rien ne leur est envoyé et leur mot de passe ne change pas. Pour tester
+  cette fonction, créer un compte avec une vraie adresse.
+- Après 5 mots de passe faux de suite, la connexion au compte est bloquée 15 minutes.
+
 ## Prérequis
 
 - [XAMPP](https://www.apachefriends.org/) avec PHP 8.2 (Apache et MySQL/MariaDB), PHP mis à jour

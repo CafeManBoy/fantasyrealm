@@ -129,6 +129,9 @@ En PHP (étapes suivantes) :
 - Cohérence : aucun personnage en attente partagé ou équipé, au plus un article par type et par
   personnage, aucun avis sur ses propres personnages, couleurs au format `#RRGGBB`.
 - `password_verify` réussit pour les 7 comptes ; un seul compte admin.
+- 30/10/2026 : les mots de passe de démo d'origine ayant été perdus, ils ont été régénérés avec
+  `MotDePasse::generer()` (règle de la CNIL) et les 7 hash remplacés dans `seed.sql`. Les
+  identifiants en clair sont dans la section « Comptes de démonstration » du `README.md`.
 - Refusés par la base : mail ou pseudo déjà pris (même avec une autre casse), rôle inexistant, nom de
   personnage déjà pris, note 0 ou 6, statut inconnu, deuxième avis du même joueur, type d'article
   inconnu, même article équipé deux fois, suppression d'un rôle utilisé.

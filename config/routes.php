@@ -20,6 +20,7 @@ return [
 
     // Galerie (publique)
     'GET /personnages' => [GalerieController::class, 'galerie'],
+    'GET /personnage' => [GalerieController::class, 'detail'],
 
     // Comptes
     'GET /inscription' => [AuthController::class, 'formulaireInscription'],

@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Models\Article;
 use App\Models\Avatar;
+use App\Models\Commentaire;
 use App\Models\Personnage;
 
 // Galerie des personnages partagés (page globale avec filtres), page détail et avis.
@@ -33,6 +35,69 @@ class GalerieController extends Controller
             'genres' => $avatar->parties()['genre']['options'],
             'pseudos' => $pseudos,
         ]);
+    }
+
+    // GET /personnage?id=12 : détail d'un personnage de la galerie, avec ses avis validés
+    public function detail(): void
+    {
+        $personnage = $this->chargerPersonnageDeLaGalerie($this->lireId($_GET));
+        $this->afficherDetail($personnage);
+    }
+
+    // Personnage de la galerie (validé, partagé, propriétaire non suspendu) ; sinon page 404,
+    // même si l'id existe : un personnage en attente ou non partagé ne se montre pas
+    private function chargerPersonnageDeLaGalerie(int $id): array
+    {
+        $modele = new Personnage();
+        $personnage = $modele->trouverDansGalerie($id);
+        if ($personnage === null) {
+            $this->afficherPageIntrouvable();
+        }
+
+        return $personnage;
+    }
+
+    private function afficherDetail(array $personnage): void
+    {
+        $modele = new Personnage();
+        $modeleArticle = new Article();
+        $modeleCommentaire = new Commentaire();
+        $avatar = new Avatar();
+        // Articles actifs seulement : un article désactivé n'est affiché nulle part (decisions.md)
+        $articles = $modele->listerArticlesActifs($personnage['id_personnage']);
+
+        $this->afficher('personnage-detail', $personnage['nom'], [
+            'personnage' => $personnage,
+            'calques' => $avatar->calques($personnage, $articles),
+            'caracteristiques' => $this->caracteristiques($personnage),
+            'articles' => $articles,
+            'typesArticles' => $modeleArticle->types(),
+            'avis' => $modeleCommentaire->listerValides($personnage['id_personnage']),
+        ]);
+    }
+
+    // Informations de création à afficher : libellé du champ => valeur lisible
+    // (« Forme du nez » => « Nez romain »), et pour les couleurs, le code #RRGGBB vérifié (sinon null)
+    private function caracteristiques(array $personnage): array
+    {
+        $avatar = new Avatar();
+        $caracteristiques = [];
+        foreach ($avatar->parties() as $colonne => $partie) {
+            $caracteristiques[] = [
+                'libelle' => $partie['libelle'],
+                'valeur' => $avatar->libelleOption($colonne, $personnage[$colonne]),
+                'couleur' => null,
+            ];
+        }
+        foreach ($avatar->couleurs() as $colonne => $couleur) {
+            $code = null;
+            if ($avatar->couleurEstValide($personnage[$colonne])) {
+                $code = $personnage[$colonne];
+            }
+            $caracteristiques[] = ['libelle' => $couleur['libelle'], 'valeur' => $personnage[$colonne], 'couleur' => $code];
+        }
+
+        return $caracteristiques;
     }
 
     // Filtres lus dans l'adresse ('' = pas de filtre)

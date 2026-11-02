@@ -23,6 +23,65 @@ class Commentaire
         return $requete->fetchAll();
     }
 
+    // Espace employé : avis en attente de validation, du plus ancien au plus récent,
+    // avec le nom du personnage concerné
+    public function listerEnAttente(): array
+    {
+        $requete = Database::connexion()->query(
+            "SELECT c.id_commentaire, c.note, c.commentaire, c.date_commentaire, c.pseudo_auteur,
+                    p.id_personnage, p.nom AS nom_personnage
+             FROM commentaire c
+             JOIN personnage p ON p.id_personnage = c.id_personnage
+             WHERE c.statut = 'en_attente'
+             ORDER BY c.date_commentaire, c.id_commentaire"
+        );
+
+        return $requete->fetchAll();
+    }
+
+    public function compterEnAttente(): int
+    {
+        $requete = Database::connexion()->query("SELECT COUNT(*) FROM commentaire WHERE statut = 'en_attente'");
+
+        return (int) $requete->fetchColumn();
+    }
+
+    // Espace employé : un avis, avec son personnage et le pseudo et le mail du propriétaire
+    // du personnage (pour le mail de publication), ou null s'il n'existe pas
+    public function trouverAvecProprietaire(int $id): ?array
+    {
+        $requete = Database::connexion()->prepare(
+            'SELECT c.id_commentaire, c.note, c.statut, c.pseudo_auteur,
+                    p.id_personnage, p.nom AS nom_personnage, u.pseudo, u.mail
+             FROM commentaire c
+             JOIN personnage p ON p.id_personnage = c.id_personnage
+             JOIN utilisateur u ON u.id_utilisateur = p.id_utilisateur
+             WHERE c.id_commentaire = :id'
+        );
+        $requete->execute(['id' => $id]);
+        $avis = $requete->fetch();
+
+        if ($avis === false) {
+            return null;
+        }
+
+        return $avis;
+    }
+
+    // Publication d'un avis par un employé
+    public function valider(int $id): void
+    {
+        $requete = Database::connexion()->prepare("UPDATE commentaire SET statut = 'valide' WHERE id_commentaire = :id");
+        $requete->execute(['id' => $id]);
+    }
+
+    // Avis refusé : supprimé définitivement (decisions.md, minimisation des données)
+    public function supprimer(int $id): void
+    {
+        $requete = Database::connexion()->prepare('DELETE FROM commentaire WHERE id_commentaire = :id');
+        $requete->execute(['id' => $id]);
+    }
+
     // L'avis de ce joueur sur ce personnage (avec son statut), ou null s'il n'en a pas donné
     public function trouverAvisDe(int $idPersonnage, int $idUtilisateur): ?array
     {

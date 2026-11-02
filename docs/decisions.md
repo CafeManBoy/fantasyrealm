@@ -90,7 +90,21 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Article désactivé** (`actif = 0`) : plus proposé ni affiché nulle part (formulaires, galerie,
   détail, espace joueur), mais gardé en base avec ses liens vers les personnages.
   Le réactiver le fait réapparaître.
-- **Article supprimé** : retiré de tous les personnages.
+- **Article supprimé** : retiré de tous les personnages. Si son image a été envoyée par un employé
+  (`public/uploads/articles/`), le fichier est effacé ; les images du jeu de données ne le sont jamais.
+- **Nom d'un article** : 3 à 50 caractères, pas forcément unique. Type choisi parmi les 4 types.
+
+## Espace employé
+- **Mails** : si un mail ne part pas, l'action est faite quand même et l'employé voit « … mais le
+  mail n'a pas pu être envoyé ». Indispensable en production, où les comptes de démo en
+  `@example.com` ne reçoivent jamais de mail.
+- **Rejet d'un nom** : seulement pour un personnage en attente ; motif de 10 à 500 caractères,
+  écrit dans le mail et dans le log MongoDB, puis le personnage est supprimé.
+- **Liste des comptes** : pseudo seulement, sans le mail (minimisation des données ; les
+  identifiants employé et admin de démo sont publics).
+- **Journal MongoDB** : les actions d'un employé sur les personnages sont journalisées avec lui
+  comme auteur (`validation`, `rejet` avec le motif, `suppression`). Supprimer un article ou un
+  compte écrit aussi un log par personnage touché (`equipement` ou `suppression`).
 
 ## Jeu de données (`seed.sql`)
 - Un compte par cas : admin, employé, joueur avec personnages, joueur sans personnage,

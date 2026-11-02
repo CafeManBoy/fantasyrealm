@@ -307,10 +307,13 @@ n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
 
-- **Juste avant le dépôt** : réimporter `schema.sql` puis `seed.sql` en production (efface les
-  comptes de test, dont celui à vraie adresse) **et** supprimer dans Atlas les logs
-  `environnement: prod` (sinon le journal de l'administrateur montre des personnages qui
-  n'existent plus).
+- **Juste avant le dépôt**, en production :
+  - réimporter `schema.sql` puis `seed.sql` (efface les comptes de test, dont celui à vraie adresse) ;
+  - vider `public/uploads/articles/` sur le serveur : les identifiants employé de démo sont publics,
+    n'importe qui a pu envoyer des images en ligne (et le réimport supprime les articles qui les
+    utilisaient) ;
+  - supprimer dans Atlas les logs `environnement: prod` (sinon le journal de l'administrateur
+    montre des personnages qui n'existent plus).
 - **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
   de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
   l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`

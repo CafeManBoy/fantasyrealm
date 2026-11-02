@@ -221,6 +221,63 @@ class Utilisateur
         return $joueur;
     }
 
+    // Espace admin : les comptes de rôle « employe », sans leur mail (decisions.md)
+    public function listerEmployes(): array
+    {
+        $requete = Database::connexion()->query(
+            "SELECT u.id_utilisateur, u.pseudo, u.suspendu, u.motdepasse_a_modifier
+             FROM utilisateur u
+             JOIN role r ON r.id_role = u.id_role
+             WHERE r.libelle = 'employe'
+             ORDER BY u.pseudo"
+        );
+
+        return $requete->fetchAll();
+    }
+
+    // Le compte $id SEULEMENT s'il a le rôle « employe », sinon null.
+    // Le compte admin n'est jamais trouvé ici : il ne peut être ni suspendu ni supprimé.
+    public function trouverEmploye(int $id): ?array
+    {
+        $requete = Database::connexion()->prepare(
+            "SELECT u.id_utilisateur, u.pseudo, u.suspendu
+             FROM utilisateur u
+             JOIN role r ON r.id_role = u.id_role
+             WHERE u.id_utilisateur = :id AND r.libelle = 'employe'"
+        );
+        $requete->execute(['id' => $id]);
+        $employe = $requete->fetch();
+
+        if ($employe === false) {
+            return null;
+        }
+
+        return $employe;
+    }
+
+    // Crée un compte employé (créé par l'admin) : le mot de passe devra être changé à la première connexion
+    public function creerEmploye(string $pseudo, string $mail, string $hash): void
+    {
+        $requete = Database::connexion()->prepare(
+            "INSERT INTO utilisateur (pseudo, mail, password, motdepasse_a_modifier, id_role)
+             VALUES (:pseudo, :mail, :hash, 1, (SELECT id_role FROM role WHERE libelle = 'employe'))"
+        );
+        $requete->execute(['pseudo' => $pseudo, 'mail' => $mail, 'hash' => $hash]);
+    }
+
+    // Mot de passe choisi par l'admin pour un employé : à changer à la prochaine connexion.
+    // Un éventuel blocage dû à des échecs de connexion est levé. Les sessions ouvertes de
+    // l'employé se ferment seules : l'empreinte du mot de passe ne correspond plus (voir Auth).
+    public function modifierMotDePasseParAdmin(int $id, string $hash): void
+    {
+        $requete = Database::connexion()->prepare(
+            'UPDATE utilisateur
+             SET password = :hash, motdepasse_a_modifier = 1, tentatives_echouees = 0, bloque_jusqu_a = NULL
+             WHERE id_utilisateur = :id'
+        );
+        $requete->execute(['hash' => $hash, 'id' => $id]);
+    }
+
     // Suspendre (true) ou réactiver (false) un compte. Un compte suspendu ne peut plus se
     // connecter, et il est déconnecté à sa requête suivante (Auth relit le compte à chaque page).
     public function changerSuspension(int $id, bool $suspendu): void

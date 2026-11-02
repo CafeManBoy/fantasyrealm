@@ -25,8 +25,18 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Galerie** : uniquement les personnages validés, partagés, dont le propriétaire n'est pas suspendu.
 - **Filtres** (genre, plage de dates de création, pseudo) : formulaire GET traité en PHP,
   fonctionne sans JS.
+  - Pseudo : liste déroulante des pseudos qui ont au moins un personnage dans la galerie
+    (comparaison exacte, pas de champ libre ni de `LIKE`).
+  - Dates : chaque borne est facultative et **incluse** (« du 1er au 31 août » compte un personnage
+    créé le 31 août à 23 h). Une date invalide, ou une fin avant le début, est ignorée avec un message.
+- **Page détail** : seulement pour un personnage de la galerie ; sinon page 404, même avec son id.
 - **Avis** : note de 1 à 5 + commentaire, réservé aux utilisateurs connectés.
   Un seul avis par utilisateur et par personnage, pas d'avis sur ses propres personnages.
+  - Réservé au rôle `utilisateur` : les employés et l'admin modèrent les avis, ils n'en écrivent
+    pas (sinon un employé pourrait valider son propre avis).
+  - Commentaire de 10 à 1000 caractères (un retour à la ligne compte pour 1).
+  - L'envoi (`POST /avis`) vérifie que le personnage est **dans la galerie** (validé, partagé,
+    propriétaire non suspendu), pas seulement qu'il existe.
 - Un avis est visible seulement après validation d'un employé. À la validation, mail au propriétaire
   du personnage (sujet).
 - **Avis refusé** : supprimé définitivement (inutile de le garder : minimisation des données).
@@ -80,7 +90,21 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Article désactivé** (`actif = 0`) : plus proposé ni affiché nulle part (formulaires, galerie,
   détail, espace joueur), mais gardé en base avec ses liens vers les personnages.
   Le réactiver le fait réapparaître.
-- **Article supprimé** : retiré de tous les personnages.
+- **Article supprimé** : retiré de tous les personnages. Si son image a été envoyée par un employé
+  (`public/uploads/articles/`), le fichier est effacé ; les images du jeu de données ne le sont jamais.
+- **Nom d'un article** : 3 à 50 caractères, pas forcément unique. Type choisi parmi les 4 types.
+
+## Espace employé
+- **Mails** : si un mail ne part pas, l'action est faite quand même et l'employé voit « … mais le
+  mail n'a pas pu être envoyé ». Indispensable en production, où les comptes de démo en
+  `@example.com` ne reçoivent jamais de mail.
+- **Rejet d'un nom** : seulement pour un personnage en attente ; motif de 10 à 500 caractères,
+  écrit dans le mail et dans le log MongoDB, puis le personnage est supprimé.
+- **Liste des comptes** : pseudo seulement, sans le mail (minimisation des données ; les
+  identifiants employé et admin de démo sont publics).
+- **Journal MongoDB** : les actions d'un employé sur les personnages sont journalisées avec lui
+  comme auteur (`validation`, `rejet` avec le motif, `suppression`). Supprimer un article ou un
+  compte écrit aussi un log par personnage touché (`equipement` ou `suppression`).
 
 ## Jeu de données (`seed.sql`)
 - Un compte par cas : admin, employé, joueur avec personnages, joueur sans personnage,

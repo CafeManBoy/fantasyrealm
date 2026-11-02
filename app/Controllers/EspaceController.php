@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Avatar;
+use App\Models\Commentaire;
 use App\Models\Personnage;
 
 // Espaces personnels, un par rôle. Leur contenu arrive avec les fonctionnalités suivantes.
@@ -30,7 +31,14 @@ class EspaceController extends Controller
     {
         // L'administrateur peut faire tout ce que fait un employé (sujet)
         $this->exigerRole(['employe', 'admin']);
-        $this->afficher('espace-employe', 'Espace employé');
+
+        // Tableau de bord : ce qui attend une décision
+        $modelePersonnage = new Personnage();
+        $modeleCommentaire = new Commentaire();
+        $this->afficher('espace-employe', 'Espace employé', [
+            'nomsEnAttente' => $modelePersonnage->compterEnAttente(),
+            'avisEnAttente' => $modeleCommentaire->compterEnAttente(),
+        ]);
     }
 
     public function espaceAdmin(): void

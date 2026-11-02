@@ -116,4 +116,25 @@ class Controller
 
         return $_POST[$nom];
     }
+
+    // Valeur d'un paramètre de l'adresse (?genre=femme), sans les espaces autour ('' s'il est absent)
+    protected function lireParametre(string $nom): string
+    {
+        if (!isset($_GET[$nom]) || !is_string($_GET[$nom])) {
+            return '';
+        }
+
+        return trim($_GET[$nom]);
+    }
+
+    // Id lu dans l'adresse ($_GET) ou dans un formulaire ($_POST) ; 0 s'il est absent ou invalide
+    // (aucune ligne n'a l'id 0). ctype_digit : seulement des chiffres (refuse « -1 », « 1.5 », « abc »).
+    protected function lireId(array $source): int
+    {
+        if (!isset($source['id']) || !is_string($source['id']) || !ctype_digit($source['id'])) {
+            return 0;
+        }
+
+        return (int) $source['id'];
+    }
 }

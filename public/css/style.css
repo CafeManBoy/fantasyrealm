@@ -275,6 +275,52 @@ summary:focus-visible {
     border-radius: 0.5rem;
 }
 
+/* 11. Galerie et page détail
+   ------------------------------------------------------------------ */
+.filtres-galerie {
+    padding: 1rem;
+    background-color: var(--couleur-surface);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.5rem;
+}
+
+.avatar-detail {
+    max-width: 20rem;
+    margin: 0 auto;
+}
+
+/* Petit carré de la couleur choisie, à côté de son code */
+.pastille-couleur {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.25rem;
+    vertical-align: -0.125rem;
+    border: 1px solid var(--couleur-texte);
+    border-radius: 0.2rem;
+}
+
+.liste-avis .avis {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.note-etoiles {
+    color: var(--couleur-primaire);
+}
+
+/* 12. Espace employé
+   ------------------------------------------------------------------ */
+
+/* Calque d'un article en petit, sur le fond des avatars (format 3:4 comme les images) */
+.miniature-article {
+    width: 3rem;
+    aspect-ratio: 3 / 4;
+    background-color: var(--couleur-avatar-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.25rem;
+}
+
 /* « Dupliquer » : zone dépliable (details / summary), présentée comme un lien */
 .carte-personnage summary {
     color: rgb(var(--couleur-lien-rgb));

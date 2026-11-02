@@ -39,6 +39,16 @@ class Avatar
         return isset($this->parties[$partie]['options'][$cle]);
     }
 
+    // Libellé affiché d'une option (ex. 'romain' → « Nez romain ») ; la clé elle-même si elle est inconnue
+    public function libelleOption(string $partie, string $cle): string
+    {
+        if (!$this->optionExiste($partie, $cle)) {
+            return $cle;
+        }
+
+        return $this->parties[$partie]['options'][$cle]['libelle'];
+    }
+
     // Vrai si $couleur est un code hexadécimal #RRGGBB.
     // Règle de sécurité : rien d'autre ne doit être placé dans un attribut style.
     // \z : vraie fin du texte ($ accepterait encore un retour à la ligne final)

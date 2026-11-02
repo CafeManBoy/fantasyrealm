@@ -182,4 +182,58 @@ class Utilisateur
         );
         $requete->execute(['hash' => $hash, 'id' => $id]);
     }
+
+    // Espace employé : les comptes de rôle « utilisateur » (les joueurs), sans leur mail
+    // (minimisation des données, decisions.md), avec leur nombre de personnages
+    public function listerJoueurs(): array
+    {
+        $requete = Database::connexion()->query(
+            "SELECT u.id_utilisateur, u.pseudo, u.suspendu, COUNT(p.id_personnage) AS nombre_personnages
+             FROM utilisateur u
+             JOIN role r ON r.id_role = u.id_role
+             LEFT JOIN personnage p ON p.id_utilisateur = u.id_utilisateur
+             WHERE r.libelle = 'utilisateur'
+             GROUP BY u.id_utilisateur, u.pseudo, u.suspendu
+             ORDER BY u.pseudo"
+        );
+
+        return $requete->fetchAll();
+    }
+
+    // Le compte $id SEULEMENT s'il a le rôle « utilisateur », sinon null.
+    // Un employé gère uniquement les comptes des joueurs : un compte employé ou admin n'est
+    // jamais trouvé ici (l'admin ne peut donc être ni suspendu ni supprimé par cette page).
+    public function trouverJoueur(int $id): ?array
+    {
+        $requete = Database::connexion()->prepare(
+            "SELECT u.id_utilisateur, u.pseudo, u.suspendu
+             FROM utilisateur u
+             JOIN role r ON r.id_role = u.id_role
+             WHERE u.id_utilisateur = :id AND r.libelle = 'utilisateur'"
+        );
+        $requete->execute(['id' => $id]);
+        $joueur = $requete->fetch();
+
+        if ($joueur === false) {
+            return null;
+        }
+
+        return $joueur;
+    }
+
+    // Suspendre (true) ou réactiver (false) un compte. Un compte suspendu ne peut plus se
+    // connecter, et il est déconnecté à sa requête suivante (Auth relit le compte à chaque page).
+    public function changerSuspension(int $id, bool $suspendu): void
+    {
+        $requete = Database::connexion()->prepare('UPDATE utilisateur SET suspendu = :suspendu WHERE id_utilisateur = :id');
+        $requete->execute(['suspendu' => (int) $suspendu, 'id' => $id]);
+    }
+
+    // Suppression définitive. La base supprime aussi ses personnages (ON DELETE CASCADE) ; ses avis
+    // restent, avec id_utilisateur à NULL et le pseudo gardé dans pseudo_auteur (ON DELETE SET NULL).
+    public function supprimer(int $id): void
+    {
+        $requete = Database::connexion()->prepare('DELETE FROM utilisateur WHERE id_utilisateur = :id');
+        $requete->execute(['id' => $id]);
+    }
 }

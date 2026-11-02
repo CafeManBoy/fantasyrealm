@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Csrf;
+use App\Core\MotDePasse;
 use App\Core\Session;
 
 // Classe parente de tous les contrôleurs : elle contient ce qu'ils ont en commun
@@ -115,6 +116,24 @@ class Controller
         }
 
         return $_POST[$nom];
+    }
+
+    // Renvoie le message d'erreur si le mot de passe ne respecte pas les règles, sinon null.
+    // Ici et pas dans AuthController : l'admin choisit aussi le mot de passe des employés.
+    protected function erreurMotDePasse(string $motDePasse): ?string
+    {
+        $verificateur = new MotDePasse();
+
+        if ($verificateur->estTropLong($motDePasse)) {
+            return 'Le mot de passe est trop long : 72 caractères au maximum (moins si vous utilisez des accents).';
+        }
+
+        $regles = $verificateur->reglesNonRespectees($motDePasse);
+        if (count($regles) > 0) {
+            return 'Le mot de passe doit contenir ' . implode(', ', $regles) . '.';
+        }
+
+        return null;
     }
 
     // Valeur d'un paramètre de l'adresse (?genre=femme), sans les espaces autour ('' s'il est absent)

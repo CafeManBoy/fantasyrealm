@@ -3,6 +3,7 @@
 // La méthode HTTP fait partie de la clé : une route 'POST ...' ne peut pas être déclenchée par un lien.
 // Une adresse absente de cette liste affiche la page 404.
 
+use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\ContactController;
 use App\Controllers\EmployeController;
@@ -55,6 +56,14 @@ return [
     'GET /employe/comptes' => [EmployeController::class, 'comptes'],
     'POST /employe/compte/suspendre' => [EmployeController::class, 'basculerSuspension'],
     'POST /employe/compte/supprimer' => [EmployeController::class, 'supprimerCompte'],
+
+    // Espace administrateur (rôle admin)
+    'GET /admin/employes' => [AdminController::class, 'employes'],
+    'POST /admin/employe/creer' => [AdminController::class, 'creerEmploye'],
+    'POST /admin/employe/mot-de-passe' => [AdminController::class, 'modifierMotDePasse'],
+    'POST /admin/employe/suspendre' => [AdminController::class, 'basculerSuspension'],
+    'POST /admin/employe/supprimer' => [AdminController::class, 'supprimerEmploye'],
+    'GET /admin/logs' => [AdminController::class, 'logs'],
 
     // Personnages du joueur
     'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],

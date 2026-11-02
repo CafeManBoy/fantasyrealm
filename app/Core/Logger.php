@@ -53,8 +53,41 @@ class Logger
         }
     }
 
-    // 'dev' en local, 'prod' sinon (même règle que le reste du site : prod par défaut)
-    private function environnement(): string
+    // Les $nombre derniers documents de l'environnement courant, du plus récent au plus ancien
+    // (page des logs de l'administrateur). Renvoie null si Atlas ne répond pas : la page affiche
+    // alors « journal indisponible » au lieu d'une page blanche.
+    public function derniers(int $nombre): ?array
+    {
+        if (!isset($_ENV['MONGODB_URI']) || $_ENV['MONGODB_URI'] === '') {
+            error_log('Journal MongoDB non lu : MONGODB_URI absente du fichier .env');
+            return null;
+        }
+
+        // Filtre : seulement cet environnement (les tests locaux n'apparaissent pas en production).
+        // Il ne contient aucune valeur venue de l'utilisateur.
+        $filtre = ['environnement' => $this->environnement()];
+        $options = [
+            'sort' => ['date' => -1],  // -1 : du plus récent au plus ancien
+            'limit' => $nombre,
+            // Documents lus comme des tableaux PHP (au lieu d'objets MongoDB)
+            'typeMap' => ['root' => 'array', 'document' => 'array', 'array' => 'array'],
+        ];
+
+        try {
+            $client = new Client($_ENV['MONGODB_URI'], ['serverSelectionTimeoutMS' => 3000]);
+            $curseur = $client->selectCollection($this->base, $this->collection)->find($filtre, $options);
+
+            // toArray() dans le try : c'est là que les documents sont vraiment lus dans Atlas
+            return $curseur->toArray();
+        } catch (Throwable $e) {
+            error_log('Journal MongoDB non lu (' . get_class($e) . ')');
+            return null;
+        }
+    }
+
+    // 'dev' en local, 'prod' sinon (même règle que le reste du site : prod par défaut).
+    // Publique : la page des logs affiche l'environnement dont elle montre les documents.
+    public function environnement(): string
     {
         if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'dev') {
             return 'dev';

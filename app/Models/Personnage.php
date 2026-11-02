@@ -114,6 +114,67 @@ class Personnage
                 WHERE p.autorise = 1 AND p.partage = 1 AND u.suspendu = 0';
     }
 
+    // Espace employé : personnages dont le nom attend une validation, du plus ancien au plus récent
+    public function listerEnAttente(): array
+    {
+        $requete = Database::connexion()->query(
+            'SELECT p.id_personnage, p.nom, p.date_creation, u.pseudo
+             FROM personnage p
+             JOIN utilisateur u ON u.id_utilisateur = p.id_utilisateur
+             WHERE p.autorise = 0
+             ORDER BY p.date_creation'
+        );
+
+        return $requete->fetchAll();
+    }
+
+    // Espace employé : tous les personnages, avec le pseudo de leur propriétaire
+    public function listerTous(): array
+    {
+        $requete = Database::connexion()->query(
+            'SELECT p.id_personnage, p.nom, p.autorise, p.partage, u.pseudo
+             FROM personnage p
+             JOIN utilisateur u ON u.id_utilisateur = p.id_utilisateur
+             ORDER BY u.pseudo, p.nom'
+        );
+
+        return $requete->fetchAll();
+    }
+
+    public function compterEnAttente(): int
+    {
+        $requete = Database::connexion()->query('SELECT COUNT(*) FROM personnage WHERE autorise = 0');
+
+        return (int) $requete->fetchColumn();
+    }
+
+    // Espace employé : un personnage avec le pseudo et le mail de son propriétaire (pour le mail
+    // de validation ou de rejet), ou null s'il n'existe pas
+    public function trouverAvecProprietaire(int $id): ?array
+    {
+        $requete = Database::connexion()->prepare(
+            'SELECT p.id_personnage, p.nom, p.autorise, p.partage, u.id_utilisateur, u.pseudo, u.mail
+             FROM personnage p
+             JOIN utilisateur u ON u.id_utilisateur = p.id_utilisateur
+             WHERE p.id_personnage = :id'
+        );
+        $requete->execute(['id' => $id]);
+        $personnage = $requete->fetch();
+
+        if ($personnage === false) {
+            return null;
+        }
+
+        return $personnage;
+    }
+
+    // Validation du nom par un employé
+    public function valider(int $id): void
+    {
+        $requete = Database::connexion()->prepare('UPDATE personnage SET autorise = 1 WHERE id_personnage = :id');
+        $requete->execute(['id' => $id]);
+    }
+
     // Vrai si un autre personnage porte déjà ce nom.
     // La comparaison suit l'interclassement de la base (utf8mb4_unicode_ci) : elle ne tient compte
     // ni des majuscules ni des accents (« zephyr » = « Zéphyr »), comme la contrainte UNIQUE.

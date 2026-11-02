@@ -30,7 +30,12 @@ class EspaceController extends Controller
     {
         // L'administrateur peut faire tout ce que fait un employé (sujet)
         $this->exigerRole(['employe', 'admin']);
-        $this->afficher('espace-employe', 'Espace employé');
+
+        // Tableau de bord : ce qui attend une décision
+        $modelePersonnage = new Personnage();
+        $this->afficher('espace-employe', 'Espace employé', [
+            'nomsEnAttente' => $modelePersonnage->compterEnAttente(),
+        ]);
     }
 
     public function espaceAdmin(): void

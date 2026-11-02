@@ -5,6 +5,7 @@
 
 use App\Controllers\AuthController;
 use App\Controllers\ContactController;
+use App\Controllers\EmployeController;
 use App\Controllers\EspaceController;
 use App\Controllers\GalerieController;
 use App\Controllers\PageController;
@@ -38,6 +39,12 @@ return [
     'GET /espace-joueur' => [EspaceController::class, 'espaceJoueur'],
     'GET /espace-employe' => [EspaceController::class, 'espaceEmploye'],
     'GET /espace-admin' => [EspaceController::class, 'espaceAdmin'],
+
+    // Espace employé (rôles employe et admin)
+    'GET /employe/personnages' => [EmployeController::class, 'personnages'],
+    'POST /employe/personnage/valider' => [EmployeController::class, 'validerNom'],
+    'POST /employe/personnage/rejeter' => [EmployeController::class, 'rejeterNom'],
+    'POST /employe/personnage/supprimer' => [EmployeController::class, 'supprimerPersonnage'],
 
     // Personnages du joueur
     'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],

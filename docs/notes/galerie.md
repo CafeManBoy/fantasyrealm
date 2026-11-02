@@ -129,3 +129,9 @@ qui est en attente.
 `htmlspecialchars()` transforme `<` et `>` en texte, puis `nl2br()` ajoute des balises `<br>` pour
 les retours à la ligne. Dans l'autre ordre, les `<br>` ajoutés seraient eux-mêmes transformés en
 texte (« &lt;br&gt; »), et on verrait les balises au lieu des retours à la ligne.
+
+## Mise en ligne (02/11/2026)
+
+- Vérifié en production : galerie (7 personnages, puis 8 avec celui du compte de test), filtre
+  combiné, page détail ; personnage en attente → 404 ; avis d'Elandra déposé sur le personnage du
+  compte de test, publié par l'employé, puis visible sur sa page (mail « Nouvel avis » reçu).

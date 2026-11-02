@@ -140,3 +140,12 @@ contenu) et j'affiche « Fichier trop lourd ». Testé avec un fichier de 41 Mo.
 Non. La page ne cherche que des comptes de rôle `utilisateur` (`trouverJoueur()` filtre sur le
 rôle dans la requête). Un id d'employé ou d'admin envoyé à la main donne une page 404, et rien ne
 change. Seul l'admin gère les employés, depuis son propre espace.
+
+## Mise en ligne (02/11/2026)
+
+- Sur le serveur : `git pull` seulement ; extension `fileinfo` et limites d'envoi contrôlées (détails
+  dans `docs/notes/deploiement.md`).
+- Vérifié en production avec le compte de test à vraie adresse : validation d'un nom, rejet avec
+  motif et publication d'un avis → **les 3 mails reçus** dans la boîte de réception principale ;
+  logs `validation`, `rejet`, `suppression` relus dans Atlas avec l'employé comme auteur ; envoi d'un calque
+  PNG 600 × 800 → article ajouté et miniature affichée ; mauvaises dimensions → refusé.

@@ -63,7 +63,21 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
 - **Compte employé** : l'admin fournit un mail et un mot de passe (sujet). Le pseudo, obligatoire dans
   le MCD, est généré automatiquement : partie avant le `@` du mail, suivie d'un chiffre si elle est
   déjà prise. `motdepasse_a_modifier = 1` à la création.
-- Quand l'admin modifie le mot de passe d'un employé : `motdepasse_a_modifier = 1`.
+  - La partie avant le `@` est nettoyée pour respecter la règle des pseudos (3 à 20 caractères :
+    lettres sans accent, chiffres, `_`, `-`) : seuls ces caractères sont gardés, coupés à 18.
+    S'il en reste moins de 3 : `employe`. Si le pseudo est pris : 2, 3… à la suite
+    (`jean.dupont@…` → `jeandupont`, puis `jeandupont2`).
+- Quand l'admin modifie le mot de passe d'un employé : `motdepasse_a_modifier = 1`. Les sessions
+  ouvertes de l'employé sont fermées, et un éventuel blocage dû aux échecs de connexion est levé.
+- **Pas de mail à l'employé** à la création ni au changement de mot de passe : l'admin lui donne le
+  mot de passe lui-même (le sujet dit qu'il le « fournit »). Pas de mot de passe en clair dans un
+  mail ; l'employé se connecte avec son mail, il n'a pas besoin de connaître son pseudo.
+- **Liste des employés** (espace admin) : pseudo et état seulement, sans le mail (même raison que
+  pour les joueurs : les identifiants admin de démo sont publics).
+- Les actions de l'admin sur les comptes employés ne sont pas journalisées dans MongoDB : la
+  collection `logs_personnages` ne concerne que les personnages.
+- **Page des logs** : les 100 derniers documents de l'environnement courant, du plus récent au plus
+  ancien, dates à l'heure de Paris. Si Atlas ne répond pas : « journal indisponible », pas de page blanche.
 - **Suppression de compte** (par l'utilisateur, un employé ou l'admin) : ses personnages sont supprimés,
   ses avis restent avec `pseudo_auteur`.
 

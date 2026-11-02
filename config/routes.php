@@ -45,6 +45,9 @@ return [
     'POST /employe/personnage/valider' => [EmployeController::class, 'validerNom'],
     'POST /employe/personnage/rejeter' => [EmployeController::class, 'rejeterNom'],
     'POST /employe/personnage/supprimer' => [EmployeController::class, 'supprimerPersonnage'],
+    'GET /employe/avis' => [EmployeController::class, 'avis'],
+    'POST /employe/avis/valider' => [EmployeController::class, 'validerAvis'],
+    'POST /employe/avis/refuser' => [EmployeController::class, 'refuserAvis'],
 
     // Personnages du joueur
     'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],

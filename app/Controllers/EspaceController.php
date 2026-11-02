@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Avatar;
+use App\Models\Commentaire;
 use App\Models\Personnage;
 
 // Espaces personnels, un par rôle. Leur contenu arrive avec les fonctionnalités suivantes.
@@ -33,8 +34,10 @@ class EspaceController extends Controller
 
         // Tableau de bord : ce qui attend une décision
         $modelePersonnage = new Personnage();
+        $modeleCommentaire = new Commentaire();
         $this->afficher('espace-employe', 'Espace employé', [
             'nomsEnAttente' => $modelePersonnage->compterEnAttente(),
+            'avisEnAttente' => $modeleCommentaire->compterEnAttente(),
         ]);
     }
 

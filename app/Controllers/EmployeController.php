@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Csrf;
 use App\Core\Logger;
 use App\Core\Mailer;
+use App\Models\Commentaire;
 use App\Models\Personnage;
 
 // Espace employé : modération des noms de personnages et des avis, gestion des articles,
@@ -105,6 +106,67 @@ class EmployeController extends Controller
 
         $this->retourAvecMessage('/employe/personnages', '« ' . $personnage['nom'] . ' » (joueur '
             . $personnage['pseudo'] . ') a été supprimé.');
+    }
+
+    // GET /employe/avis : les avis en attente de validation
+    public function avis(): void
+    {
+        $this->exigerRole($this->roles);
+
+        $modele = new Commentaire();
+        $this->afficher('employe-avis', 'Avis (employé)', ['enAttente' => $modele->listerEnAttente()]);
+    }
+
+    // POST /employe/avis/valider : l'avis est publié, puis un mail prévient le propriétaire
+    // du personnage qu'un nouvel avis est disponible (sujet)
+    public function validerAvis(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->exigerJetonValide('/employe/avis');
+        $avis = $this->chargerAvisEnAttente($this->lireId($_POST));
+
+        $modele = new Commentaire();
+        $modele->valider($avis['id_commentaire']);
+
+        $texte = 'Bonjour ' . $avis['pseudo'] . ",\n\n"
+            . 'Un nouvel avis de ' . $avis['pseudo_auteur'] . ' (note : ' . $avis['note'] . '/5) est disponible sur votre personnage « '
+            . $avis['nom_personnage'] . " ».\n\n"
+            . "Vous pouvez le lire sur sa page :\n"
+            . $_ENV['APP_URL'] . '/personnage?id=' . $avis['id_personnage'] . "\n";
+        $envoye = $this->envoyerMail($avis['mail'], 'Nouvel avis sur votre personnage « ' . $avis['nom_personnage'] . ' »', $texte);
+
+        $this->retourAvecMessage('/employe/avis', $this->messageAvecMail('L\'avis de ' . $avis['pseudo_auteur']
+            . ' sur « ' . $avis['nom_personnage'] . ' » est publié.', $envoye));
+    }
+
+    // POST /employe/avis/refuser : l'avis est supprimé définitivement (decisions.md), sans mail
+    public function refuserAvis(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->exigerJetonValide('/employe/avis');
+        $avis = $this->chargerAvisEnAttente($this->lireId($_POST));
+
+        $modele = new Commentaire();
+        $modele->supprimer($avis['id_commentaire']);
+
+        $this->retourAvecMessage('/employe/avis', 'L\'avis de ' . $avis['pseudo_auteur'] . ' sur « '
+            . $avis['nom_personnage'] . ' » a été refusé et supprimé.');
+    }
+
+    // Avis visé par l'action : 404 s'il n'existe pas ; retour avec un message s'il est déjà publié
+    // (seuls les avis en attente se valident ou se refusent)
+    private function chargerAvisEnAttente(int $id): array
+    {
+        $modele = new Commentaire();
+        $avis = $modele->trouverAvecProprietaire($id);
+        if ($avis === null) {
+            $this->afficherPageIntrouvable();
+        }
+        if ($avis['statut'] !== 'en_attente') {
+            $this->retourAvecMessage('/employe/avis', 'Cet avis est déjà publié.');
+        }
+
+        return $avis;
     }
 
     // Personnage visé par l'action, avec son propriétaire ; page 404 s'il n'existe pas

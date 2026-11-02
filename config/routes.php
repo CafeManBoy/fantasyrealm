@@ -48,6 +48,10 @@ return [
     'GET /employe/avis' => [EmployeController::class, 'avis'],
     'POST /employe/avis/valider' => [EmployeController::class, 'validerAvis'],
     'POST /employe/avis/refuser' => [EmployeController::class, 'refuserAvis'],
+    'GET /employe/articles' => [EmployeController::class, 'articles'],
+    'POST /employe/article/ajouter' => [EmployeController::class, 'ajouterArticle'],
+    'POST /employe/article/basculer' => [EmployeController::class, 'basculerArticle'],
+    'POST /employe/article/supprimer' => [EmployeController::class, 'supprimerArticle'],
 
     // Personnages du joueur
     'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],

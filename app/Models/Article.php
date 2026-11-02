@@ -38,4 +38,72 @@ class Article
 
         return $articles;
     }
+
+    // Espace employé : tous les articles (actifs ou non), avec le nombre de personnages qui les portent.
+    // LEFT JOIN : un article porté par personne apparaît aussi (avec 0).
+    public function listerTous(): array
+    {
+        $requete = Database::connexion()->query(
+            'SELECT a.id_article, a.nom, a.type, a.image, a.actif, COUNT(d.id_personnage) AS nombre_personnages
+             FROM article a
+             LEFT JOIN dispose d ON d.id_article = a.id_article
+             GROUP BY a.id_article, a.nom, a.type, a.image, a.actif
+             ORDER BY a.type, a.nom'
+        );
+
+        return $requete->fetchAll();
+    }
+
+    // Un article, ou null s'il n'existe pas
+    public function trouver(int $id): ?array
+    {
+        $requete = Database::connexion()->prepare(
+            'SELECT id_article, nom, type, image, actif FROM article WHERE id_article = :id'
+        );
+        $requete->execute(['id' => $id]);
+        $article = $requete->fetch();
+
+        if ($article === false) {
+            return null;
+        }
+
+        return $article;
+    }
+
+    // Nouvel article, actif par défaut. $image : chemin du calque (ex. /uploads/articles/3f9c….png)
+    public function creer(string $nom, string $type, string $image): void
+    {
+        $requete = Database::connexion()->prepare(
+            'INSERT INTO article (nom, type, image) VALUES (:nom, :type, :image)'
+        );
+        $requete->execute(['nom' => $nom, 'type' => $type, 'image' => $image]);
+    }
+
+    // Activer (true) ou désactiver (false) : un article désactivé reste lié aux personnages
+    public function changerActif(int $id, bool $actif): void
+    {
+        $requete = Database::connexion()->prepare('UPDATE article SET actif = :actif WHERE id_article = :id');
+        $requete->execute(['actif' => (int) $actif, 'id' => $id]);
+    }
+
+    // Personnages qui portent cet article (pour le journal, juste avant de le supprimer)
+    public function personnagesQuiPortent(int $id): array
+    {
+        $requete = Database::connexion()->prepare(
+            'SELECT p.id_personnage, p.nom
+             FROM dispose d
+             JOIN personnage p ON p.id_personnage = d.id_personnage
+             WHERE d.id_article = :id'
+        );
+        $requete->execute(['id' => $id]);
+
+        return $requete->fetchAll();
+    }
+
+    // Suppression définitive : la base le retire aussi de tous les personnages (ON DELETE CASCADE)
+    public function supprimer(int $id): void
+    {
+        $requete = Database::connexion()->prepare('DELETE FROM article WHERE id_article = :id');
+        $requete->execute(['id' => $id]);
+    }
 }

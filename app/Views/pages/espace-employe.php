@@ -26,5 +26,11 @@
                 </p>
             </div>
         </li>
+        <li class="col-sm-6 col-lg-3">
+            <div class="carte-avantage h-100">
+                <h2 class="h5"><a href="/employe/articles">Articles</a></h2>
+                <p class="mb-0">Ajouter, désactiver ou supprimer les vêtements, armures, accessoires et armes.</p>
+            </div>
+        </li>
     </ul>
 </div>

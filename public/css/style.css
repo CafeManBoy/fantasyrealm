@@ -309,6 +309,18 @@ summary:focus-visible {
     color: var(--couleur-primaire);
 }
 
+/* 12. Espace employé
+   ------------------------------------------------------------------ */
+
+/* Calque d'un article en petit, sur le fond des avatars (format 3:4 comme les images) */
+.miniature-article {
+    width: 3rem;
+    aspect-ratio: 3 / 4;
+    background-color: var(--couleur-avatar-fond);
+    border: 1px solid var(--couleur-bordure);
+    border-radius: 0.25rem;
+}
+
 /* « Dupliquer » : zone dépliable (details / summary), présentée comme un lien */
 .carte-personnage summary {
     color: rgb(var(--couleur-lien-rgb));

@@ -5,8 +5,10 @@ namespace App\Controllers;
 use App\Core\Csrf;
 use App\Core\Logger;
 use App\Core\Mailer;
+use App\Models\Article;
 use App\Models\Commentaire;
 use App\Models\Personnage;
+use finfo;
 
 // Espace employé : modération des noms de personnages et des avis, gestion des articles,
 // des personnages et des comptes des joueurs. Réservé aux rôles employe et admin
@@ -151,6 +153,201 @@ class EmployeController extends Controller
 
         $this->retourAvecMessage('/employe/avis', 'L\'avis de ' . $avis['pseudo_auteur'] . ' sur « '
             . $avis['nom_personnage'] . ' » a été refusé et supprimé.');
+    }
+
+    // GET /employe/articles : formulaire d'ajout et liste des articles
+    public function articles(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->afficherArticles([], '', '');
+    }
+
+    // POST /employe/article/ajouter : nouvel article avec son calque PNG
+    public function ajouterArticle(): void
+    {
+        $this->exigerRole($this->roles);
+
+        // Envoi plus lourd que post_max_size (php.ini) : PHP vide alors $_POST ET $_FILES.
+        // Sans ce test, le jeton CSRF manquerait et l'employé lirait « Formulaire expiré ».
+        if (count($_POST) === 0 && isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > 0) {
+            $this->retourAvecMessage('/employe/articles', 'Fichier trop lourd : l\'image doit faire 2 Mo au maximum.');
+        }
+
+        $nom = $this->lireChamp('nom');
+        $type = $this->lireChamp('type');
+        $csrf = new Csrf();
+        if (!$csrf->jetonEstValide()) {
+            $this->afficherArticles(['general' => 'Formulaire expiré, réessayez.'], $nom, $type);
+            return;
+        }
+
+        $erreurs = $this->verifierArticle($nom, $type);
+        $erreurImage = $this->verifierImage();
+        if ($erreurImage !== null) {
+            $erreurs['image'] = $erreurImage;
+        }
+        if (count($erreurs) > 0) {
+            $this->afficherArticles($erreurs, $nom, $type);
+            return;
+        }
+
+        $chemin = $this->enregistrerImage();
+        if ($chemin === null) {
+            $this->afficherArticles(['image' => 'L\'image n\'a pas pu être enregistrée. Réessayez.'], $nom, $type);
+            return;
+        }
+
+        $modele = new Article();
+        $modele->creer($nom, $type, $chemin);
+        $this->retourAvecMessage('/employe/articles', 'L\'article « ' . $nom . ' » a été ajouté.');
+    }
+
+    // POST /employe/article/basculer : désactive un article actif, réactive un article désactivé
+    public function basculerArticle(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->exigerJetonValide('/employe/articles');
+        $article = $this->chargerArticle($this->lireId($_POST));
+
+        $actif = !$article['actif'];
+        $modele = new Article();
+        $modele->changerActif($article['id_article'], $actif);
+
+        $message = 'L\'article « ' . $article['nom'] . ' » est désactivé : il n\'est plus proposé ni affiché.';
+        if ($actif) {
+            $message = 'L\'article « ' . $article['nom'] . ' » est réactivé.';
+        }
+        $this->retourAvecMessage('/employe/articles', $message);
+    }
+
+    // POST /employe/article/supprimer : l'article est retiré de tous les personnages (decisions.md)
+    public function supprimerArticle(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->exigerJetonValide('/employe/articles');
+        $article = $this->chargerArticle($this->lireId($_POST));
+
+        // Liste des personnages touchés, lue AVANT la suppression (pour le journal)
+        $modele = new Article();
+        $personnages = $modele->personnagesQuiPortent($article['id_article']);
+        $modele->supprimer($article['id_article']);
+        $this->effacerImageEnvoyee($article['image']);
+
+        foreach ($personnages as $personnage) {
+            $this->journaliser('equipement', $personnage, [$article['type'] => ['avant' => $article['nom'], 'apres' => null]]);
+        }
+
+        $this->retourAvecMessage('/employe/articles', 'L\'article « ' . $article['nom'] . ' » a été supprimé (retiré de '
+            . count($personnages) . ' personnage(s)).');
+    }
+
+    // Nom de 3 à 50 caractères ; type parmi les 4 types (liste blanche)
+    private function verifierArticle(string $nom, string $type): array
+    {
+        $erreurs = [];
+        $longueur = mb_strlen($nom);
+        if ($longueur < 3 || $longueur > 50) {
+            $erreurs['nom'] = 'Le nom doit faire de 3 à 50 caractères.';
+        }
+
+        $modele = new Article();
+        if (!array_key_exists($type, $modele->types())) {
+            $erreurs['type'] = 'Choisissez un type de la liste.';
+        }
+
+        return $erreurs;
+    }
+
+    // Vérifie le fichier envoyé (règles de CLAUDE.md). Renvoie le message d'erreur, ou null s'il est correct.
+    private function verifierImage(): ?string
+    {
+        if (!isset($_FILES['image']) || !is_array($_FILES['image']) || $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
+            return 'Choisissez une image PNG.';
+        }
+        $fichier = $_FILES['image'];
+
+        // INI_SIZE : plus lourd que upload_max_filesize (php.ini)
+        if ($fichier['error'] === UPLOAD_ERR_INI_SIZE || $fichier['error'] === UPLOAD_ERR_FORM_SIZE) {
+            return 'Fichier trop lourd : l\'image doit faire 2 Mo au maximum.';
+        }
+        if ($fichier['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($fichier['tmp_name'])) {
+            return 'Le fichier n\'a pas pu être envoyé. Réessayez.';
+        }
+        if ($fichier['size'] > 2 * 1024 * 1024) {
+            return 'Fichier trop lourd : l\'image doit faire 2 Mo au maximum.';
+        }
+
+        // finfo lit le contenu du fichier : un fichier renommé en .png n'est pas accepté
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        if ($finfo->file($fichier['tmp_name']) !== 'image/png') {
+            return 'Le fichier doit être une image PNG (le contenu est vérifié, pas seulement l\'extension).';
+        }
+
+        // getimagesize : [0] largeur, [1] hauteur. Même gabarit que les autres calques.
+        $taille = getimagesize($fichier['tmp_name']);
+        if ($taille === false || $taille[0] !== 600 || $taille[1] !== 800) {
+            return 'L\'image doit faire exactement 600 × 800 pixels, comme les autres calques.';
+        }
+
+        return null;
+    }
+
+    // Enregistre le fichier sous un nom aléatoire (jamais celui choisi par l'utilisateur).
+    // Renvoie son chemin pour le site (/uploads/articles/….png), ou null en cas d'échec.
+    private function enregistrerImage(): ?string
+    {
+        $dossier = __DIR__ . '/../../public/uploads/articles';
+        if (!is_dir($dossier) && !mkdir($dossier, 0755, true)) {
+            error_log('Dossier des calques impossible à créer');
+            return null;
+        }
+
+        // 16 octets aléatoires → 32 caractères hexadécimaux : impossible à deviner
+        $nomFichier = bin2hex(random_bytes(16)) . '.png';
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $dossier . '/' . $nomFichier)) {
+            error_log('Calque envoyé impossible à enregistrer');
+            return null;
+        }
+
+        return '/uploads/articles/' . $nomFichier;
+    }
+
+    // Efface le fichier d'un article supprimé, SEULEMENT s'il a été envoyé par un employé :
+    // le chemin doit avoir exactement la forme d'un nom généré (jamais les images du jeu de données)
+    private function effacerImageEnvoyee(string $chemin): void
+    {
+        if (preg_match('#^/uploads/articles/[0-9a-f]{32}\.png\z#', $chemin) !== 1) {
+            return;
+        }
+        $fichier = __DIR__ . '/../../public' . $chemin;
+        if (is_file($fichier)) {
+            unlink($fichier);
+        }
+    }
+
+    // Article visé par l'action ; page 404 s'il n'existe pas
+    private function chargerArticle(int $id): array
+    {
+        $modele = new Article();
+        $article = $modele->trouver($id);
+        if ($article === null) {
+            $this->afficherPageIntrouvable();
+        }
+
+        return $article;
+    }
+
+    // $erreurs, $nom, $type : formulaire d'ajout réaffiché après une erreur
+    private function afficherArticles(array $erreurs, string $nom, string $type): void
+    {
+        $modele = new Article();
+        $this->afficher('employe-articles', 'Articles (employé)', [
+            'articles' => $modele->listerTous(),
+            'types' => $modele->types(),
+            'erreurs' => $erreurs,
+            'nom' => $nom,
+            'type' => $type,
+        ]);
     }
 
     // Avis visé par l'action : 404 s'il n'existe pas ; retour avec un message s'il est déjà publié

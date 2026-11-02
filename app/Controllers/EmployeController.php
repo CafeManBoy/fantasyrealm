@@ -8,6 +8,7 @@ use App\Core\Mailer;
 use App\Models\Article;
 use App\Models\Commentaire;
 use App\Models\Personnage;
+use App\Models\Utilisateur;
 use finfo;
 
 // Espace employé : modération des noms de personnages et des avis, gestion des articles,
@@ -348,6 +349,72 @@ class EmployeController extends Controller
             'nom' => $nom,
             'type' => $type,
         ]);
+    }
+
+    // GET /employe/comptes : les comptes des joueurs (rôle utilisateur)
+    public function comptes(): void
+    {
+        $this->exigerRole($this->roles);
+
+        $modele = new Utilisateur();
+        $this->afficher('employe-comptes', 'Comptes (employé)', ['joueurs' => $modele->listerJoueurs()]);
+    }
+
+    // POST /employe/compte/suspendre : suspend un compte actif, réactive un compte suspendu
+    public function basculerSuspension(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->exigerJetonValide('/employe/comptes');
+        $joueur = $this->chargerJoueur($this->lireId($_POST));
+
+        $suspendu = !$joueur['suspendu'];
+        $modele = new Utilisateur();
+        $modele->changerSuspension($joueur['id_utilisateur'], $suspendu);
+
+        $message = 'Le compte « ' . $joueur['pseudo'] . ' » est réactivé.';
+        if ($suspendu) {
+            $message = 'Le compte « ' . $joueur['pseudo'] . ' » est suspendu : il ne peut plus se connecter '
+                . '(il est déconnecté s\'il l\'était) et ses personnages n\'apparaissent plus dans la galerie.';
+        }
+        $this->retourAvecMessage('/employe/comptes', $message);
+    }
+
+    // POST /employe/compte/supprimer : suppression définitive du compte et de ses personnages
+    // (decisions.md : ses avis restent, signés de son pseudo)
+    public function supprimerCompte(): void
+    {
+        $this->exigerRole($this->roles);
+        $this->exigerJetonValide('/employe/comptes');
+        $joueur = $this->chargerJoueur($this->lireId($_POST));
+
+        // Personnages lus AVANT la suppression du compte, pour le journal
+        $modelePersonnage = new Personnage();
+        $personnages = $modelePersonnage->listerParUtilisateur($joueur['id_utilisateur']);
+
+        $modele = new Utilisateur();
+        $modele->supprimer($joueur['id_utilisateur']);
+
+        foreach ($personnages as $personnage) {
+            $this->journaliser('suppression', $personnage, [
+                'nom' => ['avant' => $personnage['nom'], 'apres' => null],
+                'compte' => ['avant' => $joueur['pseudo'], 'apres' => null],
+            ]);
+        }
+
+        $this->retourAvecMessage('/employe/comptes', 'Le compte « ' . $joueur['pseudo'] . ' » et ses '
+            . count($personnages) . ' personnage(s) ont été supprimés. Ses avis restent, signés de son pseudo.');
+    }
+
+    // Compte visé : seulement un compte de joueur, sinon page 404 (employés et admin compris)
+    private function chargerJoueur(int $id): array
+    {
+        $modele = new Utilisateur();
+        $joueur = $modele->trouverJoueur($id);
+        if ($joueur === null) {
+            $this->afficherPageIntrouvable();
+        }
+
+        return $joueur;
     }
 
     // Avis visé par l'action : 404 s'il n'existe pas ; retour avec un message s'il est déjà publié

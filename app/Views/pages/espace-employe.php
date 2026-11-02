@@ -32,5 +32,11 @@
                 <p class="mb-0">Ajouter, désactiver ou supprimer les vêtements, armures, accessoires et armes.</p>
             </div>
         </li>
+        <li class="col-sm-6 col-lg-3">
+            <div class="carte-avantage h-100">
+                <h2 class="h5"><a href="/employe/comptes">Comptes</a></h2>
+                <p class="mb-0">Suspendre, réactiver ou supprimer les comptes des joueurs.</p>
+            </div>
+        </li>
     </ul>
 </div>

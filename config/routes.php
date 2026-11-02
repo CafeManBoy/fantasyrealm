@@ -52,6 +52,9 @@ return [
     'POST /employe/article/ajouter' => [EmployeController::class, 'ajouterArticle'],
     'POST /employe/article/basculer' => [EmployeController::class, 'basculerArticle'],
     'POST /employe/article/supprimer' => [EmployeController::class, 'supprimerArticle'],
+    'GET /employe/comptes' => [EmployeController::class, 'comptes'],
+    'POST /employe/compte/suspendre' => [EmployeController::class, 'basculerSuspension'],
+    'POST /employe/compte/supprimer' => [EmployeController::class, 'supprimerCompte'],
 
     // Personnages du joueur
     'GET /personnage/creer' => [PersonnageController::class, 'formulaireCreation'],

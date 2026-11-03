@@ -32,12 +32,15 @@ class Utilisateur
         return $utilisateur;
     }
 
-    // Renvoie le compte qui a cet identifiant, ou null s'il n'existe pas (ou plus)
+    // Renvoie le compte qui a cet identifiant, ou null s'il n'existe pas (ou plus).
+    // tentatives_echouees et est_bloque servent à « Mon compte » (même règle qu'à la connexion).
     public function trouverParId(int $id): ?array
     {
         $requete = Database::connexion()->prepare(
             'SELECT u.id_utilisateur, u.pseudo, u.mail, u.password, u.suspendu,
-                    u.motdepasse_a_modifier, r.libelle AS role
+                    u.motdepasse_a_modifier, u.tentatives_echouees,
+                    (u.bloque_jusqu_a IS NOT NULL AND u.bloque_jusqu_a > NOW()) AS est_bloque,
+                    r.libelle AS role
              FROM utilisateur u
              JOIN role r ON r.id_role = u.id_role
              WHERE u.id_utilisateur = :id'

@@ -5,6 +5,7 @@
 
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
+use App\Controllers\CompteController;
 use App\Controllers\ContactController;
 use App\Controllers\EmployeController;
 use App\Controllers\EspaceController;
@@ -35,6 +36,8 @@ return [
     'POST /mot-de-passe-oublie' => [AuthController::class, 'traiterMotDePasseOublie'],
     'GET /changer-mot-de-passe' => [AuthController::class, 'formulaireChangementMotDePasse'],
     'POST /changer-mot-de-passe' => [AuthController::class, 'traiterChangementMotDePasse'],
+    'GET /mon-compte' => [CompteController::class, 'monCompte'],
+    'POST /mon-compte/mot-de-passe' => [CompteController::class, 'changerMotDePasse'],
 
     // Espaces personnels (un par rôle)
     'GET /espace-joueur' => [EspaceController::class, 'espaceJoueur'],

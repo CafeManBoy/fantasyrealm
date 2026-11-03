@@ -78,6 +78,20 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
   collection `logs_personnages` ne concerne que les personnages.
 - **Page des logs** : les 100 derniers documents de l'environnement courant, du plus récent au plus
   ancien, dates à l'heure de Paris. Si Atlas ne répond pas : « journal indisponible », pas de page blanche.
+- **Mon compte** (`/mon-compte`) :
+  - Changer son mot de passe : tous les rôles **sauf l'admin**. Supprimer son compte : les joueurs
+    seulement (les employés sont gérés par l'admin). Le rôle est relu en base et vérifié côté
+    serveur dans chaque action POST, pas seulement en masquant les formulaires.
+  - **Admin** : il ne peut pas changer son mot de passe depuis le site, comme il ne peut déjà être
+    ni créé, ni suspendu, ni supprimé depuis le site. Ses identifiants sont publics (manuel exigé
+    par le sujet) et c'est le seul compte que le site ne peut pas recréer : si quelqu'un changeait
+    son mot de passe en production, plus personne ne pourrait se connecter en admin. Pas de
+    formulaire pour lui, et refus côté serveur (403). Son mot de passe se gère dans `seed.sql`.
+    Les autres comptes de démo gardent les deux fonctions (testables avec le manuel).
+  - **Mot de passe actuel** demandé dans les deux formulaires (une session volée ne suffit pas).
+    Même compteur et même blocage qu'à la connexion, pour les deux formulaires : à la 5e erreur de
+    suite, compte bloqué 15 minutes et session fermée. Un compte déjà bloqué est refusé (et sa
+    session fermée) sans vérifier le mot de passe. Pas de nouvelle table ni de nouvelle colonne.
 - **Suppression de compte** (par l'utilisateur, un employé ou l'admin) : ses personnages sont supprimés,
   ses avis restent avec `pseudo_auteur`.
 

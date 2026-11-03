@@ -14,6 +14,7 @@
     --couleur-texte: #1f1b2e;           /* texte principal */
     --couleur-texte-doux: #514a62;      /* texte secondaire */
     --couleur-bordure: #d8d0c0;         /* bordures décoratives */
+    --couleur-bordure-champ: #7a7189;   /* bordure des champs de formulaire (4,2:1 sur le fond, 3:1 minimum) */
 
     /* Couleur principale : menu, boutons */
     --couleur-primaire: #4b2e83;
@@ -89,6 +90,18 @@ button:focus-visible,
 summary:focus-visible {
     outline: 3px solid var(--couleur-focus);
     outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* Champs de formulaire : même contour. Ceux de Bootstrap (bordure bleu clair, ombre pâle)
+   n'atteignent que 2:1 sur le fond, il faut 3:1 (RGAA, critères 3.3 et 10.7).
+   :focus et non :focus-visible : dans un champ, on doit toujours voir où l'on écrit. */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    outline: 3px solid var(--couleur-focus);
+    outline-offset: 2px;
+    border-color: var(--couleur-bordure-champ);
     box-shadow: none;
 }
 
@@ -341,4 +354,28 @@ summary:focus-visible {
 .badge-partage {
     background-color: var(--couleur-primaire);
     color: var(--couleur-sur-primaire);
+}
+
+/* 13. Formulaires et tableaux (corrections de l'audit RGAA)
+   ------------------------------------------------------------------ */
+
+/* Bordure des champs : le gris de Bootstrap (#dee2e6) n'atteint que 1,2:1 sur le fond, et le fond
+   des champs est celui de la page. Il faut 3:1 pour voir où est le champ (RGAA, critère 3.3). */
+.form-control,
+.form-select,
+.form-check-input {
+    border-color: var(--couleur-bordure-champ);
+}
+
+/* Tableaux qui défilent sur petit écran : les textes cachés des boutons (.visually-hidden,
+   placés en position absolute) sortaient du cadre et élargissaient toute la page à 320 pixels
+   de large (RGAA, critère 10.11). position: relative les garde dans le cadre qui défile. */
+.table-responsive {
+    position: relative;
+}
+
+/* Badges : Bootstrap les empêche de passer à la ligne (white-space: nowrap). À 320 pixels de
+   large, « Partagé dans la galerie » dépassait de sa carte (RGAA, critère 10.11). */
+.badge {
+    white-space: normal;
 }

@@ -273,6 +273,12 @@ Images provisoires :
 - `.env` de production créé directement sur le serveur, jamais commité, avec `APP_ENV=prod`.
 - Après chaque mise en ligne : vérifier en production la connexion, l'envoi d'un mail et, à partir de
   la fonctionnalité `personnages`, l'écriture d'un log MongoDB.
+- **Actions irréversibles ou bloquantes en production** (supprimer, suspendre, rejeter, désactiver,
+  changer un mot de passe) : avant chacune, dis-moi exactement ce qui va être cliqué (page, ligne,
+  bouton et texte attendu dans la boîte de confirmation) et attends mon oui. **Jamais** sur un compte
+  ou une donnée du jeu de démo : seulement sur ce qui a été créé pour le test, avec un nom très
+  différent de ceux du jeu de démo (incident du 03/11/2026 : le compte `employe` supprimé à la place
+  de `employetest`, voir `docs/notes/deploiement.md`).
 
 ## Commandes utiles (Git Bash)
 Vérifie dès la première session que ton terminal est bien Git Bash ; sinon, adapte ces commandes

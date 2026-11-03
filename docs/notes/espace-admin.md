@@ -66,8 +66,18 @@ Exemples testés : `Jean.Dupont@example.com` → `jeandupont`, `jean.dupont@exam
 - **Pseudo** : au-delà de 99 employés avec le même début de mail, le numéro dépasserait 20 caractères.
 - **Pas de journal des actions sur les comptes** (création, suspension...) : la collection MongoDB
   ne concerne que les personnages (decisions.md).
+- **Identifiants admin publics** (le sujet exige qu'ils figurent dans le manuel) : en production,
+  n'importe qui peut créer des employés, changer le mot de passe du compte `employe` de démo, le
+  suspendre ou le supprimer. Même risque que l'employé de démo face aux comptes des joueurs.
+  Parade : réimporter `schema.sql` puis `seed.sql` juste avant le dépôt (liste de `deploiement.md`),
+  et de nouveau si le site a été abîmé avant l'examen. Protéger les comptes de démo demanderait de
+  les reconnaître dans le code (id écrit en dur) : solution écartée.
 
 ## Tests réalisés (02/11/2026, en local, navigateur intégré et `curl`)
+
+Le panneau du navigateur était caché : les formulaires ont été remplis et envoyés en JavaScript
+(clic simulé sur les vrais boutons, ou envoi direct pour les cas d'erreur que le navigateur
+bloquerait), sans vrais clics de souris. La navigation au clavier est testée à part (plus bas).
 
 - **Accès** : sans connexion → `/connexion` ; employé → 403 sur les 2 pages et sur un POST direct.
 - **Création** : champs vides, mail invalide, mot de passe faible, mail déjà pris (même écrit
@@ -96,6 +106,13 @@ Exemples testés : `Jean.Dupont@example.com` → `jeandupont`, `jean.dupont@exam
   L'affichage de la page dans ce cas est à vérifier à la main (voir ci-dessous).
 - Mobile (375 px) : pas de défilement horizontal, le tableau du journal défile dans son cadre.
   Console : seulement les 403 / 404 provoqués par les tests, aucune erreur JS.
+- **Clavier** (03/11, vraies touches Tab, Maj+Tab, flèches, Entrée et Espace) : connexion admin ;
+  ordre de tabulation logique sur `/admin/employes` (lien d'évitement, menu, 2 formulaires, boutons
+  du tableau, pied de page) et sur `/espace-admin`, focus visible sur chaque élément ; création
+  d'un employé (pseudo `jeandupont`, après la simplification de `genererPseudo()`), choix d'un
+  employé dans la liste avec les flèches et changement de son mot de passe, suspension avec Espace,
+  lien vers le journal avec Entrée. Non testé au clavier : la boîte de confirmation de suppression
+  (boîte native du navigateur, utilisable au clavier).
 - Ensuite : base locale réimportée.
 
 ## Tests à faire moi-même : Atlas en panne

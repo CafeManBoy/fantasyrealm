@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Core\Database;
+use PDOException;
 
 // Accès à la table utilisateur (les comptes). Le libellé du rôle est lu dans la table role.
 class Utilisateur
@@ -289,11 +290,31 @@ class Utilisateur
         $requete->execute(['suspendu' => (int) $suspendu, 'id' => $id]);
     }
 
-    // Suppression définitive. La base supprime aussi ses personnages (ON DELETE CASCADE) ; ses avis
-    // restent, avec id_utilisateur à NULL et le pseudo gardé dans pseudo_auteur (ON DELETE SET NULL).
+    // Suppression définitive d'un compte (par son titulaire, un employé ou l'admin).
+    // 1. Ses avis sont anonymisés : ils restent publiés, signés « Compte supprimé » (decisions.md).
+    //    Ce texte ne peut pas être le pseudo d'un vrai compte (espace et accent interdits dans un pseudo).
+    // 2. Le compte est supprimé. La base supprime aussi ses personnages, et les avis reçus par ces
+    //    personnages (ON DELETE CASCADE) ; ses avis écrits gardent id_utilisateur à NULL (ON DELETE SET NULL).
+    // Transaction : les deux requêtes réussissent ensemble, ou rien n'est changé
+    // (jamais de compte supprimé dont les avis porteraient encore le pseudo).
     public function supprimer(int $id): void
     {
-        $requete = Database::connexion()->prepare('DELETE FROM utilisateur WHERE id_utilisateur = :id');
-        $requete->execute(['id' => $id]);
+        $connexion = Database::connexion();
+        $connexion->beginTransaction();
+        try {
+            $requete = $connexion->prepare(
+                "UPDATE commentaire SET pseudo_auteur = 'Compte supprimé' WHERE id_utilisateur = :id"
+            );
+            $requete->execute(['id' => $id]);
+
+            $requete = $connexion->prepare('DELETE FROM utilisateur WHERE id_utilisateur = :id');
+            $requete->execute(['id' => $id]);
+
+            $connexion->commit();
+        } catch (PDOException $e) {
+            // Annule la première requête si la deuxième a échoué, puis laisse remonter l'erreur
+            $connexion->rollBack();
+            throw $e;
+        }
     }
 }

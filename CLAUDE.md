@@ -150,8 +150,8 @@ Base : le MCD de l'annexe du sujet (noms de tables et de colonnes en français),
 - `dispose` : table de jointure `personnage` ↔ `article`. Un seul article par type et par personnage
   (règle vérifiée en PHP)
 - `commentaire` : `commentaire` en `TEXT`, ajout de `id_personnage`, de `id_utilisateur`
-  (clé étrangère, `ON DELETE SET NULL`) et de `pseudo_auteur` (copie du pseudo, conservée même si
-  le compte est supprimé)
+  (clé étrangère, `ON DELETE SET NULL`) et de `pseudo_auteur` (copie du pseudo affichée avec l'avis ;
+  quand le compte est supprimé, l'avis reste mais `pseudo_auteur` devient « Compte supprimé »)
 
 Règles :
 - Les fichiers SQL sont écrits **en SQL pur, à la main, commentés**. Pas de migrations ni de

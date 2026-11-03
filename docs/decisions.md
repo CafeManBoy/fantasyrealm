@@ -92,8 +92,12 @@ Si un point ambigu n'est pas listé ici, pose-moi la question.
     Même compteur et même blocage qu'à la connexion, pour les deux formulaires : à la 5e erreur de
     suite, compte bloqué 15 minutes et session fermée. Un compte déjà bloqué est refusé (et sa
     session fermée) sans vérifier le mot de passe. Pas de nouvelle table ni de nouvelle colonne.
-- **Suppression de compte** (par l'utilisateur, un employé ou l'admin) : ses personnages sont supprimés,
-  ses avis restent avec `pseudo_auteur`.
+- **Suppression de compte** (par l'utilisateur, un employé ou l'admin) : ses personnages sont supprimés
+  (avec les avis qu'ils ont reçus) ; les avis qu'il a écrits restent publiés mais **anonymisés** :
+  `pseudo_auteur` devient « Compte supprimé » (droit à l'effacement : le pseudo est une donnée
+  personnelle). Anonymisation et suppression dans une seule transaction (`Utilisateur::supprimer()`).
+  « Compte supprimé » ne peut pas être un vrai pseudo (espace et accent interdits).
+  Le journal MongoDB garde le pseudo de l'auteur des modifications jusqu'à 1 an (politique de confidentialité).
 
 ## Contact
 - **Champs** (sujet) : mail, pseudo et détail de la demande, pré-remplis si l'on est connecté.

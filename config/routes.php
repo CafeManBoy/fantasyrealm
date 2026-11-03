@@ -38,6 +38,7 @@ return [
     'POST /changer-mot-de-passe' => [AuthController::class, 'traiterChangementMotDePasse'],
     'GET /mon-compte' => [CompteController::class, 'monCompte'],
     'POST /mon-compte/mot-de-passe' => [CompteController::class, 'changerMotDePasse'],
+    'POST /mon-compte/supprimer' => [CompteController::class, 'supprimerCompte'],
 
     // Espaces personnels (un par rôle)
     'GET /espace-joueur' => [EspaceController::class, 'espaceJoueur'],

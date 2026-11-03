@@ -45,7 +45,7 @@
                                     </button>
                                 </form>
                                 <form method="post" action="/employe/compte/supprimer"
-                                      data-confirmation="Supprimer définitivement le compte « <?= $pseudo ?> » et ses <?= $nombre ?> personnage(s) ? Ses avis resteront, signés de son pseudo.">
+                                      data-confirmation="Supprimer définitivement le compte « <?= $pseudo ?> » et ses <?= $nombre ?> personnage(s) ? Ses avis resteront, signés « Compte supprimé ».">
                                     <input type="hidden" name="csrf" value="<?= htmlspecialchars($jetonCsrf) ?>">
                                     <input type="hidden" name="id" value="<?= $id ?>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer<span class="visually-hidden"> le compte <?= $pseudo ?></span></button>

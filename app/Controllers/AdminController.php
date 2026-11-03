@@ -243,9 +243,14 @@ class AdminController extends Controller
     // (20 au maximum). S'il reste moins de 3 caractères : « employe ». Pris : 2, 3... à la suite.
     private function genererPseudo(string $mail): string
     {
-        // strrpos : DERNIER @ (le domaine ne peut pas en contenir)
+        // Partie avant le @. strrpos : position du DERNIER @ (le domaine ne peut pas en contenir)
         $debut = substr($mail, 0, strrpos($mail, '@'));
-        $base = substr(preg_replace('/[^A-Za-z0-9_-]/', '', $debut), 0, 18);
+
+        // Seulement les caractères autorisés dans un pseudo ([^...] : tout ce qui n'est pas dans la
+        // liste est effacé), puis 18 caractères au maximum
+        $base = preg_replace('/[^A-Za-z0-9_-]/', '', $debut);
+        $base = substr($base, 0, 18);
+
         if (strlen($base) < 3) {
             $base = 'employe';
         }

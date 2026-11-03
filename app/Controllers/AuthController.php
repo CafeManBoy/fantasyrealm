@@ -298,23 +298,6 @@ class AuthController extends Controller
         return $erreurs;
     }
 
-    // Renvoie le message d'erreur si le mot de passe ne respecte pas les règles, sinon null
-    private function erreurMotDePasse(string $motDePasse): ?string
-    {
-        $verificateur = new MotDePasse();
-
-        if ($verificateur->estTropLong($motDePasse)) {
-            return 'Le mot de passe est trop long : 72 caractères au maximum (moins si vous utilisez des accents).';
-        }
-
-        $regles = $verificateur->reglesNonRespectees($motDePasse);
-        if (count($regles) > 0) {
-            return 'Le mot de passe doit contenir ' . implode(', ', $regles) . '.';
-        }
-
-        return null;
-    }
-
     // Affiche le formulaire d'inscription avec les valeurs déjà saisies et les erreurs
     private function afficherInscription(string $mail, string $pseudo, array $erreurs): void
     {

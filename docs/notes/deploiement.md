@@ -252,6 +252,33 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
    Piège rencontré : la première suppression n'était pas partie (la fenêtre de confirmation avait
    été fermée) ; le log est bien arrivé à la deuxième, quand le personnage a disparu de la liste.
 
+## Mise en ligne de `galerie` et `espace-employe` (02/11/2026)
+
+1. `/security-review` sur `develop` (aucune vulnérabilité), merge de `develop` dans `main`, push.
+2. Sur le serveur : `git pull` seulement (ni `composer install`, ni réimport : `database/` et
+   Composer n'ont pas changé), puis contrôle de ce dont l'envoi de calques a besoin :
+   ```bash
+   php -r 'echo extension_loaded("fileinfo") ? "fileinfo : OK\n" : "fileinfo : ABSENT\n"; echo "upload_max_filesize = ", ini_get("upload_max_filesize"), "\npost_max_size = ", ini_get("post_max_size"), "\n";'
+   ```
+   Le dossier `public/uploads/articles/` n'existe pas dans Git : il est créé par le site au premier
+   envoi.
+3. Vérifié depuis le poste : galerie (7 personnages), filtre combiné, détail (200) ; personnage en
+   attente → 404 ; pages employé sans connexion → `/connexion`.
+4. Tests dans le navigateur avec le compte de test à vraie adresse, l'employé et Elandra :
+   - nom validé → mail « Votre personnage … est validé » reçu ;
+   - personnage du compte de test rejeté avec un motif → mail « Le nom de votre personnage n'a pas
+     été accepté » reçu, avec le motif ; log `rejet` dans Atlas ;
+   - avis d'Elandra publié → visible sur la page du personnage, mail « Nouvel avis » reçu ;
+   - les 3 mails sont arrivés dans la boîte de réception principale (pas dans les spams) ;
+   - envoi d'un calque PNG 600 × 800 → article ajouté, miniature affichée (le dossier
+     `public/uploads/articles/` a bien été créé par le site) ; image aux mauvaises dimensions →
+     « L'image doit faire exactement 600 × 800 pixels ». L'article de test reste en ligne jusqu'au
+     nettoyage d'avant dépôt. Le refus d'un fichier de 5 Mo n'a été testé qu'en local ;
+   - logs `prod` relus dans Atlas : `creation`, `validation`, `partage`, `duplication`, `rejet`,
+     `suppression`, avec l'employé comme auteur pour ses actions.
+   - Piège rencontré : « Supprimer » (tableau du bas, tous les personnages) n'est pas « Rejeter »
+     (tableau du haut, noms en attente) : seul le rejet envoie le mail avec le motif.
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est

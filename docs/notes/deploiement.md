@@ -70,6 +70,39 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 - L'IP sortante du **site** (185.31.40.24) est différente de celle du serveur **SSH**
   (185.31.41.84) : elle a été lue par une page PHP du site, pas en ligne de commande.
 
+### Durée de conservation du journal : index TTL (Atlas, hors du code)
+
+La politique de confidentialité annonce que le journal `logs_personnages` est gardé **1 an**
+(RGPD : une durée de conservation limitée). C'est MongoDB qui efface les documents, grâce à un
+**index TTL** (*time to live*, « durée de vie ») sur le champ `date` :
+- `Logger::enregistrer()` écrit `date` en type Date (`UTCDateTime`) : c'est obligatoire, un index
+  TTL ignore un champ texte (un document avec `"date": "2026-11-03"` ne serait jamais effacé).
+- Option `expireAfterSeconds: 31536000` (365 × 24 × 3 600 secondes = 1 an). Une tâche de fond de
+  MongoDB passe environ toutes les 60 secondes et efface les documents dont `date` + 1 an est dépassé.
+- Aucun code PHP ni tâche planifiée (cron) : l'effacement marche même si le site est arrêté.
+- Le local et la production utilisent la même base Atlas : un seul index pour les deux.
+
+Création, une seule fois, dans l'interface d'Atlas (compte du développeur) :
+1. https://cloud.mongodb.com → cluster `fantasyrealm` → **Browse Collections**.
+2. Base `fantasyrealm` → collection `logs_personnages` → onglet **Indexes** → **Create Index**.
+3. Champ *Fields* :
+   ```json
+   { "date": 1 }
+   ```
+   Champ *Options* :
+   ```json
+   { "expireAfterSeconds": 31536000, "name": "expiration_1_an" }
+   ```
+4. **Review**, puis **Confirm**. Attendu : l'index `expiration_1_an` apparaît dans la liste, marqué **TTL**.
+   Aucun document n'est effacé tout de suite : le plus ancien date du 01/11/2026.
+
+À savoir :
+- Changer la durée : modifier l'index (commande `collMod`) ou le supprimer puis le recréer.
+- Supprimer l'index arrête l'effacement automatique : la politique de confidentialité ne serait
+  plus vraie.
+- Le nettoyage d'avant dépôt (suppression des logs `prod`, plus bas) se fait toujours à la main :
+  l'index n'efface que ce qui a plus d'1 an.
+
 ## Procédure de déploiement (première mise en ligne)
 
 1. Avant le merge `develop` → `main` : `/security-review` (aucune vulnérabilité), puis merge

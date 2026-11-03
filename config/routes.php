@@ -18,6 +18,7 @@ return [
     'GET /mentions-legales' => [PageController::class, 'mentionsLegales'],
     'GET /cgv' => [PageController::class, 'cgv'],
     'GET /confidentialite' => [PageController::class, 'confidentialite'],
+    'GET /accessibilite' => [PageController::class, 'accessibilite'],
     'GET /contact' => [ContactController::class, 'formulaire'],
     'POST /contact' => [ContactController::class, 'traiter'],
 

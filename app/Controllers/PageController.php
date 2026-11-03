@@ -25,6 +25,12 @@ class PageController extends Controller
         $this->afficher('confidentialite', 'Politique de confidentialité');
     }
 
+    // Déclaration d'accessibilité (RGAA)
+    public function accessibilite(): void
+    {
+        $this->afficher('accessibilite', 'Déclaration d\'accessibilité');
+    }
+
     // Page affichée quand aucune route ne correspond à l'adresse demandée
     public function pageNonTrouvee(): void
     {

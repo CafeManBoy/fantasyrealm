@@ -238,11 +238,13 @@ Ensuite : Stop puis Start sur la ligne Apache du panneau de contrôle de XAMPP.
 ## À reprendre plus tard
 
 - ~~Mentions légales : coordonnées de l'hébergeur, à l'étape `deploiement`.~~ Fait (alwaysdata).
-- Politique de confidentialité (provisoire) : durées de conservation du journal MongoDB et des
-  messages de contact, région d'hébergement de MongoDB Atlas, à l'étape `rgaa-rgpd`.
-- Avis d'un compte supprimé : `pseudo_auteur` reste affiché après la suppression du compte
+- ~~Politique de confidentialité (provisoire) : durées de conservation du journal MongoDB et des
+  messages de contact, région d'hébergement de MongoDB Atlas, à l'étape `rgaa-rgpd`.~~ Fait
+  (voir `docs/notes/rgaa-rgpd.md`).
+- ~~Avis d'un compte supprimé : `pseudo_auteur` reste affiché après la suppression du compte
   (décision de `docs/decisions.md`). À justifier au regard du RGPD ou à anonymiser, à l'étape
-  `rgaa-rgpd`.
+  `rgaa-rgpd`.~~ Fait : les avis sont anonymisés, signés « Compte supprimé » (voir
+  `docs/notes/rgaa-rgpd.md`).
 - ~~Menu : lien « Mon espace » et bouton « Déconnexion », à l'étape `authentification`.~~ Fait
   (voir `docs/notes/authentification.md`).
 - Couleurs et polices : à remplacer par celles de la charte graphique (seulement le haut de

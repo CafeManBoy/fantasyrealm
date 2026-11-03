@@ -421,6 +421,10 @@ n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
 
+- **Avant la mise en ligne de `rgaa-rgpd`** : créer l'index TTL du journal dans Atlas (section
+  « Durée de conservation du journal », plus haut), puis vérifier qu'il existe. Sans lui, la
+  politique de confidentialité annonce une durée d'1 an qui n'est pas appliquée.
+
 - **Juste avant le dépôt**, en production :
   - réimporter `schema.sql` puis `seed.sql` (efface les comptes de test, dont celui à vraie adresse) ;
   - vider `public/uploads/articles/` sur le serveur : les identifiants employé de démo sont publics,

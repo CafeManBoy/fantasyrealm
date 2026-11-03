@@ -279,6 +279,60 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
    - Piège rencontré : « Supprimer » (tableau du bas, tous les personnages) n'est pas « Rejeter »
      (tableau du haut, noms en attente) : seul le rejet envoie le mail avec le motif.
 
+## Mise en ligne de `espace-admin` (03/11/2026)
+
+1. En local : tests « Atlas en panne » (coupure du Wi-Fi, puis ligne `MONGODB_URI` mise en
+   commentaire) → « journal indisponible », pas de page blanche ; `.env` remis comme avant.
+   `/security-review` sur `develop` : aucune vulnérabilité. Merge de `develop` dans `main`
+   (`066b38a`), push.
+2. Sur le serveur : `git pull` seulement (`aba0987..066b38a`, 14 fichiers). Ni `composer install`
+   ni réimport : `database/` et `composer.*` n'ont pas changé.
+3. Vérifié depuis le poste, sans connexion (`curl`) : `/admin/employes`, `/admin/logs` et
+   `/espace-admin` → redirection vers `/connexion` (404 avant le `git pull`) ; POST direct sur
+   `/admin/employe/supprimer` → `/connexion`, rien n'est supprimé ; en-têtes de sécurité présents.
+4. Dans le navigateur :
+   - connexion admin → espace administrateur (3 cartes) ;
+   - personnage « Valadmin » créé avec le compte de test à vraie adresse, nom validé par l'admin →
+     mail « Votre personnage « Valadmin » est validé » reçu ; journal en environnement « prod » :
+     « Validation du nom · Admin » en tête, puis « Création · testprod », aucune ligne des tests locaux ;
+   - employé `employe.test@example.com` créé → pseudo `employetest`, badge « Mot de passe à changer ».
+5. **Incident** : pour supprimer `employetest`, c'est le bouton « Supprimer » de la ligne voisine,
+   `employe` (le compte de démo), qui a été cliqué, et la confirmation a été validée sans être lue
+   (elle disait bien « employe »). Cause : un pseudo de test trop proche de celui du compte de démo,
+   sur la ligne juste en dessous. Réparation : ligne du compte réinsérée depuis `seed.sql`
+   (procédure ci-dessous), puis `employetest` supprimé en lisant la confirmation. Vérifié : le
+   compte `employe` se connecte avec le mot de passe du manuel et arrive directement sur l'espace
+   employé (pas de changement forcé).
+   Leçon : en production, tester avec un pseudo très différent des comptes de démo, et toujours
+   lire la boîte de confirmation avant OK.
+   C'est le risque des identifiants de démo publics (`docs/notes/espace-admin.md`, limites connues).
+
+### Remettre un compte de démo supprimé en production
+
+Pour un compte **employé** (il n'a ni personnage ni avis : réinsérer sa ligne suffit). Pour un
+joueur, ses personnages et ses avis ont disparu avec lui : réimporter `schema.sql` puis `seed.sql`
+(procédure de mise à jour, étape 4). Le compte admin, lui, ne peut pas être supprimé depuis le site.
+
+1. Se connecter au serveur, puis ouvrir MySQL (mot de passe MySQL demandé) :
+   ```bash
+   ssh fantasyrealm5@ssh-fantasyrealm5.alwaysdata.net
+   ```
+   ```bash
+   mysql -h mysql-fantasyrealm5.alwaysdata.net -u fantasyrealm5_app -p --default-character-set=utf8mb4 fantasyrealm5_fantasyrealm
+   ```
+2. À l'invite `MariaDB [...]>`, coller l'`INSERT` du compte, recopié de `seed.sql` : la ligne des
+   colonnes, puis **seulement** la ligne du compte, terminée par `;`. Taper la requête dans MySQL et
+   non dans une commande `bash` : le `$` du hash n'est pas modifié. Pour l'employé de démo :
+   ```sql
+   INSERT INTO utilisateur (id_utilisateur, pseudo, mail, password, suspendu, motdepasse_a_modifier, id_role) VALUES (2, 'employe', 'employe@example.com', '$2y$10$Mxlt8Wq9r9TTA/zaQqsc5uU84bg5TaJYxmFZnukxenvTYWh5q4VtG', FALSE, FALSE, 2);
+   ```
+   Attendu : `Query OK, 1 row affected`. Même id et même hash que le jeu de données : le mot de
+   passe du manuel fonctionne de nouveau.
+3. Contrôler, puis quitter MySQL et le serveur (`exit` deux fois) :
+   ```sql
+   SELECT id_utilisateur, pseudo FROM utilisateur WHERE id_role = 2;
+   ```
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est

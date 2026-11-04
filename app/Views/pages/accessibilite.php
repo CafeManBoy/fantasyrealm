@@ -35,8 +35,8 @@
                 boutons, tableaux, attributs ARIA ;
             </li>
             <li>
-                contrastes : les couleurs de texte du site atteignent 5,9:1 au moins (4,5:1 exigé), les
-                bordures des champs et le contour du focus 4,2:1 au moins (3:1 exigé) ;
+                contrastes : les couleurs de texte du site atteignent 4,6:1 au moins (4,5:1 exigé), les
+                bordures des champs et le contour du focus 5:1 au moins (3:1 exigé) ;
             </li>
             <li>
                 navigation au clavier seul, sur les pages qui ont des formulaires ou des actions : tous les
@@ -48,7 +48,7 @@
             </li>
             <li>
                 pas de défilement horizontal à 640 pixels de large (comme un zoom à 200 %, mesuré sur
-                6 pages) et à 320 pixels de large (comme un zoom à 400 %, mesuré sur 14 pages), sauf les
+                6 pages) et à 320 pixels de large (comme un zoom à 400 %, mesuré sur 16 pages), sauf les
                 tableaux, qui défilent dans leur cadre ;
             </li>
             <li>
@@ -83,7 +83,11 @@
 
         <h2>Établissement de cette déclaration</h2>
         <ul>
-            <li>Déclaration établie le 3 novembre 2026, à la suite de l'audit interne du même jour.</li>
+            <li>
+                Déclaration établie le 3 novembre 2026, à la suite de l'audit interne du même jour, et mise
+                à jour le 5 novembre 2026 après le changement de charte graphique : l'outil de test
+                automatique, les contrastes et les largeurs de page ont été vérifiés à nouveau.
+            </li>
             <li>
                 Technologies utilisées : HTML5, CSS (Bootstrap 5) et JavaScript. Le JavaScript sert à
                 l'aperçu de l'avatar, aux questions de confirmation et à l'ouverture du menu sur petit
@@ -91,12 +95,14 @@
             </li>
             <li>
                 Méthode : navigateur Chromium sous Windows ; outil de test automatique axe-core 4.10.2 sur
-                38 pages ou états de page (dont les formulaires affichés avec leurs erreurs) ; calcul des
+                39 pages ou états de page (dont les formulaires affichés avec leurs erreurs) ; calcul des
                 rapports de contraste de toutes les couleurs de la feuille de style, et vérification à la main
-                de ce que l'outil ne peut pas mesurer (listes déroulantes, étoiles des avis) ; navigation au
-                clavier seul (Tab, Maj+Tab, Entrée, Espace, flèches) sur les 17 pages qui ont des formulaires
-                ou des actions ; largeur de la page mesurée dans des fenêtres de 640 et de 320 pixels de
-                large ; menu testé en affichage de téléphone (375 pixels).
+                de ce que l'outil ne peut pas mesurer (listes déroulantes, étoiles des avis, champs en
+                erreur) ; navigation au clavier seul (Tab, Maj+Tab, Entrée, Espace, flèches) sur les 17 pages
+                qui ont des formulaires ou des actions, le 3 novembre ; contour du focus vérifié à nouveau
+                le 5 novembre sur l'espace joueur, l'ordre de navigation n'ayant pas changé ; largeur de la
+                page mesurée dans des fenêtres de 640 et de 320 pixels de large ; menu testé en affichage de
+                téléphone (375 pixels).
             </li>
             <li>
                 Pages vérifiées : accueil ; galerie (avec et sans filtre) ; page d'un personnage, avec le

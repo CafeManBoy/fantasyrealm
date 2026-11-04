@@ -100,8 +100,9 @@ Trois défauts trouvés et corrigés :
 - **Accessibilité** : pas de test avec un lecteur d'écran, ni avec un autre navigateur que
   Chromium ; couleurs d'un personnage données par leur code (`#7d4b2a`) ; menu sur petit écran
   ouvert par le JavaScript de Bootstrap.
-- **Charte graphique** : les couleurs actuelles sont provisoires. Après leur remplacement dans
-  `:root`, refaire le calcul des contrastes et mettre à jour les chiffres de la déclaration.
+- ~~**Charte graphique** : les couleurs actuelles sont provisoires. Après leur remplacement dans
+  `:root`, refaire le calcul des contrastes et mettre à jour les chiffres de la déclaration.~~
+  Fait le 05/11/2026 (voir `docs/notes/charte-graphique.md`).
 
 ## Tests réalisés (03/11/2026, en local, navigateur intégré et `curl`)
 

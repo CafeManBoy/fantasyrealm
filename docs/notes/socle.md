@@ -83,8 +83,8 @@ la clé n'existe pas, le routeur appelle `pageNonTrouvee()`, qui renvoie le code
   ont été comparées à celles publiées sur getbootstrap.com : identiques. L'attribut `integrity`
   (SRI) n'est pas utilisé dans les balises `<link>` et `<script>` : il sert aux fichiers chargés
   depuis un CDN. Ici, on a seulement comparé les empreintes une fois, au téléchargement.
-- **Polices du système.** Même raison : aucune requête vers un serveur de polices. Quand la charte
-  sera choisie, ses polices seront hébergées dans le projet.
+- **Polices.** Même raison : aucune requête vers un serveur de polices. Depuis la charte, Almendra
+  est hébergée dans `public/fonts/` (voir `docs/notes/charte-graphique.md`).
 - **Méthode HTTP dans les routes** (`GET /cgv`). Une route `POST` ne pourra jamais être déclenchée
   par un simple lien. Les requêtes `HEAD` (en-têtes seulement) sont traitées comme des `GET`.
 - **Les identifiants passeront en paramètre** (`/personnage?id=12`) : le routeur ne lit que le
@@ -247,5 +247,5 @@ Ensuite : Stop puis Start sur la ligne Apache du panneau de contrôle de XAMPP.
   `docs/notes/rgaa-rgpd.md`).
 - ~~Menu : lien « Mon espace » et bouton « Déconnexion », à l'étape `authentification`.~~ Fait
   (voir `docs/notes/authentification.md`).
-- Couleurs et polices : à remplacer par celles de la charte graphique (seulement le haut de
-  `style.css`).
+- ~~Couleurs et polices : à remplacer par celles de la charte graphique (seulement le haut de
+  `style.css`).~~ Fait (voir `docs/notes/charte-graphique.md`).

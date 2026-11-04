@@ -4,7 +4,8 @@
 // $messages (messages à afficher après une redirection) et les valeurs utilisées par le menu.
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<!-- data-bs-theme="dark" : thème sombre de Bootstrap (flèches des listes, icônes des champs de date...) -->
+<html lang="fr" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

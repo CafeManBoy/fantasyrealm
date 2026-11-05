@@ -14,7 +14,8 @@ Le site passe d'un thème clair à un thème sombre : fond violet, texte jaune, 
 | Erreur | `#b40c0c` |
 | Avertissement | `#18bdd0` |
 
-Polices : Almendra pour les titres, Comic Sans MS pour le texte.
+Polices : Almendra pour les titres, Comic Sans MS pour le texte, avec Comic Neue sur les appareils
+qui n'ont pas Comic Sans MS.
 
 ## Rôle de chaque fichier
 
@@ -22,7 +23,8 @@ Polices : Almendra pour les titres, Comic Sans MS pour le texte.
 |---|---|
 | `public/css/style.css` | (modifié) Polices (`@font-face`), variables de `:root`, raccordement de Bootstrap, menu, pied de page, boutons, badges, messages d'erreur et alertes. |
 | `public/fonts/Almendra-Regular.ttf`, `Almendra-Bold.ttf` | Les deux graisses d'Almendra, hébergées sur le site. |
-| `public/fonts/OFL.txt` | Licence d'Almendra : elle doit accompagner les fichiers de la police. |
+| `public/fonts/ComicNeue-Regular.ttf`, `ComicNeue-Bold.ttf` | Les deux graisses de Comic Neue, hébergées sur le site. Le navigateur ne les télécharge que si Comic Sans MS est absente. |
+| `public/fonts/OFL-Almendra.txt`, `OFL-ComicNeue.txt` | Licence de chaque police : elle doit accompagner ses fichiers. |
 | `app/Views/layout.php`, `app/Views/erreur-serveur.php` | (modifiés) `data-bs-theme="dark"` sur la balise `html`. |
 | `app/Views/pages/accessibilite.php` | (modifié) Chiffres de contraste, nombre de pages testées et date. |
 | `docs/notes/rgaa-rgpd.md`, `socle.md`, `avatars.md`, `README.md` | (modifiés) Limites réglées, nom d'une variable, dossier des polices. |
@@ -75,7 +77,8 @@ couleur de fond, avec le texte jaune par-dessus (4,63:1). L'erreur reste rouge e
 Avec Google Fonts, le navigateur de chaque visiteur enverrait son adresse IP à Google, ce qui pose
 un problème de RGPD. Almendra est sous licence libre OFL : je peux la copier sur le site, à
 condition de garder le fichier de licence. Comic Sans MS n'a pas cette licence : je ne peux pas
-l'héberger, donc je l'appelle comme police du système.
+l'héberger, donc je l'appelle comme police du système. Sur les appareils qui ne l'ont pas, Comic Neue,
+de même style et sous licence OFL, prend le relais depuis le site.
 
 **Si la charte change, que faut-il modifier ?**
 Seulement les valeurs de `:root`, en haut de `style.css`. Il faut ensuite recalculer les
@@ -92,13 +95,17 @@ la déclaration d'accessibilité.
 - **Clavier** : contour jaune sur les 14 premiers éléments de l'espace joueur ; lien d'évitement ;
   menu ouvert avec Entrée à 375 pixels.
 - **Polices** : Almendra chargée en 400 et en 700, accents corrects (« Équipement »).
+- **Comic Neue** : aucun fichier téléchargé quand Comic Sans MS est présente. Forcée à la main à
+  375 pixels, car ce PC a Comic Sans MS : graisses 400 et 700 chargées, texte lisible sur l'accueil,
+  pas de défilement horizontal sur l'accueil et la page d'un personnage.
 - **Survol** du bouton principal : fond rouge, texte jaune.
 - **Console** : aucune erreur, sauf le 404 provoqué volontairement.
 
 ## Limites connues
 
-- **Comic Sans MS** existe sur Windows et macOS. Sur Android et Linux, le navigateur prend une
-  autre police manuscrite (`cursive`).
+- **Comic Neue** n'a pas été vue sur un vrai téléphone Android : elle a seulement été forcée dans le
+  navigateur de ce PC, à 375 pixels. Sans elle, `cursive` donnait une écriture liée, difficile à lire
+  pour un paragraphe.
 - **Couleur de succès** : elle n'apparaît que sur le badge « Validé ». Les messages après une
   redirection mêlent réussites et refus avec une seule classe (`.alert-info`) : ils restent neutres.
 - **Fond des avatars** en jaune : les cheveux blonds et les articles dorés ressortent moins, seul

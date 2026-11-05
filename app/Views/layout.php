@@ -23,6 +23,14 @@
     <script src="/js/confirmation.js?v=<?= filemtime(__DIR__ . '/../../public/js/confirmation.js') ?>" defer></script>
     <!-- JavaScript de Bootstrap (ouverture du menu sur mobile), exécuté après la lecture de la page -->
     <script src="/js/bootstrap.bundle.min.js" defer></script>
+    <!-- Sans JavaScript, le bouton « Menu » ne peut rien ouvrir : le menu est affiché ouvert et le
+         bouton est retiré. Le contenu de noscript n'est lu que si le JavaScript est désactivé. -->
+    <noscript>
+        <style>
+            #menu-principal { display: block; }
+            .navbar-toggler { display: none; }
+        </style>
+    </noscript>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Lien d'évitement : visible seulement au clavier, il permet de sauter le menu -->

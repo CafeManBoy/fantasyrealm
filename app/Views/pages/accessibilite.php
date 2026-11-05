@@ -68,11 +68,7 @@
         <ul>
             <li>
                 les couleurs d'un personnage (peau, yeux, cheveux) sont indiquées par leur code (par exemple
-                #7d4b2a) et non par un nom de couleur ;
-            </li>
-            <li>
-                sur petit écran, le menu s'ouvre grâce au JavaScript : sans JavaScript, ses liens restent
-                cachés.
+                #7d4b2a) et non par un nom de couleur.
             </li>
         </ul>
         <p>
@@ -91,7 +87,7 @@
             <li>
                 Technologies utilisées : HTML5, CSS (Bootstrap 5) et JavaScript. Le JavaScript sert à
                 l'aperçu de l'avatar, aux questions de confirmation et à l'ouverture du menu sur petit
-                écran ; les formulaires fonctionnent sans lui.
+                écran ; les formulaires fonctionnent sans lui, et le menu est alors affiché ouvert.
             </li>
             <li>
                 Méthode : navigateur Chromium sous Windows ; outil de test automatique axe-core 4.10.2 sur
@@ -102,7 +98,7 @@
                 qui ont des formulaires ou des actions, le 3 novembre ; contour du focus vérifié à nouveau
                 le 5 novembre sur l'espace joueur, l'ordre de navigation n'ayant pas changé ; largeur de la
                 page mesurée dans des fenêtres de 640 et de 320 pixels de large ; menu testé en affichage de
-                téléphone (375 pixels).
+                téléphone (375 pixels), avec et sans JavaScript.
             </li>
             <li>
                 Pages vérifiées : accueil ; galerie (avec et sans filtre) ; page d'un personnage, avec le

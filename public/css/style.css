@@ -10,8 +10,8 @@
    Contrastes calculés : au moins 4,5:1 pour le texte, 3:1 pour les bordures des champs et le
    contour du focus (RGAA). Chaque couleur ne s'utilise donc qu'avec les couleurs indiquées ici. */
 
-/* Almendra : police libre (licence OFL, voir public/fonts/OFL.txt), hébergée sur le site pour
-   n'envoyer aucune requête à un serveur de polices extérieur (RGPD).
+/* Almendra et Comic Neue : polices libres (licence OFL, fichiers OFL-*.txt dans public/fonts/),
+   hébergées sur le site pour n'envoyer aucune requête à un serveur de polices extérieur (RGPD).
    font-display: swap : le texte s'affiche tout de suite, la police arrive ensuite. */
 @font-face {
     font-family: "Almendra";
@@ -23,6 +23,20 @@
 @font-face {
     font-family: "Almendra";
     src: url("../fonts/Almendra-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../fonts/ComicNeue-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../fonts/ComicNeue-Bold.ttf") format("truetype");
     font-weight: 700;
     font-display: swap;
 }
@@ -67,8 +81,9 @@
     --couleur-lien-survol-rgb: 255, 204, 0; /* #ffcc00 */
 
     /* Texte : Comic Sans MS est une police du système (Windows, macOS) dont la licence interdit de
-       la copier sur un site. Sur les autres appareils, cursive prend une police manuscrite proche. */
-    --police-texte: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive;
+       la copier sur un site. Sur les autres appareils (Android, Linux...), Comic Neue, de même style,
+       prend le relais : le navigateur ne télécharge son fichier que s'il en a besoin. */
+    --police-texte: "Comic Sans MS", "Comic Neue", "Comic Sans", "Chalkboard SE", cursive;
     --police-titre: "Almendra", Georgia, serif;
 }
 

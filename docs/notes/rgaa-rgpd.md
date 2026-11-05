@@ -25,6 +25,7 @@ pour la production est dans CLAUDE.md (section « Déploiement »).
 | `CLAUDE.md` | Règle de prudence en production ; `pseudo_auteur` mis à jour (section « Base de données »). |
 | `docs/notes/deploiement.md` | Procédure de l'**index TTL** dans Atlas (journal gardé 1 an). |
 | `README.md` | Ligne `app/Models/` ajoutée à « Organisation du code ». |
+| `app/Views/layout.php` | (modifié) Balise `noscript` : sans JavaScript, le menu est affiché ouvert et le bouton « Menu » est retiré. |
 
 ## Ce que fait chaque action de « Mon compte »
 
@@ -66,6 +67,9 @@ Méthode et résultats complets : page `/accessibilite`. En bref :
   contour visible), lien d'évitement, volet « Rejeter », aperçu de l'avatar, menu sur téléphone.
 - **Largeur** : fenêtres de 640 pixels (6 pages) et 320 pixels (14 pages).
 
+Ces chiffres sont ceux du 03/11. L'audit a été refait le 05/11 après la charte (39 pages ou états,
+320 pixels sur 16 pages) : voir `docs/notes/charte-graphique.md`.
+
 Trois défauts trouvés et corrigés :
 
 | Défaut | Critère RGAA | Correction |
@@ -95,13 +99,14 @@ Trois défauts trouvés et corrigés :
 - **Blocage par un tiers** : quelqu'un qui connaît le mail d'un joueur peut bloquer son compte
   15 minutes (5 connexions ratées) ; si le joueur est connecté et va sur « Mon compte » pendant ce
   temps, sa session est fermée. Même compromis qu'à la connexion.
-- **Retour en arrière de la transaction** (`rollBack`) non testé : je ne sais pas provoquer
-  proprement l'échec de la deuxième requête.
+- ~~**Retour en arrière de la transaction** (`rollBack`) non testé : je ne sais pas provoquer
+  proprement l'échec de la deuxième requête.~~ Testé le 05/11/2026 avec un déclencheur MySQL
+  temporaire (voir « Tests réalisés »). La page `erreur-serveur.php`, affichée à la place de l'erreur
+  brute en production, n'a pas été revue à cette occasion.
 - **Pseudo et mail** non modifiables depuis le site (sur demande écrite) ; pas d'export
   automatique des données (sur demande).
 - **Accessibilité** : pas de test avec un lecteur d'écran, ni avec un autre navigateur que
-  Chromium ; couleurs d'un personnage données par leur code (`#7d4b2a`) ; menu sur petit écran
-  ouvert par le JavaScript de Bootstrap.
+  Chromium ; couleurs d'un personnage données par leur code (`#7d4b2a`).
 - ~~**Charte graphique** : les couleurs actuelles sont provisoires. Après leur remplacement dans
   `:root`, refaire le calcul des contrastes et mettre à jour les chiffres de la déclaration.~~
   Fait le 05/11/2026 (voir `docs/notes/charte-graphique.md`).
@@ -124,6 +129,25 @@ Trois défauts trouvés et corrigés :
   horizontal à 375 pixels ; redirection HTTP → HTTPS vérifiée en production.
 - **Audit RGAA** : voir plus haut et la page `/accessibilite`.
 - Console : seulement les 403 et 404 provoqués par les tests. Base locale réimportée après chaque série.
+
+### Tests ajoutés le 05/11/2026 (en local)
+
+- **Retour en arrière** : déclencheur temporaire `test_echec` (`BEFORE DELETE ON utilisateur`, qui
+  lance `SIGNAL SQLSTATE '45000'`), pour faire échouer la 2e requête de `Utilisateur::supprimer()`.
+  - Suppression de Novice par l'employé, dans le navigateur → erreur affichée (message PHP brut, car
+    `APP_ENV=dev`), compte toujours là, ses 2 avis toujours signés « Novice ».
+  - Script temporaire hors du projet, qui appelle `supprimer()` puis relit les avis sur la même
+    connexion → exception remontée, plus de transaction ouverte, avis inchangés. Ce contrôle compte :
+    à la fermeture de la connexion, MySQL annule de toute façon une transaction non validée. Seule la
+    relecture sur la même connexion prouve que `rollBack()` a bien été appelé.
+  - Ensuite : `DROP TRIGGER test_echec`, base réimportée (0 déclencheur, 7 comptes, 11 personnages,
+    8 avis). Rien de ce test ne reste dans le projet.
+- **Menu sans JavaScript** : Edge sans fenêtre, JavaScript coupé par le protocole DevTools
+  (`Emulation.setScriptExecutionDisabled`), page de connexion.
+  - 375 pixels, sans JavaScript : menu affiché, 3 liens visibles, bouton « Menu » retiré, pas de
+    défilement horizontal.
+  - 375 pixels, avec JavaScript : menu replié, bouton présent (pas de régression).
+  - 1024 pixels, sans JavaScript : menu en ligne, comme d'habitude.
 
 ## Notions utilisées (mot-clé à réviser)
 

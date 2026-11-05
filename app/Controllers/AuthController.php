@@ -219,23 +219,6 @@ class AuthController extends Controller
         $this->rediriger($this->adresseEspace($this->utilisateurConnecte['role']));
     }
 
-    // Vérifie le nouveau mot de passe : règles, différent de l'actuel, confirmation identique
-    private function validerNouveauMotDePasse(string $nouveau, string $confirmation): array
-    {
-        $erreurs = [];
-        $erreurMotDePasse = $this->erreurMotDePasse($nouveau);
-
-        if ($erreurMotDePasse !== null) {
-            $erreurs['mot_de_passe'] = $erreurMotDePasse;
-        } elseif (password_verify($nouveau, $this->utilisateurConnecte['password'])) {
-            $erreurs['mot_de_passe'] = 'Le nouveau mot de passe doit être différent de l\'actuel.';
-        } elseif ($nouveau !== $confirmation) {
-            $erreurs['confirmation'] = 'La confirmation ne correspond pas au mot de passe.';
-        }
-
-        return $erreurs;
-    }
-
     // La page de changement n'a de sens que pour un compte connecté qui doit changer son mot de passe
     private function verifierChangementDemande(): void
     {
@@ -331,19 +314,6 @@ class AuthController extends Controller
         }
 
         return null;
-    }
-
-    // Compte un échec de connexion. Au 5e échec de suite, la connexion au compte est bloquée
-    // 15 minutes : deviner un mot de passe en essayant des milliers de combinaisons devient impossible.
-    private function enregistrerEchec(array $utilisateur): void
-    {
-        $modele = new Utilisateur();
-
-        if ($utilisateur['tentatives_echouees'] + 1 >= 5) {
-            $modele->bloquer($utilisateur['id_utilisateur']);
-        } else {
-            $modele->ajouterEchec($utilisateur['id_utilisateur']);
-        }
     }
 
     // Affiche le formulaire de connexion avec le mail déjà saisi et un éventuel message d'erreur

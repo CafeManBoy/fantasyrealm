@@ -70,6 +70,38 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 - L'IP sortante du **site** (185.31.40.24) est différente de celle du serveur **SSH**
   (185.31.41.84) : elle a été lue par une page PHP du site, pas en ligne de commande.
 
+### Durée de conservation du journal : index TTL (Atlas, hors du code)
+
+La politique de confidentialité annonce que le journal `logs_personnages` est gardé **1 an**
+(RGPD : une durée de conservation limitée). C'est MongoDB qui efface les documents, grâce à un
+**index TTL** (*time to live*, « durée de vie ») sur le champ `date` :
+- `Logger::enregistrer()` écrit `date` en type Date (`UTCDateTime`) : c'est obligatoire, un index
+  TTL ignore un champ texte (un document avec `"date": "2026-11-03"` ne serait jamais effacé).
+- Option `expireAfterSeconds: 31536000` (365 × 24 × 3 600 secondes = 1 an). Une tâche de fond de
+  MongoDB passe environ toutes les 60 secondes et efface les documents dont `date` + 1 an est dépassé.
+- Aucun code PHP ni tâche planifiée (cron) : l'effacement marche même si le site est arrêté.
+- Le local et la production utilisent la même base Atlas : un seul index pour les deux.
+
+Création, une seule fois, dans l'interface d'Atlas (compte du développeur) :
+1. https://cloud.mongodb.com → cluster `fantasyrealm` → **Browse Collections**.
+2. Base `fantasyrealm` → collection `logs_personnages` → onglet **Indexes** → **Create Index**.
+3. *Index fields* : `date` dans la liste de gauche (le nom seul, pas du JSON), `1 (asc)` dans celle
+   de droite.
+4. *Options* : cocher **Index name** et écrire `expiration_1_an` ; cocher **Create TTL** et écrire
+   `31536000` secondes. Laisser **Create unique index** décoché.
+5. **Create Index**. Attendu : l'index `expiration_1_an` apparaît dans la liste, avec la propriété
+   **TTL** et l'état **READY**. Aucun document n'est effacé tout de suite : le plus ancien date du
+   01/11/2026.
+
+Fait le 05/11/2026, et vérifié avec `listIndexes` : champ `date`, `expireAfterSeconds` à 31536000.
+
+À savoir :
+- Changer la durée : modifier l'index (commande `collMod`) ou le supprimer puis le recréer.
+- Supprimer l'index arrête l'effacement automatique : la politique de confidentialité ne serait
+  plus vraie.
+- Le nettoyage d'avant dépôt (suppression des logs `prod`, plus bas) se fait toujours à la main :
+  l'index n'efface que ce qui a plus d'1 an.
+
 ## Procédure de déploiement (première mise en ligne)
 
 1. Avant le merge `develop` → `main` : `/security-review` (aucune vulnérabilité), puis merge
@@ -279,6 +311,60 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
    - Piège rencontré : « Supprimer » (tableau du bas, tous les personnages) n'est pas « Rejeter »
      (tableau du haut, noms en attente) : seul le rejet envoie le mail avec le motif.
 
+## Mise en ligne de `espace-admin` (03/11/2026)
+
+1. En local : tests « Atlas en panne » (coupure du Wi-Fi, puis ligne `MONGODB_URI` mise en
+   commentaire) → « journal indisponible », pas de page blanche ; `.env` remis comme avant.
+   `/security-review` sur `develop` : aucune vulnérabilité. Merge de `develop` dans `main`
+   (`066b38a`), push.
+2. Sur le serveur : `git pull` seulement (`aba0987..066b38a`, 14 fichiers). Ni `composer install`
+   ni réimport : `database/` et `composer.*` n'ont pas changé.
+3. Vérifié depuis le poste, sans connexion (`curl`) : `/admin/employes`, `/admin/logs` et
+   `/espace-admin` → redirection vers `/connexion` (404 avant le `git pull`) ; POST direct sur
+   `/admin/employe/supprimer` → `/connexion`, rien n'est supprimé ; en-têtes de sécurité présents.
+4. Dans le navigateur :
+   - connexion admin → espace administrateur (3 cartes) ;
+   - personnage « Valadmin » créé avec le compte de test à vraie adresse, nom validé par l'admin →
+     mail « Votre personnage « Valadmin » est validé » reçu ; journal en environnement « prod » :
+     « Validation du nom · Admin » en tête, puis « Création · testprod », aucune ligne des tests locaux ;
+   - employé `employe.test@example.com` créé → pseudo `employetest`, badge « Mot de passe à changer ».
+5. **Incident** : pour supprimer `employetest`, c'est le bouton « Supprimer » de la ligne voisine,
+   `employe` (le compte de démo), qui a été cliqué, et la confirmation a été validée sans être lue
+   (elle disait bien « employe »). Cause : un pseudo de test trop proche de celui du compte de démo,
+   sur la ligne juste en dessous. Réparation : ligne du compte réinsérée depuis `seed.sql`
+   (procédure ci-dessous), puis `employetest` supprimé en lisant la confirmation. Vérifié : le
+   compte `employe` se connecte avec le mot de passe du manuel et arrive directement sur l'espace
+   employé (pas de changement forcé).
+   Leçon : en production, tester avec un pseudo très différent des comptes de démo, et toujours
+   lire la boîte de confirmation avant OK.
+   C'est le risque des identifiants de démo publics (`docs/notes/espace-admin.md`, limites connues).
+
+### Remettre un compte de démo supprimé en production
+
+Pour un compte **employé** (il n'a ni personnage ni avis : réinsérer sa ligne suffit). Pour un
+joueur, ses personnages et ses avis ont disparu avec lui : réimporter `schema.sql` puis `seed.sql`
+(procédure de mise à jour, étape 4). Le compte admin, lui, ne peut pas être supprimé depuis le site.
+
+1. Se connecter au serveur, puis ouvrir MySQL (mot de passe MySQL demandé) :
+   ```bash
+   ssh fantasyrealm5@ssh-fantasyrealm5.alwaysdata.net
+   ```
+   ```bash
+   mysql -h mysql-fantasyrealm5.alwaysdata.net -u fantasyrealm5_app -p --default-character-set=utf8mb4 fantasyrealm5_fantasyrealm
+   ```
+2. À l'invite `MariaDB [...]>`, coller l'`INSERT` du compte, recopié de `seed.sql` : la ligne des
+   colonnes, puis **seulement** la ligne du compte, terminée par `;`. Taper la requête dans MySQL et
+   non dans une commande `bash` : le `$` du hash n'est pas modifié. Pour l'employé de démo :
+   ```sql
+   INSERT INTO utilisateur (id_utilisateur, pseudo, mail, password, suspendu, motdepasse_a_modifier, id_role) VALUES (2, 'employe', 'employe@example.com', '$2y$10$Mxlt8Wq9r9TTA/zaQqsc5uU84bg5TaJYxmFZnukxenvTYWh5q4VtG', FALSE, FALSE, 2);
+   ```
+   Attendu : `Query OK, 1 row affected`. Même id et même hash que le jeu de données : le mot de
+   passe du manuel fonctionne de nouveau.
+3. Contrôler, puis quitter MySQL et le serveur (`exit` deux fois) :
+   ```sql
+   SELECT id_utilisateur, pseudo FROM utilisateur WHERE id_role = 2;
+   ```
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -333,6 +419,10 @@ dans un navigateur, et s'il fuit, je le révoque seul sans changer le mot de pas
 n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
+
+- ~~**Avant la mise en ligne de `rgaa-rgpd`** : créer l'index TTL du journal dans Atlas (section
+  « Durée de conservation du journal », plus haut), puis vérifier qu'il existe. Sans lui, la
+  politique de confidentialité annonce une durée d'1 an qui n'est pas appliquée.~~ Fait le 05/11/2026.
 
 - **Juste avant le dépôt**, en production :
   - réimporter `schema.sql` puis `seed.sql` (efface les comptes de test, dont celui à vraie adresse) ;

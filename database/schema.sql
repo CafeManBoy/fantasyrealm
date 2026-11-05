@@ -156,7 +156,8 @@ CREATE TABLE commentaire (
     -- CASCADE : les avis d'un personnage supprimé sont supprimés avec lui
     CONSTRAINT fk_commentaire_personnage FOREIGN KEY (id_personnage)
         REFERENCES personnage (id_personnage) ON DELETE CASCADE,
-    -- SET NULL : l'avis reste quand son auteur supprime son compte (pseudo_auteur est gardé)
+    -- SET NULL : l'avis reste quand son auteur supprime son compte (le site remplace alors
+    -- pseudo_auteur par « Compte supprimé » : avis anonymisé)
     CONSTRAINT fk_commentaire_utilisateur FOREIGN KEY (id_utilisateur)
         REFERENCES utilisateur (id_utilisateur) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

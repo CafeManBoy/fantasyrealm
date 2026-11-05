@@ -237,11 +237,12 @@ le navigateur lance une recherche.
 ## Organisation du code
 
 ```
-public/        seul dossier exposé au web : index.php (point d'entrée), .htaccess, CSS, JS
+public/        seul dossier exposé au web : index.php (point d'entrée), .htaccess, CSS, JS, polices
 app/Core/      classes techniques (routeur...)
 app/Controllers/  contrôleurs : reçoivent la requête et choisissent la page à afficher
+app/Models/    accès aux données : requêtes SQL préparées (PDO)
 app/Views/     gabarit commun, morceaux réutilisables (menu, pied de page) et pages
-config/        configuration (liste des routes)
+config/        configuration (liste des routes, options des avatars)
 database/      scripts SQL : création de la base, des tables, jeu de démonstration
 docs/notes/    explications par fonctionnalité
 ```

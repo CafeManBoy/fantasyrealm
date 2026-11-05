@@ -5,6 +5,7 @@
 
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
+use App\Controllers\CompteController;
 use App\Controllers\ContactController;
 use App\Controllers\EmployeController;
 use App\Controllers\EspaceController;
@@ -17,6 +18,7 @@ return [
     'GET /mentions-legales' => [PageController::class, 'mentionsLegales'],
     'GET /cgv' => [PageController::class, 'cgv'],
     'GET /confidentialite' => [PageController::class, 'confidentialite'],
+    'GET /accessibilite' => [PageController::class, 'accessibilite'],
     'GET /contact' => [ContactController::class, 'formulaire'],
     'POST /contact' => [ContactController::class, 'traiter'],
 
@@ -35,6 +37,9 @@ return [
     'POST /mot-de-passe-oublie' => [AuthController::class, 'traiterMotDePasseOublie'],
     'GET /changer-mot-de-passe' => [AuthController::class, 'formulaireChangementMotDePasse'],
     'POST /changer-mot-de-passe' => [AuthController::class, 'traiterChangementMotDePasse'],
+    'GET /mon-compte' => [CompteController::class, 'monCompte'],
+    'POST /mon-compte/mot-de-passe' => [CompteController::class, 'changerMotDePasse'],
+    'POST /mon-compte/supprimer' => [CompteController::class, 'supprimerCompte'],
 
     // Espaces personnels (un par rôle)
     'GET /espace-joueur' => [EspaceController::class, 'espaceJoueur'],

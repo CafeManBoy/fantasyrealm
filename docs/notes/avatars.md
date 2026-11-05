@@ -15,7 +15,7 @@ Le formulaire de création et l'aperçu en direct arrivent avec la fonctionnalit
 | `app/Models/Avatar.php` | Lit la configuration ; `optionExiste()` (liste blanche), `couleurEstValide()` (`#RRGGBB`), `calques()` : la liste des calques d'un personnage dans l'ordre d'empilement. |
 | `app/Models/Personnage.php` | `listerParUtilisateur()` : les personnages d'un joueur ; `listerArticlesActifs()` : ses articles, sauf les désactivés. |
 | `app/Views/partials/avatar.php` | Le partial unique, utilisé partout : un conteneur `role="img"` avec `aria-label`, puis un élément par calque (`alt=""`, `data-partie`). |
-| `public/css/style.css` | (modifié) Variables `--couleur-avatar-fond`, `--couleur-avatar-defaut`, `--couleur-attente` ; sections 9 (calques, masques) et 10 (cartes, badges). |
+| `public/css/style.css` | (modifié) Variables `--couleur-avatar-fond`, `--couleur-avatar-defaut`, `--couleur-attente` (devenue `--couleur-avertissement` avec la charte) ; sections 9 (calques, masques) et 10 (cartes, badges). |
 | `app/Controllers/EspaceController.php` | (modifié) `espaceJoueur()` : lit les personnages du compte connecté et prépare les calques de chaque avatar. |
 | `app/Views/pages/espace-joueur.php` | (modifié) « Mes personnages » : une carte par personnage (avatar, nom, badge d'état), ou « Vous n'avez pas encore de personnage. ». |
 | `app/Views/layout.php` | (modifié) `style.css?v=<date de modification>` : voir « Limites et problèmes rencontrés ». |

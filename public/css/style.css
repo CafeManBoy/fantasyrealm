@@ -6,75 +6,117 @@
 /* 1. Charte graphique : toutes les couleurs et polices du site
    ------------------------------------------------------------------
    Pour changer la charte, on modifie seulement ces valeurs.
-   Contrastes vérifiés : au moins 4,5:1 pour le texte (RGAA), 3:1 pour le contour du focus. */
+   Thème sombre (attribut data-bs-theme="dark" sur la balise html).
+   Contrastes calculés : au moins 4,5:1 pour le texte, 3:1 pour les bordures des champs et le
+   contour du focus (RGAA). Chaque couleur ne s'utilise donc qu'avec les couleurs indiquées ici. */
+
+/* Almendra et Comic Neue : polices libres (licence OFL, fichiers OFL-*.txt dans public/fonts/),
+   hébergées sur le site pour n'envoyer aucune requête à un serveur de polices extérieur (RGPD).
+   font-display: swap : le texte s'affiche tout de suite, la police arrive ensuite. */
+@font-face {
+    font-family: "Almendra";
+    src: url("../fonts/Almendra-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Almendra";
+    src: url("../fonts/Almendra-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../fonts/ComicNeue-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../fonts/ComicNeue-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+}
+
 :root {
     /* Couleurs générales */
-    --couleur-fond: #f7f4ee;            /* fond des pages (parchemin clair) */
-    --couleur-surface: #ffffff;         /* fond des blocs */
-    --couleur-texte: #1f1b2e;           /* texte principal */
-    --couleur-texte-doux: #514a62;      /* texte secondaire */
-    --couleur-bordure: #d8d0c0;         /* bordures décoratives */
+    --couleur-fond: #30013e;            /* fond des pages */
+    --couleur-surface: #000000;         /* fond des blocs, du menu et du pied de page */
+    --couleur-texte: #ffcc00;           /* texte : 11,6:1 sur le fond, 13,9:1 sur les blocs */
+    --couleur-bordure: #aa0000;         /* bordures décoratives */
+    --couleur-champ-fond: #000000;      /* fond des champs de formulaire */
+    --couleur-bordure-champ: #ff4300;   /* bordure des champs : 5,1:1 sur le fond, 6,1:1 sur les blocs */
 
-    /* Couleur principale : menu, boutons */
-    --couleur-primaire: #4b2e83;
-    --couleur-primaire-fonce: #36205f;  /* survol des boutons */
-    --couleur-sur-primaire: #ffffff;    /* texte posé sur la couleur principale */
+    /* Couleur principale : boutons, liens, étoiles (5,1:1 sur le fond, 6,1:1 sur les blocs) */
+    --couleur-primaire: #ff4300;
+    --couleur-sur-primaire: #30013e;    /* texte d'un bouton (5,1:1) ; le jaune n'atteint que 2,3:1 */
 
-    /* Couleur d'accent (or) : seulement sur fond foncé */
-    --couleur-accent: #e8c766;
+    /* Couleur secondaire : survol des boutons. Jamais en texte (2,3:1 sur le fond) */
+    --couleur-secondaire: #aa0000;
+    --couleur-sur-secondaire: #ffcc00;  /* 5,1:1 */
 
-    /* Pied de page */
-    --couleur-pied-fond: #1f1b2e;
-    --couleur-pied-texte: #f7f4ee;
+    /* Contour du focus clavier : 11,6:1 sur le fond, 13,9:1 sur les blocs */
+    --couleur-focus: #ffcc00;
 
-    /* Contour du focus clavier, sur fond clair et sur fond foncé */
-    --couleur-focus: #4b2e83;
-    --couleur-focus-sur-fonce: #e8c766;
+    /* Erreur : toujours en couleur de fond, avec le jaune par-dessus (4,6:1).
+       En texte, ce rouge n'atteindrait que 2,5:1 sur le fond de page. */
+    --couleur-erreur: #b40c0c;
+    --couleur-sur-erreur: #ffcc00;
 
-    /* Messages d'erreur des formulaires (5,9:1 sur le fond ; le rouge de Bootstrap n'atteint que 4,1:1) */
-    --couleur-erreur: #b02a37;
+    /* Succès et avertissement : en couleur de fond, avec du noir par-dessus (15,9:1 et 9,2:1) */
+    --couleur-succes: #66ff07;
+    --couleur-avertissement: #18bdd0;
+    --couleur-sur-etat: #000000;
 
     /* Avatars : fond derrière le personnage, et couleur d'une partie colorable
        (peau, yeux, cheveux) quand la couleur enregistrée n'est pas valide */
-    --couleur-avatar-fond: #e9e2d4;
+    --couleur-avatar-fond: #ffcc00;
     --couleur-avatar-defaut: #9e9e9e;
 
-    /* Badge « en attente » (texte blanc : 7,4:1) ; les autres badges utilisent
-       --couleur-primaire et --couleur-texte-doux */
-    --couleur-attente: #7a4b00;
-
     /* Liens : Bootstrap 5.3 lit leur couleur au format « R, G, B » (sans #) */
-    --couleur-lien-rgb: 75, 46, 131;                    /* #4b2e83 */
-    --couleur-lien-survol-rgb: 46, 26, 87;              /* #2e1a57 */
-    --couleur-lien-sur-fonce-rgb: 232, 199, 102;        /* #e8c766, liens du pied de page */
-    --couleur-lien-sur-fonce-survol-rgb: 255, 255, 255; /* #ffffff */
+    --couleur-lien-rgb: 255, 67, 0;         /* #ff4300 */
+    --couleur-lien-survol-rgb: 255, 204, 0; /* #ffcc00 */
 
-    /* Polices du système : aucune requête vers un serveur de polices extérieur (RGPD) */
-    --police-texte: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --police-titre: Georgia, "Times New Roman", serif;
+    /* Texte : Comic Sans MS est une police du système (Windows, macOS) dont la licence interdit de
+       la copier sur un site. Sur les autres appareils (Android, Linux...), Comic Neue, de même style,
+       prend le relais : le navigateur ne télécharge son fichier que s'il en a besoin. */
+    --police-texte: "Comic Sans MS", "Comic Neue", "Comic Sans", "Chalkboard SE", cursive;
+    --police-titre: "Almendra", Georgia, serif;
 }
 
 /* 2. Bootstrap utilise nos variables
-   ------------------------------------------------------------------ */
+   ------------------------------------------------------------------
+   Même priorité que les variables du thème sombre de Bootstrap, mais ce fichier est lu après :
+   ce sont nos valeurs qui s'appliquent. */
 :root {
     --bs-body-bg: var(--couleur-fond);
     --bs-body-color: var(--couleur-texte);
     --bs-body-font-family: var(--police-texte);
+    /* Tableaux, textes secondaires, champs en lecture seule et bordures */
+    --bs-emphasis-color: var(--couleur-texte);
+    --bs-secondary-color: var(--couleur-texte);
+    --bs-secondary-bg: var(--couleur-surface);
+    --bs-border-color: var(--couleur-bordure);
     /* Liens simples (balise a) */
     --bs-link-color-rgb: var(--couleur-lien-rgb);
     --bs-link-hover-color-rgb: var(--couleur-lien-survol-rgb);
     /* Version complète, utilisée par certains composants de Bootstrap */
     --bs-link-color: rgb(var(--couleur-lien-rgb));
     --bs-link-hover-color: rgb(var(--couleur-lien-survol-rgb));
-    /* Champs de formulaire en erreur : texte du message et bordure du champ */
-    --bs-form-invalid-color: var(--couleur-erreur);
-    --bs-form-invalid-border-color: var(--couleur-erreur);
+    /* Champs en erreur : bordure jaune, car le rouge n'atteint pas 3:1 sur le fond noir du champ.
+       Le rouge de la charte est dans le message sous le champ (voir .invalid-feedback). */
+    --bs-form-invalid-color: var(--couleur-sur-erreur);
+    --bs-form-invalid-border-color: var(--couleur-sur-erreur);
 }
 
 h1,
 h2,
 h3 {
     font-family: var(--police-titre);
+    font-weight: 700;
 }
 
 /* 3. Accessibilité : focus clavier et lien d'évitement
@@ -92,12 +134,17 @@ summary:focus-visible {
     box-shadow: none;
 }
 
-/* Sur fond foncé (menu, pied de page), le contour prend la couleur d'accent */
-.navbar a:focus-visible,
-.navbar .nav-link:focus-visible,
-.navbar .navbar-toggler:focus-visible,
-.pied-de-page a:focus-visible {
-    outline-color: var(--couleur-focus-sur-fonce);
+/* Champs de formulaire : même contour. Ceux de Bootstrap (bordure bleu clair, ombre pâle)
+   n'atteignent pas 3:1 (RGAA, critères 3.3 et 10.7).
+   :focus et non :focus-visible : dans un champ, on doit toujours voir où l'on écrit. */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    outline: 3px solid var(--couleur-focus);
+    outline-offset: 2px;
+    border-color: var(--couleur-bordure-champ);
+    background-color: var(--couleur-champ-fond);
+    box-shadow: none;
 }
 
 /* Lien « Aller au contenu » : caché par Bootstrap, il apparaît en haut à gauche quand il reçoit le focus */
@@ -115,13 +162,14 @@ summary:focus-visible {
    ------------------------------------------------------------------ */
 .navbar {
     /* Variables propres à la barre de navigation de Bootstrap */
-    --bs-navbar-color: var(--couleur-sur-primaire);
-    --bs-navbar-hover-color: var(--couleur-accent);
-    --bs-navbar-active-color: var(--couleur-accent);
-    --bs-navbar-brand-color: var(--couleur-sur-primaire);
-    --bs-navbar-brand-hover-color: var(--couleur-accent);
-    --bs-navbar-toggler-border-color: var(--couleur-sur-primaire);
-    background-color: var(--couleur-primaire);
+    --bs-navbar-color: var(--couleur-texte);
+    --bs-navbar-hover-color: var(--couleur-primaire);
+    --bs-navbar-active-color: var(--couleur-primaire);
+    --bs-navbar-brand-color: var(--couleur-texte);
+    --bs-navbar-brand-hover-color: var(--couleur-primaire);
+    --bs-navbar-toggler-border-color: var(--couleur-texte);
+    background-color: var(--couleur-surface);
+    border-bottom: 1px solid var(--couleur-bordure);
 }
 
 .navbar-brand {
@@ -137,12 +185,9 @@ summary:focus-visible {
 /* 5. Pied de page
    ------------------------------------------------------------------ */
 .pied-de-page {
-    /* Les liens du pied de page prennent les couleurs prévues pour un fond foncé */
-    --bs-link-color-rgb: var(--couleur-lien-sur-fonce-rgb);
-    --bs-link-hover-color-rgb: var(--couleur-lien-sur-fonce-survol-rgb);
     padding: 1.5rem 0;
-    background-color: var(--couleur-pied-fond);
-    color: var(--couleur-pied-texte);
+    background-color: var(--couleur-surface);
+    border-top: 1px solid var(--couleur-bordure);
 }
 
 /* 6. Boutons
@@ -152,24 +197,27 @@ summary:focus-visible {
     --bs-btn-color: var(--couleur-sur-primaire);
     --bs-btn-bg: var(--couleur-primaire);
     --bs-btn-border-color: var(--couleur-primaire);
-    --bs-btn-hover-color: var(--couleur-sur-primaire);
-    --bs-btn-hover-bg: var(--couleur-primaire-fonce);
-    --bs-btn-hover-border-color: var(--couleur-primaire-fonce);
-    --bs-btn-active-color: var(--couleur-sur-primaire);
-    --bs-btn-active-bg: var(--couleur-primaire-fonce);
-    --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+    --bs-btn-hover-color: var(--couleur-sur-secondaire);
+    --bs-btn-hover-bg: var(--couleur-secondaire);
+    --bs-btn-hover-border-color: var(--couleur-secondaire);
+    --bs-btn-active-color: var(--couleur-sur-secondaire);
+    --bs-btn-active-bg: var(--couleur-secondaire);
+    --bs-btn-active-border-color: var(--couleur-secondaire);
 }
 
-/* Bouton de suppression : rouge de la charte (5,9:1 sur le fond ; celui de Bootstrap est plus pâle) */
+/* Boutons de suppression : remplis de rouge, car ce rouge n'est pas lisible en texte sur fond sombre.
+   Au survol, les deux couleurs s'inversent (même contraste : 4,6:1). */
+.btn-danger,
 .btn-outline-danger {
-    --bs-btn-color: var(--couleur-erreur);
+    --bs-btn-color: var(--couleur-sur-erreur);
+    --bs-btn-bg: var(--couleur-erreur);
     --bs-btn-border-color: var(--couleur-erreur);
-    --bs-btn-hover-color: var(--couleur-sur-primaire);
-    --bs-btn-hover-bg: var(--couleur-erreur);
-    --bs-btn-hover-border-color: var(--couleur-erreur);
-    --bs-btn-active-color: var(--couleur-sur-primaire);
-    --bs-btn-active-bg: var(--couleur-erreur);
-    --bs-btn-active-border-color: var(--couleur-erreur);
+    --bs-btn-hover-color: var(--couleur-erreur);
+    --bs-btn-hover-bg: var(--couleur-sur-erreur);
+    --bs-btn-hover-border-color: var(--couleur-sur-erreur);
+    --bs-btn-active-color: var(--couleur-erreur);
+    --bs-btn-active-bg: var(--couleur-sur-erreur);
+    --bs-btn-active-border-color: var(--couleur-sur-erreur);
 }
 
 .btn-outline-primary {
@@ -178,9 +226,9 @@ summary:focus-visible {
     --bs-btn-hover-color: var(--couleur-sur-primaire);
     --bs-btn-hover-bg: var(--couleur-primaire);
     --bs-btn-hover-border-color: var(--couleur-primaire);
-    --bs-btn-active-color: var(--couleur-sur-primaire);
-    --bs-btn-active-bg: var(--couleur-primaire-fonce);
-    --bs-btn-active-border-color: var(--couleur-primaire-fonce);
+    --bs-btn-active-color: var(--couleur-sur-secondaire);
+    --bs-btn-active-bg: var(--couleur-secondaire);
+    --bs-btn-active-border-color: var(--couleur-secondaire);
 }
 
 /* 7. Page d'accueil
@@ -329,16 +377,68 @@ summary:focus-visible {
 
 /* État du personnage : le texte du badge le dit aussi (l'information ne passe pas que par la couleur) */
 .badge-attente {
-    background-color: var(--couleur-attente);
-    color: var(--couleur-sur-primaire);
+    background-color: var(--couleur-avertissement);
+    color: var(--couleur-sur-etat);
 }
 
 .badge-valide {
-    background-color: var(--couleur-texte-doux);
-    color: var(--couleur-sur-primaire);
+    background-color: var(--couleur-succes);
+    color: var(--couleur-sur-etat);
 }
 
 .badge-partage {
     background-color: var(--couleur-primaire);
     color: var(--couleur-sur-primaire);
+}
+
+/* 13. Formulaires et tableaux (corrections de l'audit RGAA)
+   ------------------------------------------------------------------ */
+
+/* Bordure et fond des champs : il faut 3:1 pour voir où est le champ (RGAA, critère 3.3) */
+.form-control,
+.form-select,
+.form-check-input {
+    border-color: var(--couleur-bordure-champ);
+    background-color: var(--couleur-champ-fond);
+}
+
+/* Message d'erreur sous un champ : texte jaune sur le rouge de la charte (4,6:1) */
+.invalid-feedback {
+    padding: 0.25rem 0.5rem;
+    background-color: var(--couleur-erreur);
+    border-radius: 0.25rem;
+}
+
+/* Messages en haut de page, aux couleurs de la charte.
+   .alert-info sert à tous les messages après une redirection (réussites et refus mêlés) :
+   il reste donc neutre. */
+.alert-info {
+    --bs-alert-color: var(--couleur-texte);
+    --bs-alert-bg: var(--couleur-surface);
+    --bs-alert-border-color: var(--couleur-texte);
+}
+
+.alert-danger {
+    --bs-alert-color: var(--couleur-sur-erreur);
+    --bs-alert-bg: var(--couleur-erreur);
+    --bs-alert-border-color: var(--couleur-erreur);
+}
+
+.alert-warning {
+    --bs-alert-color: var(--couleur-sur-etat);
+    --bs-alert-bg: var(--couleur-avertissement);
+    --bs-alert-border-color: var(--couleur-avertissement);
+}
+
+/* Tableaux qui défilent sur petit écran : les textes cachés des boutons (.visually-hidden,
+   placés en position absolute) sortaient du cadre et élargissaient toute la page à 320 pixels
+   de large (RGAA, critère 10.11). position: relative les garde dans le cadre qui défile. */
+.table-responsive {
+    position: relative;
+}
+
+/* Badges : Bootstrap les empêche de passer à la ligne (white-space: nowrap). À 320 pixels de
+   large, « Partagé dans la galerie » dépassait de sa carte (RGAA, critère 10.11). */
+.badge {
+    white-space: normal;
 }

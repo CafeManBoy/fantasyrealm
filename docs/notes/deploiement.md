@@ -365,6 +365,28 @@ joueur, ses personnages et ses avis ont disparu avec lui : réimporter `schema.s
    SELECT id_utilisateur, pseudo FROM utilisateur WHERE id_role = 2;
    ```
 
+## Mise en ligne de `rgaa-rgpd` et de la charte graphique (05/11/2026)
+
+1. En local : index TTL créé dans Atlas et vérifié, `/security-review` sur `develop` comparée à
+   `main` : aucune vulnérabilité. Merge de `develop` dans `main` (`2e4d867`), push.
+2. Compte de test à vraie adresse `testprod` supprimé depuis l'espace employé, en lisant la
+   confirmation. Journal : 2 lignes « Suppression » (Valadmin et Ami Bassem).
+3. Sur le serveur : `git pull` seulement (`066b38a..2e4d867`, 33 fichiers). Ni `composer install` ni
+   réimport : `composer.*` n'a pas changé, et `schema.sql` ne change que par un commentaire.
+4. Vérifié depuis le poste, sans connexion (`curl`) : accueil, galerie, `/accessibilite` et
+   `/confidentialite` → 200 ; polices → 200 en `font/ttf` ; `/mon-compte` → redirection vers
+   `/connexion` ; HTTP → HTTPS ; en-têtes de sécurité présents ; thème sombre, `noscript` et chiffres
+   de la déclaration en ligne ; aucune ressource extérieure sur `/connexion`.
+5. Dans le navigateur :
+   - connexions `Novice` et `Admin` réussies, nouvelle charte affichée ;
+   - personnage « Testmep quatre » créé avec `Novice` → journal en environnement « prod » :
+     « Création · Novice » en tête ;
+   - demande envoyée depuis `/contact` → mail « Demande de contact : Novice » reçu dans la boîte de
+     `MAIL_CONTACT`.
+
+Pas testés en production : changement de mot de passe et suppression de compte depuis `/mon-compte`
+(testés en local, voir `docs/notes/rgaa-rgpd.md`), et Comic Neue sur un vrai téléphone Android.
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -425,7 +447,8 @@ n'existe que si la validation en deux étapes est activée.
   politique de confidentialité annonce une durée d'1 an qui n'est pas appliquée.~~ Fait le 05/11/2026.
 
 - **Juste avant le dépôt**, en production :
-  - réimporter `schema.sql` puis `seed.sql` (efface les comptes de test, dont celui à vraie adresse) ;
+  - réimporter `schema.sql` puis `seed.sql` (efface les données de test, dont « Testmep quatre »,
+    le personnage créé avec `Novice` ; remet aussi les comptes de démo modifiés ou supprimés) ;
   - vider `public/uploads/articles/` sur le serveur : les identifiants employé de démo sont publics,
     n'importe qui a pu envoyer des images en ligne (et le réimport supprime les articles qui les
     utilisaient) ;

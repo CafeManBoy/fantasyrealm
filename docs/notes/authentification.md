@@ -240,10 +240,11 @@ voir « Mise en ligne de l'authentification » dans `deploiement.md`.
 
 ## À reprendre plus tard
 
-- **Changement de mot de passe volontaire** depuis son espace (CNIL §52), sur le modèle du
+- ~~**Changement de mot de passe volontaire** depuis son espace (CNIL §52), sur le modèle du
   changement forcé avec en plus le mot de passe actuel : à faire avec `rgaa-rgpd`, ou avant si
-  le temps le permet.
-- **Espace admin** : le pseudo généré pour un employé (partie du mail avant le `@`) devra
-  respecter la règle du pseudo (retirer les points et autres caractères interdits).
+  le temps le permet.~~ Fait : page « Mon compte » (voir `docs/notes/rgaa-rgpd.md`).
+- ~~**Espace admin** : le pseudo généré pour un employé (partie du mail avant le `@`) devra
+  respecter la règle du pseudo (retirer les points et autres caractères interdits).~~ Fait (voir
+  `docs/notes/espace-admin.md`).
 - **Facultatif** : journaliser les connexions et les échecs (CNIL §64), sans jamais écrire le
   mot de passe ni le mail inconnu dans le journal.

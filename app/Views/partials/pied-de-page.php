@@ -9,6 +9,8 @@ $liensPied = [
     '/mentions-legales' => 'Mentions légales',
     '/cgv' => 'Conditions générales de vente',
     '/confidentialite' => 'Politique de confidentialité',
+    // Mention du RGAA : l'état de conformité est écrit dans le lien (voir la page)
+    '/accessibilite' => 'Accessibilité : non conforme',
 ];
 ?>
 <footer class="pied-de-page">

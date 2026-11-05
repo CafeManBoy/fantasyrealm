@@ -101,7 +101,8 @@ class Commentaire
     }
 
     // Enregistre un avis en attente de validation, daté du jour (valeurs déjà vérifiées).
-    // pseudo_auteur : copie du pseudo, gardée même si le compte est supprimé plus tard.
+    // pseudo_auteur : copie du pseudo, affichée avec l'avis. Si le compte est supprimé plus tard,
+    // l'avis reste et pseudo_auteur devient « Compte supprimé » (Utilisateur::supprimer()).
     public function creer(int $note, string $commentaire, int $idPersonnage, int $idUtilisateur, string $pseudo): void
     {
         $requete = Database::connexion()->prepare(

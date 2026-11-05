@@ -6,6 +6,7 @@ use App\Core\Auth;
 use App\Core\Csrf;
 use App\Core\MotDePasse;
 use App\Core\Session;
+use App\Models\Utilisateur;
 
 // Classe parente de tous les contrôleurs : elle contient ce qu'ils ont en commun
 // (affichage d'une page, compte connecté, redirections, lecture des formulaires, accès).
@@ -134,6 +135,40 @@ class Controller
         }
 
         return null;
+    }
+
+    // Vérifie le nouveau mot de passe choisi par le compte connecté : règles, différent de l'actuel,
+    // confirmation identique. Sert au changement forcé (AuthController) et à « Mon compte ».
+    protected function validerNouveauMotDePasse(string $nouveau, string $confirmation): array
+    {
+        $erreurs = [];
+        $erreurMotDePasse = $this->erreurMotDePasse($nouveau);
+
+        if ($erreurMotDePasse !== null) {
+            $erreurs['mot_de_passe'] = $erreurMotDePasse;
+        } elseif (password_verify($nouveau, $this->utilisateurConnecte['password'])) {
+            $erreurs['mot_de_passe'] = 'Le nouveau mot de passe doit être différent de l\'actuel.';
+        } elseif ($nouveau !== $confirmation) {
+            $erreurs['confirmation'] = 'La confirmation ne correspond pas au mot de passe.';
+        }
+
+        return $erreurs;
+    }
+
+    // Compte un mot de passe faux (à la connexion, ou sur « Mon compte »). Au 5e échec de suite, le
+    // compte est bloqué 15 minutes : deviner un mot de passe en essayant des milliers de combinaisons
+    // devient impossible. Renvoie true si le compte vient d'être bloqué.
+    protected function enregistrerEchec(array $utilisateur): bool
+    {
+        $modele = new Utilisateur();
+
+        if ($utilisateur['tentatives_echouees'] + 1 >= 5) {
+            $modele->bloquer($utilisateur['id_utilisateur']);
+            return true;
+        }
+
+        $modele->ajouterEchec($utilisateur['id_utilisateur']);
+        return false;
     }
 
     // Valeur d'un paramètre de l'adresse (?genre=femme), sans les espaces autour ('' s'il est absent)

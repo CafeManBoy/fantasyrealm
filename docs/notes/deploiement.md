@@ -70,6 +70,38 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 - L'IP sortante du **site** (185.31.40.24) est différente de celle du serveur **SSH**
   (185.31.41.84) : elle a été lue par une page PHP du site, pas en ligne de commande.
 
+### Durée de conservation du journal : index TTL (Atlas, hors du code)
+
+La politique de confidentialité annonce que le journal `logs_personnages` est gardé **1 an**
+(RGPD : une durée de conservation limitée). C'est MongoDB qui efface les documents, grâce à un
+**index TTL** (*time to live*, « durée de vie ») sur le champ `date` :
+- `Logger::enregistrer()` écrit `date` en type Date (`UTCDateTime`) : c'est obligatoire, un index
+  TTL ignore un champ texte (un document avec `"date": "2026-11-03"` ne serait jamais effacé).
+- Option `expireAfterSeconds: 31536000` (365 × 24 × 3 600 secondes = 1 an). Une tâche de fond de
+  MongoDB passe environ toutes les 60 secondes et efface les documents dont `date` + 1 an est dépassé.
+- Aucun code PHP ni tâche planifiée (cron) : l'effacement marche même si le site est arrêté.
+- Le local et la production utilisent la même base Atlas : un seul index pour les deux.
+
+Création, une seule fois, dans l'interface d'Atlas (compte du développeur) :
+1. https://cloud.mongodb.com → cluster `fantasyrealm` → **Browse Collections**.
+2. Base `fantasyrealm` → collection `logs_personnages` → onglet **Indexes** → **Create Index**.
+3. *Index fields* : `date` dans la liste de gauche (le nom seul, pas du JSON), `1 (asc)` dans celle
+   de droite.
+4. *Options* : cocher **Index name** et écrire `expiration_1_an` ; cocher **Create TTL** et écrire
+   `31536000` secondes. Laisser **Create unique index** décoché.
+5. **Create Index**. Attendu : l'index `expiration_1_an` apparaît dans la liste, avec la propriété
+   **TTL** et l'état **READY**. Aucun document n'est effacé tout de suite : le plus ancien date du
+   01/11/2026.
+
+Fait le 05/11/2026, et vérifié avec `listIndexes` : champ `date`, `expireAfterSeconds` à 31536000.
+
+À savoir :
+- Changer la durée : modifier l'index (commande `collMod`) ou le supprimer puis le recréer.
+- Supprimer l'index arrête l'effacement automatique : la politique de confidentialité ne serait
+  plus vraie.
+- Le nettoyage d'avant dépôt (suppression des logs `prod`, plus bas) se fait toujours à la main :
+  l'index n'efface que ce qui a plus d'1 an.
+
 ## Procédure de déploiement (première mise en ligne)
 
 1. Avant le merge `develop` → `main` : `/security-review` (aucune vulnérabilité), puis merge
@@ -387,6 +419,10 @@ dans un navigateur, et s'il fuit, je le révoque seul sans changer le mot de pas
 n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
+
+- ~~**Avant la mise en ligne de `rgaa-rgpd`** : créer l'index TTL du journal dans Atlas (section
+  « Durée de conservation du journal », plus haut), puis vérifier qu'il existe. Sans lui, la
+  politique de confidentialité annonce une durée d'1 an qui n'est pas appliquée.~~ Fait le 05/11/2026.
 
 - **Juste avant le dépôt**, en production :
   - réimporter `schema.sql` puis `seed.sql` (efface les comptes de test, dont celui à vraie adresse) ;

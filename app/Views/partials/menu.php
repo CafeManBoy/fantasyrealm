@@ -12,11 +12,12 @@ $liensMenu = [
     '/personnages' => 'Personnages',
 ];
 
-// Connecté : lien vers son espace (le bouton Déconnexion est ajouté après la liste).
-// Pas connecté : lien vers la page de connexion.
+// Connecté : liens vers son espace et vers « Mon compte » (le bouton Déconnexion est ajouté après
+// la liste). Pas connecté : lien vers la page de connexion.
 // $utilisateurConnecte et $adresseEspace sont fournis par Controller::afficher().
 if ($utilisateurConnecte !== null) {
     $liensMenu[$adresseEspace] = 'Mon espace';
+    $liensMenu['/mon-compte'] = 'Mon compte';
 } else {
     $liensMenu['/connexion'] = 'Connexion';
 }

@@ -380,7 +380,7 @@ class EmployeController extends Controller
     }
 
     // POST /employe/compte/supprimer : suppression définitive du compte et de ses personnages
-    // (decisions.md : ses avis restent, signés de son pseudo)
+    // (decisions.md : ses avis restent, anonymisés : signés « Compte supprimé », voir Utilisateur::supprimer())
     public function supprimerCompte(): void
     {
         $this->exigerRole($this->roles);
@@ -402,7 +402,7 @@ class EmployeController extends Controller
         }
 
         $this->retourAvecMessage('/employe/comptes', 'Le compte « ' . $joueur['pseudo'] . ' » et ses '
-            . count($personnages) . ' personnage(s) ont été supprimés. Ses avis restent, signés de son pseudo.');
+            . count($personnages) . ' personnage(s) ont été supprimés. Ses avis restent, signés « Compte supprimé ».');
     }
 
     // Compte visé : seulement un compte de joueur, sinon page 404 (employés et admin compris)

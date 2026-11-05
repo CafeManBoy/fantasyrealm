@@ -88,8 +88,10 @@ Trois défauts trouvés et corrigés :
 
 ## Limites connues
 
-- **Index TTL** : il est créé dans Atlas, hors du code (procédure dans `deploiement.md`). Tant qu'il
-  n'existe pas, la politique de confidentialité annonce une durée qui n'est pas appliquée.
+- ~~**Index TTL** : il est créé dans Atlas, hors du code (procédure dans `deploiement.md`). Tant qu'il
+  n'existe pas, la politique de confidentialité annonce une durée qui n'est pas appliquée.~~
+  Fait le 05/11/2026 : index `expiration_1_an` vérifié avec `listIndexes`. Il reste hors du code :
+  si on le supprime, la politique de confidentialité n'est plus vraie.
 - **Blocage par un tiers** : quelqu'un qui connaît le mail d'un joueur peut bloquer son compte
   15 minutes (5 connexions ratées) ; si le joueur est connecté et va sur « Mon compte » pendant ce
   temps, sa session est fermée. Même compromis qu'à la connexion.

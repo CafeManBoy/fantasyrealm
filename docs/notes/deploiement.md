@@ -85,16 +85,15 @@ La politique de confidentialité annonce que le journal `logs_personnages` est g
 Création, une seule fois, dans l'interface d'Atlas (compte du développeur) :
 1. https://cloud.mongodb.com → cluster `fantasyrealm` → **Browse Collections**.
 2. Base `fantasyrealm` → collection `logs_personnages` → onglet **Indexes** → **Create Index**.
-3. Champ *Fields* :
-   ```json
-   { "date": 1 }
-   ```
-   Champ *Options* :
-   ```json
-   { "expireAfterSeconds": 31536000, "name": "expiration_1_an" }
-   ```
-4. **Review**, puis **Confirm**. Attendu : l'index `expiration_1_an` apparaît dans la liste, marqué **TTL**.
-   Aucun document n'est effacé tout de suite : le plus ancien date du 01/11/2026.
+3. *Index fields* : `date` dans la liste de gauche (le nom seul, pas du JSON), `1 (asc)` dans celle
+   de droite.
+4. *Options* : cocher **Index name** et écrire `expiration_1_an` ; cocher **Create TTL** et écrire
+   `31536000` secondes. Laisser **Create unique index** décoché.
+5. **Create Index**. Attendu : l'index `expiration_1_an` apparaît dans la liste, avec la propriété
+   **TTL** et l'état **READY**. Aucun document n'est effacé tout de suite : le plus ancien date du
+   01/11/2026.
+
+Fait le 05/11/2026, et vérifié avec `listIndexes` : champ `date`, `expireAfterSeconds` à 31536000.
 
 À savoir :
 - Changer la durée : modifier l'index (commande `collMod`) ou le supprimer puis le recréer.
@@ -421,9 +420,9 @@ n'existe que si la validation en deux étapes est activée.
 
 ## À reprendre plus tard
 
-- **Avant la mise en ligne de `rgaa-rgpd`** : créer l'index TTL du journal dans Atlas (section
+- ~~**Avant la mise en ligne de `rgaa-rgpd`** : créer l'index TTL du journal dans Atlas (section
   « Durée de conservation du journal », plus haut), puis vérifier qu'il existe. Sans lui, la
-  politique de confidentialité annonce une durée d'1 an qui n'est pas appliquée.
+  politique de confidentialité annonce une durée d'1 an qui n'est pas appliquée.~~ Fait le 05/11/2026.
 
 - **Juste avant le dépôt**, en production :
   - réimporter `schema.sql` puis `seed.sql` (efface les comptes de test, dont celui à vraie adresse) ;

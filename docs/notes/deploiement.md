@@ -37,8 +37,9 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
 ## Configuration mise en place
 
 ### Hébergement (alwaysdata, compte `fantasyrealm5`)
-- **PHP 8.2** dans *Environnement* : alwaysdata utilise automatiquement la dernière version 8.2.x
-  (8.2.35 au 26/10/2026), donc les correctifs de sécurité s'appliquent sans intervention.
+- **PHP 8.3** dans *Environnement* (8.2 jusqu'au 07/11/2026) : alwaysdata utilise automatiquement
+  la dernière version 8.3.x (8.3.36 au 07/11/2026), donc les correctifs de sécurité s'appliquent
+  sans intervention.
   La même version sert à la ligne de commande (SSH) et au site.
 - **Code** dans `/home/fantasyrealm5/fantasyrealm`, en dehors du dossier `www` par défaut : aucun
   fichier du projet n'est exposé, même avant le réglage de la racine.
@@ -46,8 +47,8 @@ Critères (CLAUDE.md) : PHP 8 avec l'extension `mongodb`, MySQL ou MariaDB, poss
   par défaut, php.ini du site **vide** (sinon celui d'*Environnement* serait ignoré).
 - **HTTPS forcé** (*Web → Sites → SSL*) : la redirection HTTP → HTTPS (code 301) est faite par
   le proxy d'alwaysdata, avant notre serveur.
-- **Extension `mongodb` 2.5.5** compilée avec `ad_install_pecl mongodb` dans `~/php-extensions`,
-  chargée par la ligne `extension=/home/fantasyrealm5/php-extensions/mongodb-8.2.so` du php.ini
+- **Extension `mongodb` 2.5.7** compilée avec `ad_install_pecl mongodb` dans `~/php-extensions`,
+  chargée par la ligne `extension=/home/fantasyrealm5/php-extensions/mongodb-8.3.so` du php.ini
   d'*Environnement* (valable pour SSH et pour le site).
 - **`.env`** créé à la main sur le serveur, droits `600` (lisible seulement par le compte) :
   `APP_ENV=prod` et `MONGODB_URI`, puis les clés MariaDB et SMTP (voir « Mise en ligne de
@@ -159,8 +160,9 @@ Fait le 05/11/2026, et vérifié avec `listIndexes` : champ `date`, `expireAfter
 
 - **Veille :** le 21/10/2026, PHP a corrigé deux failles critiques d'exécution de code à distance
   sans authentification, surnommées « PHP2Shell » (CVE-2026-109618 et CVE-2026-109619), dans toutes
-  les versions 8.2 avant 8.2.35. Le site tourne en 8.2.35, et le choix « 8.2 » (sans numéro mineur)
-  applique automatiquement les prochains correctifs. Une autre faille (CVE-2026-115560), sans
+  les versions 8.2 avant 8.2.35. Le site tournait alors en 8.2.35 ; il tourne en 8.3 depuis le
+  07/11/2026, et le choix « 8.3 » (sans numéro mineur) applique automatiquement les prochains
+  correctifs. Une autre faille (CVE-2026-115560), sans
   correctif au 27/10, ne concerne que des configurations inhabituelles.
 - Seul `public/` est exposé ; `.env`, `vendor/`, `app/`, `database/` répondent 404.
 - HTTPS forcé ; en-têtes de sécurité envoyés (`.htaccess`) ; aucun en-tête ne révèle la version de PHP.
@@ -387,6 +389,41 @@ joueur, ses personnages et ses avis ont disparu avec lui : réimporter `schema.s
 Pas testés en production : changement de mot de passe et suppression de compte depuis `/mon-compte`
 (testés en local, voir `docs/notes/rgaa-rgpd.md`), et Comic Neue sur un vrai téléphone Android.
 
+## Passage en PHP 8.3 (07/11/2026)
+
+Pourquoi : PHP 8.2 n'a plus de correctifs de sécurité après le 31/12/2026, et le site doit rester
+en ligne jusqu'à l'examen. Le code et les dépendances acceptent PHP 8.2 et plus (`"php": "^8.2"`) :
+ni `composer install`, ni `git pull`.
+
+1. Panneau, *Environnement* : version **8.3** (sans numéro mineur), **Enregistrer**, puis recharger
+   la page pour vérifier. Le php.ini n'est pas encore modifié.
+2. SSH, **nouvelle session** (une session ouverte garde l'ancienne version) : `php -v` → 8.3.36,
+   avec un avertissement sur `mongodb-8.2.so` (normal à ce moment-là).
+3. `cd ~/php-extensions`, puis `ad_install_pecl mongodb` → « mongodb for PHP 8.3 has been
+   successfully built » (extension 2.5.7).
+4. Panneau, *Environnement → php.ini* : ligne remplacée par
+   `extension=/home/fantasyrealm5/php-extensions/mongodb-8.3.so`, **Enregistrer**.
+5. SSH : `php -m | grep mongodb` → `mongodb`, et `php -v` sans avertissement.
+6. Vérifié depuis le poste (`curl`) : pages publiques → 200, page inexistante → 404,
+   `/admin/logs` sans connexion → `/connexion`, en-têtes de sécurité présents, aucun message PHP
+   dans les pages.
+7. Dans le navigateur : journal lisible par l'admin (seule l'extension compilée pour 8.3 est
+   chargée : cela prouve que le site tourne bien en 8.3), personnage « Testphp Huit » créé avec
+   `Novice` → ligne « Création » en tête du journal, demande de contact → mail reçu.
+
+Pièges rencontrés :
+- `ad_install_pecl` compile pour la version de PHP **de la session SSH** et dépose le fichier
+  **dans le dossier courant**. Lancé avant que la version 8.3 soit enregistrée, il a compilé deux
+  fois pour 8.2 : une fois dans `~` (fichier inutile), une fois dans `~/php-extensions`, en
+  remplaçant le fichier utilisé par le site par une version plus récente pour la même version de
+  PHP (2.5.5 → 2.5.7, sans effet visible).
+- Toujours vérifier `php -v` avant de compiler.
+- Entre l'étape 1 et l'étape 4, le site tourne sans l'extension : le journal est indisponible, et
+  une action sur un personnage s'enregistre mais affiche la page d'erreur (voir `Logger.php`).
+
+Retour arrière possible : version 8.2 et ligne `…/mongodb-8.2.so` dans *Environnement* (le fichier
+est gardé).
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -394,9 +431,9 @@ Pas testés en production : changement de mot de passe et suppression de compte 
 - **L'IP sortante du serveur peut changer** (migration de serveur chez alwaysdata). Si les logs
   MongoDB s'arrêtent, c'est le premier point à vérifier : relire l'IP avec une page de test
   temporaire, puis mettre à jour la liste d'accès d'Atlas.
-- Si la version majeure de PHP change (8.2 → 8.3), recompiler l'extension `mongodb`
-  (`ad_install_pecl mongodb`) et mettre à jour la ligne `extension=` du php.ini.
-- PHP 8.2 reçoit des correctifs de sécurité jusqu'au 31/12/2026.
+- Si la version de PHP change (par exemple 8.3 → 8.4), recompiler l'extension `mongodb` et
+  mettre à jour la ligne `extension=` du php.ini : procédure dans « Passage en PHP 8.3 ».
+- PHP 8.3 reçoit des correctifs de sécurité jusqu'au 31/12/2027.
 - **Changer le mot de passe du compte Gmail révoque les mots de passe d'application** : en recréer
   un, mettre à jour `MAIL_PASSWORD`, puis relancer le test SMTP.
 - Gmail limite le nombre de mails envoyés par jour : ce quota est partagé par tous les mails du site.
@@ -454,10 +491,10 @@ n'existe que si la validation en deux étapes est activée.
     utilisaient) ;
   - supprimer dans Atlas les logs `environnement: prod` (sinon le journal de l'administrateur
     montre des personnages qui n'existent plus).
-- **Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
+- ~~**Avant les tests finaux du 15/11/2026 : passer la production en PHP 8.3.** PHP 8.2 n'a plus
   de correctifs de sécurité après le 31/12/2026, et le site doit rester en ligne jusqu'à
-  l'examen. Étapes : version 8.3 dans le panneau (*Environnement*), extension `mongodb`
-  recompilée (`ad_install_pecl mongodb`), ligne `extension=` du php.ini mise à jour avec le
-  nouveau fichier, puis vérification complète (pages, HTTPS, en-têtes, connexion, envoi d'un
-  mail, extension chargée, log MongoDB).
+  l'examen.~~ Fait le 07/11/2026 (voir « Passage en PHP 8.3 »).
+- Facultatif : supprimer `~/mongodb-8.2.so` (compilé par erreur dans le dossier personnel, jamais
+  chargé) et, une fois le site stable en 8.3, `~/php-extensions/mongodb-8.2.so`.
+- « Testphp Huit », personnage de test de `Novice` : effacé par le réimport d'avant dépôt.
 - Facultatif : supprimer le jeu d'exemple chargé automatiquement par Atlas (bases `sample_…`).

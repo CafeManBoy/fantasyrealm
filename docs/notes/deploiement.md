@@ -419,7 +419,9 @@ Pièges rencontrés :
   PHP (2.5.5 → 2.5.7, sans effet visible).
 - Toujours vérifier `php -v` avant de compiler.
 - Entre l'étape 1 et l'étape 4, le site tourne sans l'extension : le journal est indisponible, et
-  une action sur un personnage s'enregistre mais affiche la page d'erreur (voir `Logger.php`).
+  une action sur un personnage s'enregistrait mais affichait la page d'erreur. Corrigé le
+  10/11/2026 dans `Logger.php` (voir `docs/notes/personnages.md`) : l'action s'affiche normalement,
+  seul le log est perdu.
 
 Retour arrière possible : version 8.2 et ligne `…/mongodb-8.2.so` dans *Environnement* (le fichier
 est gardé).

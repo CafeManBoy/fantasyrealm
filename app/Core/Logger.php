@@ -32,16 +32,19 @@ class Logger
             return false;
         }
 
-        $document = [
-            'date' => new UTCDateTime(),
-            'environnement' => $this->environnement(),
-            'action' => $action,
-            'personnage' => ['id' => (int) $personnage['id_personnage'], 'nom' => $personnage['nom']],
-            'auteur' => ['id' => (int) $auteur['id_utilisateur'], 'pseudo' => $auteur['pseudo']],
-            'changements' => $changements,
-        ];
-
         try {
+            // Document construit DANS le try : UTCDateTime vient de l'extension mongodb. Si elle
+            // n'est pas chargée (par exemple pendant un changement de version de PHP), l'erreur est
+            // attrapée plus bas et l'action sur le personnage s'affiche normalement.
+            $document = [
+                'date' => new UTCDateTime(),
+                'environnement' => $this->environnement(),
+                'action' => $action,
+                'personnage' => ['id' => (int) $personnage['id_personnage'], 'nom' => $personnage['nom']],
+                'auteur' => ['id' => (int) $auteur['id_utilisateur'], 'pseudo' => $auteur['pseudo']],
+                'changements' => $changements,
+            ];
+
             // 3 secondes au plus pour joindre Atlas : sinon, la page ne reste pas bloquée
             $client = new Client($_ENV['MONGODB_URI'], ['serverSelectionTimeoutMS' => 3000]);
             $client->selectCollection($this->base, $this->collection)->insertOne($document);

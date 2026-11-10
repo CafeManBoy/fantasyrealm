@@ -69,6 +69,7 @@ rester lié au personnage (et réapparaître s'il est réactivé). Pour chaque t
 | XSS | `htmlspecialchars()` sur tout affichage (noms dans les cartes, les messages, `aria-label`, `data-confirmation`). |
 | Rôle | `exigerRole(['utilisateur'])` : un employé ou l'admin reçoit 403. |
 | Atlas indisponible | L'action aboutit ; `error_log()` avec le seul type d'erreur (le message peut contenir l'adresse du serveur). |
+| Extension `mongodb` absente | Depuis le 10/11/2026, le document du log est construit dans le `try` : l'erreur « classe introuvable » est attrapée comme une panne d'Atlas. |
 
 ## Limites connues
 
@@ -112,6 +113,21 @@ rester lié au personnage (et réapparaître s'il est réactivé). Pour chaque t
   son équipement ; log `suppression`.
 - Mobile (375 px) : pas de défilement horizontal. Console sans erreur.
 - Ensuite, base locale réimportée (`schema.sql` puis `seed.sql`) pour revenir à l'état de démo.
+
+### Correctif du 10/11/2026 : extension `mongodb` absente
+
+Défaut vu pendant le passage de la production en PHP 8.3 : `new UTCDateTime()` était appelé avant
+le `try` de `Logger::enregistrer()`. Sans l'extension, l'action était enregistrée en base, mais le
+visiteur voyait la page d'erreur. Testé avec un script temporaire hors du projet, lancé avec
+`php -n` (aucune extension chargée) :
+- avant le correctif : erreur fatale « Class "MongoDB\BSON\UTCDateTime" not found » ;
+- après : `enregistrer()` renvoie `false`, le script continue, et le journal d'erreurs indique
+  seulement « Log MongoDB non enregistré (Error) » ;
+- avec l'extension et une adresse injoignable : même comportement qu'avant (`false` après
+  3 secondes, `ConnectionTimeoutException` dans le journal).
+- Non-régression dans le navigateur, en local : « Testlog Local » créé avec Novice → message de
+  création, ligne « Création · Testlog Local · Novice » en tête du journal de l'admin ; console sans
+  erreur. Base locale réimportée ensuite, script de test supprimé.
 
 ## Notions utilisées (mot-clé à réviser)
 

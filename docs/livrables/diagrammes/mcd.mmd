@@ -1,0 +1,26 @@
+%% Modèle conceptuel de données (Merise) de FantasyRealm Online
+%% Entités en rectangle (identifiant souligné), associations en ovale,
+%% cardinalités (minimum,maximum) écrites sur chaque lien, du côté de l'entité.
+flowchart LR
+    ROLE["<b>ROLE</b><hr><u>id_role</u><br>libelle"]
+    UTILISATEUR["<b>UTILISATEUR</b><hr><u>id_utilisateur</u><br>pseudo<br>mail<br>password<br>suspendu<br>motdepasse_a_modifier<br>tentatives_echouees<br>bloque_jusqu_a<br>date_demande_mdp"]
+    PERSONNAGE["<b>PERSONNAGE</b><hr><u>id_personnage</u><br>nom<br>genre<br>couleur_peau<br>couleur_yeux<br>couleur_cheveux<br>forme_yeux<br>forme_nez<br>forme_bouche<br>coupe_cheveux<br>partage<br>autorise<br>date_creation"]
+    ARTICLE["<b>ARTICLE</b><hr><u>id_article</u><br>nom<br>actif<br>image<br>type"]
+    COMMENTAIRE["<b>COMMENTAIRE</b><hr><u>id_commentaire</u><br>note<br>commentaire<br>date_commentaire<br>statut<br>pseudo_auteur"]
+
+    possede(["possède"])
+    detient(["détient"])
+    dispose(["dispose"])
+    subit(["subit"])
+    ecrit(["écrit"])
+
+    ROLE ---|"0,n"| possede
+    possede ---|"1,1"| UTILISATEUR
+    UTILISATEUR ---|"0,n"| detient
+    detient ---|"1,1"| PERSONNAGE
+    PERSONNAGE ---|"0,n"| dispose
+    dispose ---|"0,n"| ARTICLE
+    UTILISATEUR ---|"0,n"| ecrit
+    ecrit ---|"0,1"| COMMENTAIRE
+    PERSONNAGE ---|"0,n"| subit
+    subit ---|"1,1"| COMMENTAIRE

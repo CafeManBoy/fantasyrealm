@@ -1,0 +1,38 @@
+%% Diagramme de séquence : création d'un personnage par un joueur connecté
+%% (#35; est le code du caractère # dans un texte Mermaid)
+sequenceDiagram
+    autonumber
+    actor J as Joueur
+    participant R as index.php et Router
+    participant C as Personnage Controller
+    participant A as Auth, Csrf, Avatar
+    participant P as Personnage (modèle)
+    participant BD as MariaDB
+    participant L as Logger
+    participant M as MongoDB Atlas
+
+    J->>R: POST /personnage/creer (champs + jeton CSRF)
+    R->>C: traiterCreation()
+    C->>A: utilisateurConnecte()
+    A-->>C: Compte relu en base (rôle, suspendu...)
+    Note over C,A: exigerRole(['utilisateur']) : sinon connexion ou erreur 403
+    C->>A: jetonEstValide() (hash_equals)
+    alt Jeton absent ou faux
+        C-->>J: Formulaire réaffiché : « Formulaire expiré »
+    else Jeton valide
+        C->>A: Nom, options (liste blanche), couleurs #35;RRGGBB
+        C->>P: nomExiste(nom)
+        P->>BD: SELECT (requête préparée)
+        BD-->>P: Nom libre ou déjà pris
+        alt Données invalides
+            C-->>J: Formulaire réaffiché avec un message par champ
+        else Données valides
+            C->>P: creer(personnage, id_utilisateur)
+            P->>BD: INSERT INTO personnage (requête préparée)
+            BD-->>P: id du personnage (en attente, non partagé)
+            C->>L: enregistrer('creation', ...)
+            L->>M: insertOne(document), 3 s au plus
+            M-->>L: Enregistré (si échec : error_log)
+            C-->>J: Redirection 302 vers /espace-joueur
+        end
+    end

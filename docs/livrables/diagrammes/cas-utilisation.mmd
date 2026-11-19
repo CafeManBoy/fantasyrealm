@@ -1,0 +1,55 @@
+%% Diagramme de cas d'utilisation de FantasyRealm Online
+%% Acteurs à gauche (visiteur, joueur) et à droite (employé, administrateur),
+%% cas d'utilisation (ovales) dans le cadre du site. Les héritages entre acteurs
+%% sont écrits sous leur nom, pour garder un schéma lisible.
+flowchart LR
+    visiteur["👤 <b>Visiteur</b>"]
+    joueur["👤 <b>Joueur</b><br><i>fait aussi tout ce que<br>fait le visiteur</i>"]
+    employe["👤 <b>Employé</b><br><i>accède aussi aux<br>pages publiques</i>"]
+    admin["👤 <b>Administrateur</b><br><i>fait aussi tout ce que<br>fait l'employé</i>"]
+
+    subgraph site["Site FantasyRealm Online"]
+        uc_galerie(["Consulter la galerie et la filtrer"])
+        uc_detail(["Voir le détail d'un personnage et ses avis"])
+        uc_inscription(["Créer un compte joueur"])
+        uc_connexion(["Se connecter, mot de passe oublié"])
+        uc_contact(["Contacter l'équipe"])
+
+        uc_creer(["Créer un personnage avec aperçu"])
+        uc_modifier(["Modifier, équiper ou dupliquer un personnage"])
+        uc_partager(["Partager un personnage ou arrêter le partage"])
+        uc_supprimer(["Supprimer son personnage"])
+        uc_avis(["Déposer un avis"])
+        uc_compte(["Changer son mot de passe, supprimer son compte"])
+
+        uc_noms(["Valider ou rejeter le nom d'un personnage"])
+        uc_moderer(["Valider ou refuser un avis"])
+        uc_articles(["Gérer les articles"])
+        uc_joueurs(["Suspendre ou supprimer un compte joueur"])
+        uc_suppr_perso(["Supprimer un personnage"])
+
+        uc_employes(["Gérer les comptes employés"])
+        uc_journal(["Consulter le journal des personnages"])
+    end
+
+    visiteur --- uc_galerie
+    visiteur --- uc_detail
+    visiteur --- uc_inscription
+    visiteur --- uc_connexion
+    visiteur --- uc_contact
+
+    joueur --- uc_creer
+    joueur --- uc_modifier
+    joueur --- uc_partager
+    joueur --- uc_supprimer
+    joueur --- uc_avis
+    joueur --- uc_compte
+
+    uc_noms --- employe
+    uc_moderer --- employe
+    uc_articles --- employe
+    uc_joueurs --- employe
+    uc_suppr_perso --- employe
+
+    uc_employes --- admin
+    uc_journal --- admin

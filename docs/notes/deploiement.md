@@ -426,6 +426,19 @@ Pièges rencontrés :
 Retour arrière possible : version 8.2 et ligne `…/mongodb-8.2.so` dans *Environnement* (le fichier
 est gardé).
 
+## Mise en ligne du correctif du log (11/11/2026)
+
+1. En local : correctif de `Logger.php` testé (voir `docs/notes/personnages.md`), `/security-review`
+   sur `develop` comparée à `main` : aucune vulnérabilité. Merge de `develop` dans `main`
+   (`77afc03`), push.
+2. Sur le serveur : `git pull` seulement (`2e4d867..77afc03`, 4 fichiers). Ni `composer install` ni
+   réimport : `composer.*`, `database/` et `.htaccess` n'ont pas changé.
+3. Vérifié depuis le poste (`curl`) : pages publiques → 200, page inexistante → 404, `/admin/logs`
+   sans connexion → `/connexion`, `app/Core/Logger.php` → 404 (le code n'est pas exposé), en-têtes de
+   sécurité présents, aucun message PHP dans les pages.
+4. Dans le navigateur : personnage « Testmep Cinq » créé avec `Novice` → message de création, ligne
+   « Création » en tête du journal de l'admin. Pas de nouveau test de mail : ce code n'a pas changé.
+
 ## Maintenance
 
 - **Se connecter au panneau alwaysdata au moins une fois par mois** : un compte gratuit est
@@ -498,5 +511,6 @@ n'existe que si la validation en deux étapes est activée.
   l'examen.~~ Fait le 07/11/2026 (voir « Passage en PHP 8.3 »).
 - Facultatif : supprimer `~/mongodb-8.2.so` (compilé par erreur dans le dossier personnel, jamais
   chargé) et, une fois le site stable en 8.3, `~/php-extensions/mongodb-8.2.so`.
-- « Testphp Huit », personnage de test de `Novice` : effacé par le réimport d'avant dépôt.
+- « Testphp Huit » et « Testmep Cinq », personnages de test de `Novice` : effacés par le réimport
+  d'avant dépôt.
 - Facultatif : supprimer le jeu d'exemple chargé automatiquement par Atlas (bases `sample_…`).
